@@ -1740,10 +1740,10 @@ class MessageBubble extends React.Component {
 
   renderCall() {
     if (this.props?.currentMessage?.type === 10) {
-      console.log(
-        'this.props?.currentMessage?.message',
-        this.props?.currentMessage.message,
-      );
+      // console.log(
+      //   'this.props?.currentMessage?.message',
+      //   this.props?.currentMessage.message,
+      // );
       let iconsize = 22;
       return (
         <View style={styles.callView}>

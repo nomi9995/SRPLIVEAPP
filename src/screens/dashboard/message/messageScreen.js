@@ -45,6 +45,7 @@ import {
   setSearchShow,
   setMessageEdit,
   setMessageText,
+  setScrollPosition,
 } from '../../../store/actions';
 import {connect} from 'react-redux';
 
@@ -56,6 +57,7 @@ import {
 import ChatServices from '../../../services/ChatServices';
 
 var renderchangedate = '';
+let positionsArray;
 class MessageScreen extends Component {
   constructor(props) {
     super(props);
@@ -79,22 +81,26 @@ class MessageScreen extends Component {
       unreadMessages: [],
       isFirstLoading: true,
       showDownBtn: false,
+      shouldSetScrollIndex: false,
+      initialIndex: 0,
     };
   }
 
   componentDidMount = () => {
-    console.log('socket', socket.connected);
     let str = DeviceInfo.getModel();
+
     if (socket.connected) {
       this.socketRun();
     } else {
       Alert.alert('Disoconnected server', 'Connection Server error');
     }
+
     if (this.props.route.params.screen == 'seacrhTab')
       this.getSearchOffset(this.props.route.params.selectedUser);
-    else this.getAllMsgsFromDb();
+    else this.calculateOffset();
 
     BackHandler.addEventListener('hardwareBackPress', this.hardwareBack);
+
     this.keyboardDidShowListener = Keyboard.addListener(
       'keyboardWillShow',
       e => {
@@ -111,6 +117,7 @@ class MessageScreen extends Component {
         }).start();
       },
     );
+
     this.keyboardDidHideListener = Keyboard.addListener(
       'keyboardWillHide',
       e => {
@@ -122,9 +129,140 @@ class MessageScreen extends Component {
     );
   };
 
-  getKeyboardHeight = e => {
-    console.log('Device Model', DeviceInfo.getModel());
+  componentWillUnmount = () => {
+    socket.off('message_saved');
+    socket.off('users_online_status');
+    socket.off('typing_on_off_user');
+
+    this.subscribeToMessages?.unsubscribe?.();
+    this.subscribeToMessagesUpdate?.unsubscribe?.();
+
+    this.props.onSetScrollPosition(positionsArray);
+    BackHandler.removeEventListener('hardwareBackPress', this.hardwareBack);
   };
+
+  componentDidUpdate = (prevProps, prevState) => {
+    if (prevState.minInputToolbarHeight != this.state.minInputToolbarHeight) {
+      this.chatRef.resetInputToolbar();
+    }
+    if (this.props.navReply !== null) {
+      if (prevState?.messages.length !== 0) {
+        let ind = prevState?.messages.findIndex(
+          x =>
+            parseInt(x._id) ===
+            parseInt(this.props.navReply?.reply_message.reply_id),
+        );
+        if (ind !== -1) {
+          setTimeout(() => {
+            this.setState({
+              highlightIndex: prevState?.messages[ind].id,
+              navIndex: ind,
+              shouldScrollToIndex: true,
+            });
+            this.props.onSetReplyNavigate(null);
+          }, 50);
+        }
+      }
+    }
+  };
+
+  hardwareBack = () => {
+    if (this.props?.longPress.length) {
+      this.props.onSetReplyState(false);
+      this.props.onSetMessageEdit(false);
+      this.props.onSetMessageText(null);
+      this.props.onSetOnLongPress([]);
+      this.props.onSetMediaOptionsOpen(false);
+      this.props.onSetSickerOpen(false);
+    } else if (this.props.searchShow) {
+      this.props.onSetSearchShow(false);
+      this.props.onSetSearchState(false);
+      this.props.onSetSearchQuery('');
+      this.setSearchResponse('');
+    } else if (this.props.stickerOpen) {
+      this.props.onSetSickerOpen(false);
+      this.props.onSetMediaOptionsOpen(false);
+    } else if (this.props.mediaOptionsOpen) {
+      this.props.onSetMediaOptionsOpen(false);
+    } else {
+      this.props.onSetMessageText(null);
+      this.props.navigation.replace('Home');
+    }
+
+    return true;
+  };
+
+  calculateOffset = async () => {
+    // let ind = 0;
+    // const {selectedUser} = this.props?.route?.params;
+    // positionsArray = this.props.scrollPosition;
+
+    // console.log('positionsArray: ', positionsArray);
+
+    // let chatUserId =
+    //   selectedUser?.user_id === undefined
+    //     ? selectedUser.id
+    //     : selectedUser.user_id;
+
+    // console.log('chatUserId: ', chatUserId);
+
+    // if (positionsArray.length > 0) {
+    //   ind = positionsArray.findIndex(
+    //     x => parseInt(x.selectedUser) === parseInt(chatUserId),
+    //   );
+    // }
+
+    // console.log('ind: ', ind);
+
+    // let n = ind < 0 ? 0 : positionsArray[ind].index;
+
+    // console.log('n: ', n);
+
+    // this.setState({offset: n});
+    // console.log('initialIndex: ', initialIndex);
+    this.getAllMsgsFromDb();
+  };
+
+  getAllMsgsFromDb = () => {
+    const {selectedUser} = this.props?.route?.params;
+    const {offset, isFirstLoading} = this.state;
+    let onlineUserId = this.props.user?.user.id;
+    let chatUserId =
+      selectedUser?.user_id === undefined
+        ? selectedUser.id
+        : selectedUser.user_id;
+    let isroom = selectedUser.is_room == 0 ? 0 : 1;
+
+    MessagesQuieries.selectDb(
+      {onlineUserId, chatUserId, isroom, offset},
+      res2 => {
+        if (res2 !== null) {
+          this.setMessageAsGifted(res2);
+          // if (isFirstLoading) {
+          //   let tempUnread = [];
+          //   for (let index = 0; index < res2.length; index++) {
+          //     const element = res2[index];
+          //     if (
+          //       (element.is_read === 0 || element.is_read === null) &&
+          //       element.sender_id !== onlineUserId
+          //     ) {
+          //       tempUnread.push(element);
+          //     } else {
+          //       break;
+          //     }
+          //   }
+          //   this.setState({
+          //     unreadMessages: tempUnread.reverse(),
+          //   });
+          //   this.setMessageAsGifted(res2);
+          // } else {
+          //   this.setMessageAsGifted(res2);
+          // }
+        }
+      },
+    );
+  };
+
   getSearchOffset = params => {
     let onlineUserId = params.online_user_id;
     let chatUserId = params.user_id;
@@ -170,114 +308,54 @@ class MessageScreen extends Component {
     );
   };
 
-  getAllMsgsFromDb = () => {
-    let offset = this.state.offset;
-    let onlineUserId = this.props.user?.user.id;
-    let chatUserId = 0;
-    let isroom =
-      this.props?.route?.params.selectedUser.is_room == 0
-        ? 0
-        : this.props?.route?.params.selectedUser.is_room == 1
-        ? 1
-        : 1;
-    if (this.props?.route?.params?.selectedUser?.user_id === undefined) {
-      chatUserId = this.props?.route?.params.selectedUser.id;
-    } else {
-      chatUserId = this.props?.route?.params.selectedUser.user_id;
-    }
-
-    MessagesQuieries.selectDb(
-      {onlineUserId, chatUserId, isroom, offset},
-      res2 => {
-        if (res2 !== null) {
-          if (this.state.isFirstLoading) {
-            let tempUnread = [];
-            for (let index = 0; index < res2.length; index++) {
-              const element = res2[index];
-              if (
-                (element.is_read === 0 || element.is_read === null) &&
-                element.sender_id !== onlineUserId
-              ) {
-                tempUnread.push(element);
-              } else {
-                break;
-              }
-            }
-
-            this.setState({
-              unreadMessages: tempUnread.reverse(),
-            });
-            this.setMessageAsGifted(res2);
-          } else {
-            this.setMessageAsGifted(res2);
-          }
-        }
-      },
-    );
-  };
-
-  componentWillUnmount = () => {
-    socket.off('message_saved');
-    socket.off('users_online_status');
-    socket.off('typing_on_off_user');
-    this.subscribeToMessages?.unsubscribe?.();
-    this.subscribeToMessagesUpdate?.unsubscribe?.();
-    BackHandler.removeEventListener('hardwareBackPress', this.hardwareBack);
-    // this.setState({messages : []})
-    // this.keyboardDidShowListener.remove();
-    // this.keyboardDidHideListener.remove()
-  };
-  _keyboardDidShow = event => {
-    this.setState({
-      keyboardOffset: event.endCoordinates.height,
+  setMessageAsGifted = async (
+    data,
+    isMsgReadFirst = false,
+    isSearchedData = false,
+  ) => {
+    // this.setState({messages:[]})
+    const {selectedUser} = this.props?.route?.params;
+    let dummyArray = [];
+    data.forEach(element => {
+      let message = regex.getMessages(
+        element,
+        selectedUser,
+        this.props.user?.user,
+      );
+      dummyArray.push(message);
     });
-  };
-
-  _keyboardDidHide() {
-    this.setState({
-      keyboardOffset: 0,
-    });
-  }
-  hardwareBack = () => {
-    if (this.props?.longPress.length) {
-      this.props.onSetReplyState(false);
-      this.props.onSetMessageEdit(false);
-      this.props.onSetMessageText(null);
-      this.props.onSetOnLongPress([]);
-      this.props.onSetMediaOptionsOpen(false);
-      this.props.onSetSickerOpen(false);
-    } else if (this.props.searchShow) {
-      this.props.onSetSearchShow(false);
-      this.props.onSetSearchState(false);
-      this.props.onSetSearchQuery('');
-      this.setSearchResponse('');
-    } else if (this.props.stickerOpen) {
-      this.props.onSetSickerOpen(false);
-      this.props.onSetMediaOptionsOpen(false);
-    } else if (this.props.mediaOptionsOpen) {
-      this.props.onSetMediaOptionsOpen(false);
+    if (isSearchedData) {
+      await this.setState({messages: dummyArray});
     } else {
-      this.props.onSetMessageText(null);
-      this.props.navigation.replace('Home');
+      if (this.state.isInverted) {
+        this.setState({messages: dummyArray, isInverted: false});
+      } else {
+        this.setState({messages: [...this.state.messages, ...dummyArray]});
+      }
+
+      // positionsArray = this.props.scrollPosition;
+      // console.log('positionsArray: ', positionsArray);
+
+      // if (positionsArray.length > 0) {
+      //   let ind = positionsArray.findIndex(
+      //     x => parseInt(x.selectedUser) === parseInt(selectedUser.user_id),
+      //   );
+      //   console.log('ind: ', positionsArray[ind].index);
+      //   if (ind !== -1) {
+      //     setTimeout(() => {
+      //       this.chatRef?._messageContainerRef?.current?.scrollToIndex({
+      //         index: positionsArray[ind].index,
+      //         animated: true,
+      //         viewPosition: 0.5,
+      //       });
+      //     }, 10);
+      //   }
+      // }
     }
 
-    return true;
-  };
-
-  setSearchResponse = data => {
-    if (data === '') {
-      this.getAllMsgsFromDb();
-    } else {
-      this.setMessageAsGifted(data);
-    }
-  };
-
-  filterResponse = data => {
-    if (data == null || data.length == 0) {
-      // this.getAllMsgsFromDb();
-      this.setMessageAsGifted([]);
-    } else {
-      this.setMessageAsGifted(data, false, true);
+    this.props.onSetOnLongPress([]);
+    if (isMsgReadFirst) {
+      this.markMessagesAsRead(dummyArray);
     }
   };
 
@@ -505,35 +583,25 @@ class MessageScreen extends Component {
     );
   };
 
-  setMessageAsGifted = async (
-    data,
-    isMsgReadFirst = false,
-    isSearchedData = false,
-  ) => {
-    // this.setState({messages:[]})
+  markMessagesAsRead = messages => {
     const {selectedUser} = this.props?.route?.params;
-    let dummyArray = [];
-    data.forEach(element => {
-      let message = regex.getMessages(
-        element,
-        selectedUser,
-        this.props.user?.user,
-      );
-      dummyArray.push(message);
-    });
-    if (isSearchedData) {
-      await this.setState({messages: dummyArray});
-    } else {
-      if (this.state.isInverted) {
-        this.setState({messages: dummyArray, isInverted: false});
-      } else {
-        this.setState({messages: [...this.state.messages, ...dummyArray]});
-      }
-    }
+    let ids = messages
+      .filter(
+        element =>
+          (element.is_read == null || element.is_read == 0) &&
+          element.status != 2 &&
+          element.sender_id !== this.props.user?.user.id,
+      )
+      .map(({_id}) => _id);
 
-    this.props.onSetOnLongPress([]);
-    if (isMsgReadFirst) {
-      this.markMessagesAsRead(dummyArray);
+    if (ids.length > 0) {
+      let payload = {
+        read_messages: ids,
+        active_user: selectedUser.is_room === 0 ? selectedUser?.user_id : null,
+        current_user: this.props.user?.user.id,
+      };
+      socket.emit('message_read', JSON.stringify(payload));
+      this.setState({unreadMessages: []});
     }
   };
 
@@ -657,25 +725,19 @@ class MessageScreen extends Component {
     this.props.onSetReplyState(false);
   };
 
-  markMessagesAsRead = messages => {
-    const {selectedUser} = this.props?.route?.params;
-    let ids = messages
-      .filter(
-        element =>
-          (element.is_read == null || element.is_read == 0) &&
-          element.status != 2 &&
-          element.sender_id !== this.props.user?.user.id,
-      )
-      .map(({_id}) => _id);
+  setSearchResponse = data => {
+    if (data === '') {
+      this.getAllMsgsFromDb();
+    } else {
+      this.setMessageAsGifted(data);
+    }
+  };
 
-    if (ids.length > 0) {
-      let payload = {
-        read_messages: ids,
-        active_user: selectedUser.is_room === 0 ? selectedUser?.user_id : null,
-        current_user: this.props.user?.user.id,
-      };
-      socket.emit('message_read', JSON.stringify(payload));
-      this.setState({unreadMessages: []});
+  filterResponse = data => {
+    if (data == null || data.length == 0) {
+      this.setMessageAsGifted([]);
+    } else {
+      this.setMessageAsGifted(data, false, true);
     }
   };
 
@@ -787,30 +849,6 @@ class MessageScreen extends Component {
     }
   };
 
-  componentDidUpdate = (prevProps, prevState) => {
-    if (prevState.minInputToolbarHeight != this.state.minInputToolbarHeight) {
-      this.chatRef.resetInputToolbar();
-    }
-    if (this.props.navReply !== null) {
-      if (prevState?.messages.length !== 0) {
-        let ind = prevState?.messages.findIndex(
-          x =>
-            parseInt(x._id) ===
-            parseInt(this.props.navReply?.reply_message.reply_id),
-        );
-        if (ind !== -1) {
-          setTimeout(() => {
-            this.setState({
-              highlightIndex: prevState?.messages[ind].id,
-              navIndex: ind,
-              shouldScrollToIndex: true,
-            });
-            this.props.onSetReplyNavigate(null);
-          }, 50);
-        }
-      }
-    }
-  };
   messageUpdateResponse = data => {
     this.setMessageAsGifted(data);
   };
@@ -829,7 +867,9 @@ class MessageScreen extends Component {
   };
 
   onViewableItemsChanged = async ({viewableItems, changed}) => {
-    if (viewableItems[0].index > 0) {
+    const {selectedUser} = this.props?.route?.params;
+
+    if (viewableItems[0].index > 0 && this.state.initialIndex > 0) {
       this.setState({showDownBtn: true});
     } else {
       this.setState({showDownBtn: false});
@@ -838,17 +878,50 @@ class MessageScreen extends Component {
     let date = viewableItems[viewableItems.length - 1].item.time.split(' ')[0];
     let tempDate = moment(date).calendar();
     let Date = tempDate.split(' at ')[0];
+
     renderchangedate = Date;
+
     if (this.state.msgDate != Date) {
       await this.setState({msgDate: Date});
     }
+
+    if (this.state.shouldSetScrollIndex) {
+      positionsArray = this.props.scrollPosition;
+      console.log('positionsArray: ', positionsArray);
+      if (positionsArray.length > 0) {
+        let ind = positionsArray.findIndex(
+          x => parseInt(x.selectedUser) === parseInt(selectedUser.user_id),
+        );
+
+        if (ind !== -1) {
+          positionsArray[ind].index = viewableItems[0].index;
+          // this.props.onSetScrollPosition(positionsArray);
+        } else {
+          positionsArray.push({
+            selectedUser: selectedUser.user_id,
+            index: viewableItems[0].index,
+          });
+          // this.props.onSetScrollPosition(positionsArray);
+        }
+      } else {
+        positionsArray.push({
+          selectedUser: selectedUser.user_id,
+          index: viewableItems[0].index,
+        });
+        // this.props.onSetScrollPosition(positionsArray);
+      }
+    } else {
+      this.setState({shouldSetScrollIndex: true});
+    }
   };
+
   scrollStart = () => {
     Animated.timing(this.state.fadeAnimation, {
       toValue: 1,
       duration: 0,
     }).start();
   };
+
   scrollEnd = () => {
     Animated.timing(this.state.fadeAnimation, {
       toValue: 0,
@@ -896,7 +969,7 @@ class MessageScreen extends Component {
               <GiftedChat
                 ref={ref => (this.chatRef = ref)}
                 messages={this.state.messages}
-                onSend={messages => onSend(messages)}
+                // onSend={messages => onSend(messages)}
                 renderMessage={this.renderMessage.bind(this)}
                 renderInputToolbar={this.renderToolbar.bind(this)}
                 renderMediaOptions={data => this.renderMediaOptions(data)}
@@ -1022,6 +1095,7 @@ const mapStateToProps = state => {
     appCloseTime: state.stickers.appCloseTime,
     searchShow: state.stateHandler.searchShow,
     messageEdit: state.stateHandler.messageEdit,
+    scrollPosition: state.ScrollPosition.scrollPosition,
   };
 };
 
@@ -1056,6 +1130,9 @@ const mapDispatchToProps = dispatch => {
     },
     onSetMessageText: text => {
       dispatch(setMessageText(text));
+    },
+    onSetScrollPosition: data => {
+      dispatch(setScrollPosition(data));
     },
   };
 };

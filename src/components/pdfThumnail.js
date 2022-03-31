@@ -17,7 +17,7 @@ const PdfThumail = props => {
       const result = await PdfThumbnail.generate('file://' + uri, 0);
       setThumbnail(result);
     } catch (err) {
-      console.log(err);
+      // console.log(err);
     }
   };
 

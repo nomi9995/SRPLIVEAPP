@@ -7,7 +7,7 @@ import thunkMiddleware from 'redux-thunk';
 
 const persistConfig = {
   key: 'root',
-  whitelist: ['theme', 'auth', 'stickers', 'autoDownload'],
+  whitelist: ['theme', 'auth', 'stickers', 'autoDownload', 'ScrollPosition'],
   keyPrefix: appName,
   storage: AsyncStorage,
 };

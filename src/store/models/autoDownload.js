@@ -1,5 +1,5 @@
 export default {
-  photo: 'Never',
-  video: 'Never',
-  docs: 'Never',
+  photo: 'Always',
+  video: 'Always',
+  docs: 'Always',
 };
