@@ -1,0 +1,18 @@
+export default {
+  stickerOpen: false,
+  mediaOptionsOpen: false,
+  mediaType: null,
+  imagePreview: false,
+  replyState: false,
+  mediaUploadState: false,
+  scrollState: false,
+  searchQuery: '',
+  searchState: false,
+  searchShow: false,
+  statusState: false,
+  setreloader: false,
+  previewType: null,
+  renderstate:false,
+  messageEdit: false,
+  messageText: null,
+};

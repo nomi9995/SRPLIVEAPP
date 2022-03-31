@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "738719771219",
+    "project_id": "srplivehelp",
+    "storage_bucket": "srplivehelp.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:738719771219:android:8163d5b4c00978c292f4a6",
+        "android_client_info": {
+          "package_name": "com.srp_live"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "738719771219-o43uuet242nfouhqndeprjgdumf4b64v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBy9baUH-r3U5jLwCWD_04qJwGusKhBWCE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "738719771219-o43uuet242nfouhqndeprjgdumf4b64v.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

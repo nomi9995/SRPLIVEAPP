@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CLIENT_ID</key>
+	<string>738719771219-m3jmudeui25ojm7bcf2cq1il57tloeap.apps.googleusercontent.com</string>
+	<key>REVERSED_CLIENT_ID</key>
+	<string>com.googleusercontent.apps.738719771219-m3jmudeui25ojm7bcf2cq1il57tloeap</string>
+	<key>API_KEY</key>
+	<string>AIzaSyAI9O7iSk3mikYd1aeC6QU7Ws6gnIdBQBA</string>
+	<key>GCM_SENDER_ID</key>
+	<string>738719771219</string>
+	<key>PLIST_VERSION</key>
+	<string>1</string>
+	<key>BUNDLE_ID</key>
+	<string>com.SrpLive.chatappRN</string>
+	<key>PROJECT_ID</key>
+	<string>srplivehelp</string>
+	<key>STORAGE_BUCKET</key>
+	<string>srplivehelp.appspot.com</string>
+	<key>IS_ADS_ENABLED</key>
+	<false></false>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false></false>
+	<key>IS_APPINVITE_ENABLED</key>
+	<true></true>
+	<key>IS_GCM_ENABLED</key>
+	<true></true>
+	<key>IS_SIGNIN_ENABLED</key>
+	<true></true>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:738719771219:ios:1e86cf2721eb681892f4a6</string>
+</dict>
+</plist>
