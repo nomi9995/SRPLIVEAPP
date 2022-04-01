@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 import {
   Modal,
   StyleSheet,
@@ -6,34 +6,36 @@ import {
   Pressable,
   View,
   SafeAreaView,
-} from 'react-native';
-import moment from 'moment';
+} from "react-native";
+import moment from "moment";
 
 //redux
-import { connect } from 'react-redux';
-import { LogoutQueries } from '../../database/services/Services';
-import { setAuthUser } from '../../store/actions';
-import AsyncStorage from '@react-native-community/async-storage';
-import UserService from '../../services/UserService';
+import { connect } from "react-redux";
+import { LogoutQueries } from "../../database/services/Services";
+import { setAuthUser } from "../../store/actions";
+import AsyncStorage from "@react-native-community/async-storage";
+import UserService from "../../services/UserService";
 
 class LogoutOut extends Component {
   state = {
     modalVisible: this.props.openLogoutModal,
   };
   closeModal = async () => {
-    let token = await AsyncStorage.getItem('fcmToken');
-    let device = this.props.user.device
-    let authToken = this.props.user.token
-    UserService.deletePushToken({token, device}, authToken)
-    .then(res => {
-      let tableName = 'logout_time_table'
-      let userId = this.props.user.user.id
-      let logoutTime = moment.utc().zone('+0300').format('YYYY-MM-DD HH:mm:ss');
-      LogoutQueries.insertAndUpdateLogoutList({tableName, userId, logoutTime}, res => {
-        this.props.onSetAuthUser(null)
-        this.props.closeLogoutModel();
-      })
-    })
+    let token = await AsyncStorage.getItem("fcmToken");
+    let device = this.props.user.device;
+    let authToken = this.props.user.token;
+    UserService.deletePushToken({ token, device }, authToken).then((res) => {
+      let tableName = "logout_time_table";
+      let userId = this.props.user.user.id;
+      let logoutTime = moment.utc().zone("+0300").format("YYYY-MM-DD HH:mm:ss");
+      LogoutQueries.insertAndUpdateLogoutList(
+        { tableName, userId, logoutTime },
+        (res) => {
+          this.props.onSetAuthUser(null);
+          this.props.closeLogoutModel();
+        }
+      );
+    });
   };
 
   render() {
@@ -45,17 +47,30 @@ class LogoutOut extends Component {
           transparent={true}
           visible={this.props.openLogoutModal}
           onRequestClose={() => {
-            this.closeModal()
+            this.closeModal();
           }}
         >
-          <View style={{
-            alignSelf: 'center', justifyContent: 'center',
-            backgroundColor: 'grey', width: '100%', height: '100%', flex: 1, opacity: 0.95
-          }}>
+          <View
+            style={{
+              alignSelf: "center",
+              justifyContent: "center",
+              backgroundColor: "grey",
+              width: "100%",
+              height: "100%",
+              flex: 1,
+              opacity: 0.95,
+            }}
+          >
             <View style={styles.modalView}>
               <Text style={styles.modalText}>Are You Sure</Text>
               <Text style={styles.modalText}>You want to Logout?</Text>
-              <View style={{ flexDirection: 'row', alignSelf: 'center' }}>
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignSelf: "center",
+                  marginTop: 12,
+                }}
+              >
                 <Pressable
                   style={[styles.button, styles.buttonClose]}
                   onPress={() => this.props.closeLogoutModel()}
@@ -73,20 +88,19 @@ class LogoutOut extends Component {
           </View>
         </Modal>
       </SafeAreaView>
-
     );
   }
 }
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     theme: state.theme.theme,
     user: state.auth.user,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    onSetAuthUser: user => {
+    onSetAuthUser: (user) => {
       dispatch(setAuthUser(user));
     },
   };
@@ -100,15 +114,15 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   modalView: {
-    marginHorizontal: '5%',
+    marginHorizontal: "10%",
     backgroundColor: "white",
     borderRadius: 20,
-    padding: 35,
+    padding: 30,
     // alignItems: "center",
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
-      height: 2
+      height: 2,
     },
     shadowOpacity: 0.25,
     shadowRadius: 4,
@@ -116,11 +130,11 @@ const styles = StyleSheet.create({
   },
   button: {
     borderRadius: 10,
-    padding: 10,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
     elevation: 2,
-    alignSelf: 'center',
-    marginHorizontal: 5
-
+    alignSelf: "center",
+    marginHorizontal: 5,
   },
   buttonOpen: {
     backgroundColor: "#F194FF",
@@ -131,13 +145,10 @@ const styles = StyleSheet.create({
   textStyle: {
     color: "white",
     fontWeight: "bold",
-    textAlign: "center"
+    textAlign: "center",
   },
   modalText: {
     marginBottom: 10,
-    textAlign: "center"
-  }
-
-
+    textAlign: "center",
+  },
 });
-

@@ -1,14 +1,14 @@
-import React, {Component} from 'react';
-import {View, StyleSheet, Text, TouchableOpacity} from 'react-native';
+import React, { Component } from "react";
+import { View, StyleSheet, Text, TouchableOpacity } from "react-native";
 
-import {W_WIDTH} from '../utils/regex';
-import Feather from 'react-native-vector-icons/dist/Feather';
-import Ionicons from 'react-native-vector-icons/dist/Ionicons';
-import FontAwesome5 from 'react-native-vector-icons/dist/FontAwesome5';
-import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
+import { W_WIDTH } from "../utils/regex";
+import Feather from "react-native-vector-icons/dist/Feather";
+import Ionicons from "react-native-vector-icons/dist/Ionicons";
+import FontAwesome5 from "react-native-vector-icons/dist/FontAwesome5";
+import Icon from "react-native-vector-icons/dist/MaterialCommunityIcons";
 
 // Icons
-import RemindLaterIcon from '../assets/popup_icons/alert-5px-02.svg'
+import RemindLaterIcon from "../assets/popup_icons/alert-5px-02.svg";
 
 //Redux
 import {
@@ -18,88 +18,91 @@ import {
   setMediaOptionsOpen,
   setSearchQuery,
   setSearchState,
-} from '../store/actions';
-import {connect} from 'react-redux';
+} from "../store/actions";
+import { connect } from "react-redux";
 
 //Component
-import FilterModal from './Modal/FilterModal';
+import FilterModal from "./Modal/FilterModal";
 
- class Popup extends Component {
+class Popup extends Component {
   constructor(props) {
     super(props);
     this.state = {
       currentIndex: 0,
-      filtermodal:false,
+      filtermodal: false,
     };
   }
   AcknowledgementMessage = (data) => {
-    const {navigation} = this.props.navProps.navProps;
+    const { navigation } = this.props.navProps.navProps;
     this.props.callClose();
-    navigation.navigate('AcknowledgementMessage',{
-      userData:data,
-      selectedUser:this.props.navProps.selectedUser
+    navigation.navigate("AcknowledgementMessage", {
+      userData: data,
+      selectedUser: this.props.navProps.selectedUser,
     });
   };
 
   StarredList = (data) => {
-    const {navigation} = this.props.navProps.navProps;
+    const { navigation } = this.props.navProps.navProps;
     this.props.callClose();
-    navigation.navigate('StarredList',{
-      userData:data,
-      selectedUser:this.props.navProps.selectedUser
+    navigation.navigate("StarredList", {
+      userData: data,
+      selectedUser: this.props.navProps.selectedUser,
     });
   };
 
   RespondLater = (data) => {
-    const {navigation} = this.props.navProps.navProps;
+    const { navigation } = this.props.navProps.navProps;
     this.props.callClose();
-    navigation.navigate('RespondLater',{
-      userData:data,
-      selectedUser:this.props.navProps?.selectedUser
+    navigation.navigate("RespondLater", {
+      userData: data,
+      selectedUser: this.props.navProps?.selectedUser,
     });
   };
 
   NotificationList = () => {
-    const {navigation} = this.props.navProps.navProps;
+    const { navigation } = this.props.navProps.navProps;
     this.props.callClose();
-    navigation.navigate('NotificationList');
+    navigation.navigate("NotificationList");
   };
 
   Favourite = () => {
-    const {navigation} = this.props.navProps.navProps;
+    const { navigation } = this.props.navProps.navProps;
     this.props.callClose();
-    navigation.navigate('Favourite');
+    navigation.navigate("Favourite");
   };
 
   Settings = () => {
-    const {navigation} = this.props.navProps.navProps;
+    const { navigation } = this.props.navProps.navProps;
     this.props.callClose();
-    navigation.navigate('Profile');
+    navigation.navigate("Profile");
   };
 
   ProfileChange = () => {
-      this.props.onSetMediaOptionsOpen(false);
-      this.props.onSetSickerOpen(false);
-      this.props.callClose();
-      this.props.navProps.navProps.navigation.navigate('ChatUserProfile', {
-        userProfiledata: this.props.navProps.selectedUser,
-      });
+    this.props.onSetMediaOptionsOpen(false);
+    this.props.onSetSickerOpen(false);
+    this.props.callClose();
+    this.props.navProps.navProps.navigation.navigate("ChatUserProfile", {
+      userProfiledata: this.props.navProps.selectedUser,
+    });
   };
 
   render() {
-    const {currentIndex} = this.state;
+    const { currentIndex } = this.state;
 
     return (
-      <View style={{width: W_WIDTH / 1.75, backgroundColor: 'white'}}>
-        {this.props.navProps.screen === 'message' ? (
+      <View style={{ width: W_WIDTH / 1.75, backgroundColor: "white" }}>
+        {this.props.navProps.screen === "message" ? (
           <>
             <View>
-              <TouchableOpacity style={styles.popButton} onPress={() => {
-                this.props.searchShow()
-                this.props.callClose()
-              }}>
+              <TouchableOpacity
+                style={styles.popButton}
+                onPress={() => {
+                  this.props.searchShow();
+                  this.props.callClose();
+                }}
+              >
                 <View style={styles.iconContainer}>
-                  <FontAwesome5 name="search" size={30} color="#c2c2c2" />
+                  <FontAwesome5 name="search" size={20} color="#c2c2c2" />
                 </View>
 
                 <View style={styles.textContainer}>
@@ -108,25 +111,26 @@ import FilterModal from './Modal/FilterModal';
                   </Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.popButton}
-              onPress={() => this.setState({filtermodal : true})}
+              <TouchableOpacity
+                style={styles.popButton}
+                onPress={() => this.setState({ filtermodal: true })}
               >
                 <View style={styles.iconContainer}>
-                  <FontAwesome5 name="sliders-h" size={30} color="#c2c2c2" />
+                  <FontAwesome5 name="sliders-h" size={20} color="#c2c2c2" />
                 </View>
 
-                <View style={styles.textContainer} 
-                >
+                <View style={styles.textContainer}>
                   <Text style={styles.popTitleText} numberOfLines={1}>
                     Filter
                   </Text>
                 </View>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.popButton}
-              onPress={() => this.AcknowledgementMessage('singleUserData')}
+              <TouchableOpacity
+                style={styles.popButton}
+                onPress={() => this.AcknowledgementMessage("singleUserData")}
               >
                 <View style={styles.iconContainer}>
-                  <FontAwesome5 name="hand-pointer" size={30} color="#c2c2c2" />
+                  <FontAwesome5 name="hand-pointer" size={22} color="#c2c2c2" />
                 </View>
 
                 <View style={styles.textContainer}>
@@ -136,25 +140,30 @@ import FilterModal from './Modal/FilterModal';
                 </View>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.popButton}
-              onPress={() => this.StarredList('singleUserData')}>
+              <TouchableOpacity
+                style={styles.popButton}
+                onPress={() => this.StarredList("singleUserData")}
+              >
                 <View style={styles.iconContainer}>
-                  <Icon name="flag-triangle" size={30} color="#c2c2c2" />
+                  <Icon name="flag-triangle" size={24} color="#c2c2c2" />
                 </View>
 
                 <View style={styles.textContainer}>
-                  <Text style={styles.popTitleText} numberOfLines={1}>Starred Messages</Text>
+                  <Text style={styles.popTitleText} numberOfLines={1}>
+                    Starred Messages
+                  </Text>
                 </View>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.popButton}
-              onPress={() => this.RespondLater('singleUserData')}
+              <TouchableOpacity
+                style={styles.popButton}
+                onPress={() => this.RespondLater("singleUserData")}
               >
                 <View style={styles.iconContainer}>
-                  <FontAwesome5 name="history" size={30} color="#c2c2c2" />
+                  <FontAwesome5 name="history" size={19} color="#c2c2c2" />
                 </View>
 
-                  {/* <RemindLaterIcon /> */}
+                {/* <RemindLaterIcon /> */}
                 <View style={styles.textContainer}>
                   <Text style={styles.popTitleText}>Respond Later</Text>
                 </View>
@@ -162,7 +171,7 @@ import FilterModal from './Modal/FilterModal';
 
               <TouchableOpacity style={styles.popButton}>
                 <View style={styles.iconContainer}>
-                  <Ionicons name="alarm-outline" size={30} color="#c2c2c2" />
+                  <Ionicons name="alarm-outline" size={26} color="#c2c2c2" />
                 </View>
 
                 <View style={styles.textContainer}>
@@ -170,10 +179,12 @@ import FilterModal from './Modal/FilterModal';
                 </View>
               </TouchableOpacity>
             </View>
-            <TouchableOpacity style={styles.popButton}
-            onPress={() => this.ProfileChange()}>
+            <TouchableOpacity
+              style={styles.popButton}
+              onPress={() => this.ProfileChange()}
+            >
               <View style={styles.iconContainer}>
-                <FontAwesome5 name="user-circle" size={30} color="#c2c2c2" />
+                <FontAwesome5 name="user-circle" size={21} color="#c2c2c2" />
               </View>
 
               <View style={styles.textContainer}>
@@ -183,7 +194,7 @@ import FilterModal from './Modal/FilterModal';
 
             {/* <TouchableOpacity style={styles.popButton}>
               <View style={styles.iconContainer}>
-                <Feather name="heart" size={30} color="#c2c2c2" />
+                <Feather name="heart" size={22} color="#c2c2c2" />
               </View>
 
               <View style={styles.textContainer}>
@@ -196,9 +207,10 @@ import FilterModal from './Modal/FilterModal';
             <View>
               <TouchableOpacity
                 style={styles.popButton}
-                onPress={() => this.AcknowledgementMessage()}>
+                onPress={() => this.AcknowledgementMessage()}
+              >
                 <View style={styles.iconContainer}>
-                  <FontAwesome5 name="hand-pointer" size={30} color="#c2c2c2" />
+                  <FontAwesome5 name="hand-pointer" size={22} color="#c2c2c2" />
                 </View>
 
                 <View style={styles.textContainer}>
@@ -210,21 +222,25 @@ import FilterModal from './Modal/FilterModal';
 
               <TouchableOpacity
                 style={styles.popButton}
-                onPress={() => this.StarredList()}>
+                onPress={() => this.StarredList()}
+              >
                 <View style={styles.iconContainer}>
-                  <Icon name="flag-triangle" size={30} color="#c2c2c2" />
+                  <Icon name="flag-triangle" size={24} color="#c2c2c2" />
                 </View>
 
-                <View style={styles.textContainer} >
-                  <Text style={styles.popTitleText} numberOfLines={1}>Starred Messages</Text>
+                <View style={styles.textContainer}>
+                  <Text style={styles.popTitleText} numberOfLines={1}>
+                    Starred Messages
+                  </Text>
                 </View>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.popButton}
-                onPress={() => this.RespondLater()}>
+                onPress={() => this.RespondLater()}
+              >
                 <View style={styles.iconContainer}>
-                  <FontAwesome5 name="history" size={30} color="#c2c2c2" />
+                  <FontAwesome5 name="history" size={19} color="#c2c2c2" />
                 </View>
 
                 <View style={styles.textContainer}>
@@ -234,21 +250,25 @@ import FilterModal from './Modal/FilterModal';
 
               <TouchableOpacity
                 style={styles.popButton}
-                onPress={() => this.NotificationList()}>
+                onPress={() => this.NotificationList()}
+              >
                 <View style={styles.iconContainer}>
-                  <Ionicons name="alarm-outline" size={30} color="#c2c2c2" />
+                  <Ionicons name="alarm-outline" size={26} color="#c2c2c2" />
                 </View>
 
                 <View style={styles.textContainer}>
-                  <Text style={styles.popTitleText} numberOfLines={1}>Notification List</Text>
+                  <Text style={styles.popTitleText} numberOfLines={1}>
+                    Notification List
+                  </Text>
                 </View>
               </TouchableOpacity>
             </View>
             <TouchableOpacity
               style={styles.popButton}
-              onPress={() => this.Favourite()}>
+              onPress={() => this.Favourite()}
+            >
               <View style={styles.iconContainer}>
-                <FontAwesome5 name="heart" size={30} color="#c2c2c2" />
+                <FontAwesome5 name="heart" size={22} color="#c2c2c2" />
               </View>
 
               <View style={styles.textContainer}>
@@ -258,9 +278,10 @@ import FilterModal from './Modal/FilterModal';
 
             <TouchableOpacity
               style={styles.popButton}
-              onPress={() => this.Settings()}>
+              onPress={() => this.Settings()}
+            >
               <View style={styles.iconContainer}>
-                <Feather name="settings" size={30} color="#c2c2c2" />
+                <Feather name="settings" size={22} color="#c2c2c2" />
               </View>
 
               <View style={styles.textContainer}>
@@ -270,18 +291,18 @@ import FilterModal from './Modal/FilterModal';
           </>
         )}
         {this.state.filtermodal ? (
-            <FilterModal
-              visible={this.state.filtermodal}
-              selectedUser={this.props.navProps.selectedUser}
-              closeModal={(data) => this.setState({filtermodal:data})}
-              filterMessageData={(data) => this.props.filterData(data)}
-            />
-          ) : null}
+          <FilterModal
+            visible={this.state.filtermodal}
+            selectedUser={this.props.navProps.selectedUser}
+            closeModal={(data) => this.setState({ filtermodal: data })}
+            filterMessageData={(data) => this.props.filterData(data)}
+          />
+        ) : null}
       </View>
     );
   }
 }
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     longPress: state.messages.longPress,
     replyState: state.stateHandler.replyState,
@@ -291,24 +312,24 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    onSetOnLongPress: data => {
+    onSetOnLongPress: (data) => {
       dispatch(setOnLongPress(data));
     },
-    onSetReplyState: data => {
+    onSetReplyState: (data) => {
       dispatch(setReplyState(data));
     },
-    onSetSickerOpen: data => {
+    onSetSickerOpen: (data) => {
       dispatch(setSickerOpen(data));
     },
-    onSetMediaOptionsOpen: data => {
+    onSetMediaOptionsOpen: (data) => {
       dispatch(setMediaOptionsOpen(data));
     },
-    onSetSearchQuery: data => {
+    onSetSearchQuery: (data) => {
       dispatch(setSearchQuery(data));
     },
-    onSetSearchState: data => {
+    onSetSearchState: (data) => {
       dispatch(setSearchState(data));
     },
   };
@@ -318,34 +339,34 @@ export default connect(mapStateToProps, mapDispatchToProps)(Popup);
 
 const styles = StyleSheet.create({
   popButton: {
-    paddingHorizontal: 5,
-    paddingVertical: 10,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignContent: 'center',
+    paddingHorizontal: 0,
+    paddingVertical: 6,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignContent: "center",
     marginVertical: 1,
   },
 
   iconContainer: {
-    flex: 0.25,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 5,
+    flex: 0.2,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 3,
   },
 
   textContainer: {
-    flex: 1,
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    padding: 5,
+    flex: 0.8,
+    alignItems: "flex-start",
+    justifyContent: "center",
+    padding: 3,
   },
 
   popTitleText: {
     // fontFamily: AppFonts.RobotoRegular,
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlignVertical: 'center',
-    color:'grey',
-    fontFamily:"Roboto-Regular"
+    fontSize: 16,
+    fontWeight: "600",
+    textAlignVertical: "center",
+    color: "grey",
+    fontFamily: "Roboto-Regular",
   },
 });

@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   View,
   Text,
@@ -10,12 +10,12 @@ import {
   NativeModules,
   findNodeHandle,
   BackHandler,
-} from 'react-native';
-import FastImage from 'react-native-fast-image';
-import FontAwesome from 'react-native-vector-icons/dist/FontAwesome5';
-import {Popover} from 'react-native-modal-popover';
-import appConfig from '../utils/appConfig';
-import LocalTimeZone from 'react-native-localize';
+} from "react-native";
+import FastImage from "react-native-fast-image";
+import FontAwesome from "react-native-vector-icons/dist/FontAwesome5";
+import { Popover } from "react-native-modal-popover";
+import appConfig from "../utils/appConfig";
+import LocalTimeZone from "react-native-localize";
 
 //Redux
 import {
@@ -29,43 +29,43 @@ import {
   setRenderState,
   setMessageEdit,
   setMessageText,
-} from '../store/actions';
-import {connect} from 'react-redux';
-import Share from 'react-native-share';
-import ChatServices from '../services/ChatServices';
+} from "../store/actions";
+import { connect } from "react-redux";
+import Share from "react-native-share";
+import ChatServices from "../services/ChatServices";
 
 //Component
-import Popup from './Popup';
-import SelectionPopup from '../components/popover/SlectionPopup';
+import Popup from "./Popup";
+import SelectionPopup from "../components/popover/SlectionPopup";
 
 // Database
-import {MessagesQuieries} from '../database/services/Services';
-import SearchList from '../screens/dashboard/userList/SearchList';
+import { MessagesQuieries } from "../database/services/Services";
+import SearchList from "../screens/dashboard/userList/SearchList";
 
-import RNFetchBlob from 'rn-fetch-blob';
-import {onDownload} from '../utils/regex';
-import moment from 'moment';
+import RNFetchBlob from "rn-fetch-blob";
+import { onDownload } from "../utils/regex";
+import moment from "moment";
 
-const {config, fs} = RNFetchBlob;
-const {dirs} = RNFetchBlob.fs;
+const { config, fs } = RNFetchBlob;
+const { dirs } = RNFetchBlob.fs;
 
 class HomeHeader extends React.PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       showPopover: false,
-      popoverAnchor: {x: 0, y: 0, width: 0, height: 0},
-      SlectedpopoverAnchor: {x: 0, y: 0, width: 0, height: 0},
+      popoverAnchor: { x: 0, y: 0, width: 0, height: 0 },
+      SlectedpopoverAnchor: { x: 0, y: 0, width: 0, height: 0 },
       mediaExist: 0,
     };
   }
 
   componentDidMount = () => {
-    BackHandler.addEventListener('hardwareBackPress', this.hardwareBack);
+    BackHandler.addEventListener("hardwareBackPress", this.hardwareBack);
   };
 
   componentWillUnmount = () => {
-    BackHandler.removeEventListener('hardwareBackPress', this.hardwareBack);
+    BackHandler.removeEventListener("hardwareBackPress", this.hardwareBack);
   };
 
   hardwareBack = () => {
@@ -78,30 +78,30 @@ class HomeHeader extends React.PureComponent {
     return true;
   };
 
-  changeName = text => {
-    const {selectedUser, user} = this.props;
+  changeName = (text) => {
+    const { selectedUser, user } = this.props;
     let onlineUser = user.user.id;
     let chatUser = selectedUser?.user_id;
-    if (this.props.screen === 'message') {
-      if (text === '') {
-        this.props.searchResponse('');
+    if (this.props.screen === "message") {
+      if (text === "") {
+        this.props.searchResponse("");
         this.props.onSetSearchQuery(text);
       } else {
         this.props.onSetSearchQuery(text);
-        MessagesQuieries.searchMsgDb({chatUser, onlineUser, text}, res => {
+        MessagesQuieries.searchMsgDb({ chatUser, onlineUser, text }, (res) => {
           this.props.searchResponse(res);
         });
       }
     } else {
       this.props.onSetSearchQuery(text);
-      if (text === '') this.props.onSetSearchState(false);
+      if (text === "") this.props.onSetSearchState(false);
       else this.props.onSetSearchState(true);
     }
   };
 
   searchButton = () => {
     // this.props.onSetSearchShow(true)
-    this.props.navProps.navigation.navigate('SearchList');
+    this.props.navProps.navigation.navigate("SearchList");
   };
 
   hardwareBack = () => {
@@ -120,18 +120,18 @@ class HomeHeader extends React.PureComponent {
   };
 
   searchBackAction = () => {
-    const {navProps} = this.props;
-    this.props.onSetSearchQuery('');
+    const { navProps } = this.props;
+    this.props.onSetSearchQuery("");
     this.props.onSetSearchShow(false);
     this.props.onSetSearchState(false);
     this.props.onSetRenderState(true);
-    if (this.props.screen === 'message') {
-      this.props.searchResponse('');
+    if (this.props.screen === "message") {
+      this.props.searchResponse("");
     }
   };
 
   backButton = () => {
-    const {screen, navProps, backPress, longPress} = this.props;
+    const { screen, navProps, backPress, longPress } = this.props;
     if (this.props.navProps?.route?.params?.screen !== undefined) {
       navProps.navigation.goBack();
     } else {
@@ -142,12 +142,12 @@ class HomeHeader extends React.PureComponent {
         this.props.onSetMessageText(null);
         this.props.onSetMediaOptionsOpen(false);
         this.props.onSetSickerOpen(false);
-      } else if (screen === 'message') {
-        navProps.navigation.replace('Home');
+      } else if (screen === "message") {
+        navProps.navigation.replace("Home");
         this.props.onSetMessageText(null);
         this.props.onSetMediaOptionsOpen(false);
         this.props.onSetSickerOpen(false);
-      } else if (screen === 'home') {
+      } else if (screen === "home") {
         BackHandler.exitApp();
       } else {
         navProps.navigation.goBack();
@@ -156,41 +156,41 @@ class HomeHeader extends React.PureComponent {
   };
 
   optionsHandler = () => {
-    this.setState({showPopover: true});
+    this.setState({ showPopover: true });
     const handle = findNodeHandle(this.button);
     if (handle) {
       NativeModules.UIManager.measure(handle, (x0, y0, width, height, x, y) => {
         this.setState({
-          popoverAnchor: {x, y, width, height},
+          popoverAnchor: { x, y, width, height },
         });
       });
     }
   };
 
   onClosePopover = () => {
-    this.setState({showPopover: false});
+    this.setState({ showPopover: false });
   };
 
-  ProfileChange = data => {
+  ProfileChange = (data) => {
     if (data.user_type) {
-      this.props.navProps.navigation.navigate('Profile');
+      this.props.navProps.navigation.navigate("Profile");
     } else {
       this.props.onSetMediaOptionsOpen(false);
       this.props.onSetSickerOpen(false);
-      this.props.navProps.navigation.navigate('ChatUserProfile', {
+      this.props.navProps.navigation.navigate("ChatUserProfile", {
         userProfiledata: this.props.userData,
       });
     }
   };
 
-  filterDataResponse = data => {
+  filterDataResponse = (data) => {
     this.props.filterdata(data);
-    this.setState({showPopover: false});
+    this.setState({ showPopover: false });
   };
 
   shareButton = () => {
-    const {longPress} = this.props;
-    longPress.map(message => {
+    const { longPress } = this.props;
+    longPress.map((message) => {
       let payload = {
         message_id:
           message.type == 7
@@ -200,33 +200,33 @@ class HomeHeader extends React.PureComponent {
       const shareOptions = {
         url:
           message.type == 6
-            ? fs.dirs.DocumentDir + '/srp_live/Files/' + payload.message_id.name
+            ? fs.dirs.DocumentDir + "/srp_live/Files/" + payload.message_id.name
             : message.type == 2
-            ? fs.dirs.DocumentDir + '/srp_live/Images/' + payload.message_id
+            ? fs.dirs.DocumentDir + "/srp_live/Images/" + payload.message_id
             : message.type == 7
-            ? fs.dirs.DocumentDir + '/srp_live/Audios/' + payload.message_id
+            ? fs.dirs.DocumentDir + "/srp_live/Audios/" + payload.message_id
             : message.type == 11
             ? fs.dirs.DocumentDir +
-              '/srp_live/Videos/' +
+              "/srp_live/Videos/" +
               payload.message_id.name
             : null,
       };
 
       Share.open(shareOptions)
-        .then(res => {
+        .then((res) => {
           console.log(res);
         })
-        .catch(err => {
+        .catch((err) => {
           err && console.log(err);
         });
     });
   };
 
   deleteMessage = () => {
-    console.log('1');
-    const {longPress} = this.props;
+    console.log("1");
+    const { longPress } = this.props;
     let token = this.props.user?.token;
-    longPress.map(message => {
+    longPress.map((message) => {
       let payload = {
         message_id: message._id,
         chat_type: message.chat_type,
@@ -234,21 +234,24 @@ class HomeHeader extends React.PureComponent {
       let Chatuser = message.chatUser;
       let Userid = this.props.user.user.id;
 
-      ChatServices.deleteMessage(payload, token).then(res => {
-        console.log('2', res);
+      ChatServices.deleteMessage(payload, token).then((res) => {
+        console.log("2", res);
         var deleteMeassgeId = message._id;
         var onlineUserId = Userid;
         var chatUserId = Chatuser;
         if (res.data.data.success) {
           MessagesQuieries.updateMessageAction(
-            {chatUserId, onlineUserId, deleteMeassgeId},
-            res3 => {
+            { chatUserId, onlineUserId, deleteMeassgeId },
+            (res3) => {
               if (res3) {
-                MessagesQuieries.selectDb({onlineUserId, chatUserId}, res2 => {
-                  // this.props.callClose();
-                });
+                MessagesQuieries.selectDb(
+                  { onlineUserId, chatUserId },
+                  (res2) => {
+                    // this.props.callClose();
+                  }
+                );
               }
-            },
+            }
           );
         }
       });
@@ -269,21 +272,21 @@ class HomeHeader extends React.PureComponent {
       typingStatus,
       selectedUser,
     } = this.props;
-    console.log('screen', screen);
-    let postion = '';
+    console.log("screen", screen);
+    let postion = "";
     let shouldEdit = false;
-    var serverTime = moment.tz(longPress[0]?.time, 'UTC').format();
+    var serverTime = moment.tz(longPress[0]?.time, "UTC").format();
     let localTimeZone = moment
       .tz(serverTime, LocalTimeZone.getTimeZone())
       .format();
-    let timeCheck = moment(localTimeZone, 'YYYY-MM-DD HH:mm:ss').fromNow();
-    longPress?.map(message => {
+    let timeCheck = moment(localTimeZone, "YYYY-MM-DD HH:mm:ss").fromNow();
+    longPress?.map((message) => {
       postion = message?.user._id;
     });
     if (
       postion === 2 &&
       longPress.length === 1 &&
-      timeCheck === 'a few seconds ago'
+      timeCheck === "a few seconds ago"
     ) {
       if (longPress[0].type === 1) {
         shouldEdit = true;
@@ -293,9 +296,9 @@ class HomeHeader extends React.PureComponent {
         }
       }
     }
-    if (userData === 'forward') {
+    if (userData === "forward") {
       return (
-        <SafeAreaView style={{backgroundColor: '#008069'}}>
+        <SafeAreaView style={{ backgroundColor: "#008069" }}>
           <View style={styles.header}>
             <View style={styles.mainFlex}>
               <View style={styles.rowDirectionFlex}>
@@ -308,11 +311,12 @@ class HomeHeader extends React.PureComponent {
                     this.props.onSetMessageText(null);
                     this.props.onSetMediaOptionsOpen(false);
                     this.props.onSetSickerOpen(false);
-                    navProps.navigation.replace('MessageScreen', {
+                    navProps.navigation.replace("MessageScreen", {
                       selectedUser: selectedUser,
                     });
-                  }}>
-                  <FontAwesome name={'arrow-left'} size={20} color={'white'} />
+                  }}
+                >
+                  <FontAwesome name={"arrow-left"} size={20} color={"white"} />
                 </TouchableOpacity>
                 <Text style={styles.contactListText}>Contact List</Text>
               </View>
@@ -323,14 +327,15 @@ class HomeHeader extends React.PureComponent {
     }
     if (longPress.length !== 0) {
       return (
-        <SafeAreaView style={{backgroundColor: '#008069'}}>
+        <SafeAreaView style={{ backgroundColor: "#008069" }}>
           <View style={styles.header1}>
             <View style={styles.mainFlex}>
               <View style={styles.rowDirectionFlex}>
                 <TouchableOpacity
                   style={styles.backIcon}
-                  onPress={() => this.backButton()}>
-                  <FontAwesome name={'arrow-left'} size={20} color={'white'} />
+                  onPress={() => this.backButton()}
+                >
+                  <FontAwesome name={"arrow-left"} size={20} color={"white"} />
                 </TouchableOpacity>
                 <Text style={styles.slectedMessagesCountText}>
                   {longPress.length}
@@ -344,63 +349,69 @@ class HomeHeader extends React.PureComponent {
                     this.props.longPress[0].type == 7 ||
                     this.props.longPress[0].type == 11 ? (
                       <TouchableOpacity
-                        style={[styles.iconDesign, {alignItems: 'center'}]}
-                        onPress={() => this.shareButton()}>
+                        style={[styles.iconDesign, { alignItems: "center" }]}
+                        onPress={() => this.shareButton()}
+                      >
                         <FontAwesome
-                          name={'share-alt'}
+                          name={"share-alt"}
                           size={20}
-                          color={'white'}
+                          color={"white"}
                         />
-                        <Text style={{color: 'white', fontSize: 12}}>
+                        <Text style={{ color: "white", fontSize: 12 }}>
                           share
                         </Text>
                       </TouchableOpacity>
                     ) : null}
                   </>
                 ) : null}
-                <View style={{flexDirection: 'row'}}>
+                <View style={{ flexDirection: "row" }}>
                   {shouldEdit && (
                     <TouchableOpacity
-                      style={[styles.iconDesign, {alignItems: 'center'}]}
-                      onPress={this.editMessage}>
+                      style={[styles.iconDesign, { alignItems: "center" }]}
+                      onPress={this.editMessage}
+                    >
                       <FontAwesome
-                        name={'pen-fancy'}
+                        name={"pen-fancy"}
                         size={20}
-                        color={'white'}
+                        color={"white"}
                       />
                     </TouchableOpacity>
                   )}
                   <TouchableOpacity
-                    style={[styles.iconDesign, {alignItems: 'center'}]}
-                    onPress={() => this.deleteMessage()}>
-                    <FontAwesome name={'trash'} size={20} color={'white'} />
+                    style={[styles.iconDesign, { alignItems: "center" }]}
+                    onPress={() => this.deleteMessage()}
+                  >
+                    <FontAwesome name={"trash"} size={20} color={"white"} />
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() => {
                       this.props.onSetReplyState(true);
                     }}
-                    style={[styles.iconDesign, {alignItems: 'center'}]}>
-                    <FontAwesome name={'reply'} size={20} color={'white'} />
+                    style={[styles.iconDesign, { alignItems: "center" }]}
+                  >
+                    <FontAwesome name={"reply"} size={20} color={"white"} />
                   </TouchableOpacity>
                   <TouchableOpacity
                     onPress={() =>
-                      navProps.navigation.replace('ForwardContactList', {
+                      navProps.navigation.replace("ForwardContactList", {
                         selectedUser: selectedUser,
                       })
                     }
-                    style={[styles.iconDesign, {alignItems: 'center'}]}>
-                    <FontAwesome name={'share'} size={20} color={'white'} />
+                    style={[styles.iconDesign, { alignItems: "center" }]}
+                  >
+                    <FontAwesome name={"share"} size={20} color={"white"} />
                   </TouchableOpacity>
                   <TouchableOpacity
-                    ref={r => {
+                    ref={(r) => {
                       this.button = r;
                     }}
                     style={styles.iconDesign}
-                    onPress={this.optionsHandler}>
+                    onPress={this.optionsHandler}
+                  >
                     <FontAwesome
-                      name={'ellipsis-v'}
+                      name={"ellipsis-v"}
                       size={20}
-                      color={'white'}
+                      color={"white"}
                     />
                   </TouchableOpacity>
                 </View>
@@ -411,20 +422,21 @@ class HomeHeader extends React.PureComponent {
             visible={this.state.showPopover}
             fromRect={this.state.popoverAnchor}
             onClose={() => {
-              this.setState({showPopover: false});
+              this.setState({ showPopover: false });
             }}
             placement="bottom"
             useNativeDriver={true}
-            backgroundStyle={{color: 'transparent'}}
-            contentStyle={{backgroundColor: 'white'}}
-            arrowStyle={{borderTopColor: 'transparent'}}>
+            backgroundStyle={{ color: "transparent" }}
+            contentStyle={{ backgroundColor: "white" }}
+            arrowStyle={{ borderTopColor: "transparent" }}
+          >
             <SelectionPopup
               navProps={this.props}
               callClose={() => {
-                this.setState({showPopover: false});
+                this.setState({ showPopover: false });
               }}
               selectedUser={selectedUser}
-              messageupdateresponse={data =>
+              messageupdateresponse={(data) =>
                 this.props.messageupdateresponse(data)
               }
             />
@@ -433,13 +445,14 @@ class HomeHeader extends React.PureComponent {
       );
     } else {
       return (
-        <SafeAreaView style={{backgroundColor: '#008069'}}>
+        <SafeAreaView style={{ backgroundColor: "#008069" }}>
           {this.props.searchShow ? (
             <View style={styles.searchView}>
               <TouchableOpacity
                 onPress={this.searchBackAction}
-                style={{padding: 5}}>
-                <FontAwesome name={'arrow-left'} size={20} color={'white'} />
+                style={{ padding: 5 }}
+              >
+                <FontAwesome name={"arrow-left"} size={20} color={"white"} />
               </TouchableOpacity>
               <TextInput
                 autoFocus={true}
@@ -448,34 +461,36 @@ class HomeHeader extends React.PureComponent {
                 placeholderTextColor="white"
                 value={this.props.searchQuery}
                 selectionColor="white"
-                onChangeText={text => this.changeName(text)}
+                onChangeText={(text) => this.changeName(text)}
               />
             </View>
           ) : (
             <View style={styles.header}>
               <View style={styles.mainFlex}>
                 <View style={styles.rowDirectionFlex}>
-                  {screen === 'message' ||
-                  screen === 'allUser' ||
-                  screen == 'groupList' ? (
+                  {screen === "message" ||
+                  screen === "allUser" ||
+                  screen == "groupList" ? (
                     <TouchableOpacity
                       style={styles.backIcon}
-                      onPress={() => this.backButton()}>
+                      onPress={() => this.backButton()}
+                    >
                       <View
-                        style={{flexDirection: 'row', alignItems: 'center'}}>
+                        style={{ flexDirection: "row", alignItems: "center" }}
+                      >
                         <FontAwesome
-                          name={'arrow-left'}
+                          name={"arrow-left"}
                           size={20}
-                          color={'white'}
+                          color={"white"}
                         />
-                        {screen == 'message' && (
+                        {screen == "message" && (
                           <FastImage
                             source={
                               userData?.avatar === null ||
-                              userData?.avatar_url === '' ||
+                              userData?.avatar_url === "" ||
                               userData?.cover_image === null ||
-                              userData?.cover_image === ''
-                                ? require('../assets/deafultimage.png')
+                              userData?.cover_image === ""
+                                ? require("../assets/deafultimage.png")
                                 : {
                                     uri:
                                       userData?.avatar === undefined ||
@@ -496,16 +511,16 @@ class HomeHeader extends React.PureComponent {
                       </View>
                     </TouchableOpacity>
                   ) : null}
-                  {screen == 'allUser' || screen == 'groupList' ? null : (
+                  {screen == "allUser" || screen == "groupList" ? null : (
                     <>
-                      {screen != 'message' && (
+                      {screen != "message" && (
                         <FastImage
                           source={
                             userData?.avatar === null ||
-                            userData?.avatar_url === '' ||
+                            userData?.avatar_url === "" ||
                             userData?.cover_image === null ||
-                            userData?.cover_image === ''
-                              ? require('../assets/deafultimage.png')
+                            userData?.cover_image === ""
+                              ? require("../assets/deafultimage.png")
                               : {
                                   uri:
                                     userData?.avatar === undefined ||
@@ -527,12 +542,13 @@ class HomeHeader extends React.PureComponent {
                       <View>
                         <TouchableOpacity
                           style={styles.rowDirectionFlex}
-                          onPress={() => this.ProfileChange(userData)}>
+                          onPress={() => this.ProfileChange(userData)}
+                        >
                           <Text style={styles.usernameText}>
                             {userData?.first_name !== undefined ? (
                               <Text>
                                 {userData?.first_name +
-                                  ' ' +
+                                  " " +
                                   userData?.last_name}
                               </Text>
                             ) : userData?.chat_name !== undefined ? (
@@ -543,7 +559,7 @@ class HomeHeader extends React.PureComponent {
                           </Text>
                         </TouchableOpacity>
                         {this.props?.chatUserOnlineStatus !== null &&
-                          chatUserOnlineStatus.map(res => {
+                          chatUserOnlineStatus.map((res) => {
                             let selectedUserId = userData.user_id;
                             if (typingStatus) {
                               return (
@@ -588,29 +604,30 @@ class HomeHeader extends React.PureComponent {
                 </View>
                 <View style={styles.iconsFlex}>
                   <TouchableOpacity style={styles.iconDesign}>
-                    {screen === 'message' ? (
-                      <FontAwesome name={'phone'} size={20} color={'white'} />
+                    {screen === "message" ? (
+                      <FontAwesome name={"phone"} size={20} color={"white"} />
                     ) : (
                       <TouchableOpacity onPress={this.searchButton}>
                         <FontAwesome
-                          name={'search'}
+                          name={"search"}
                           size={20}
-                          color={'white'}
+                          color={"white"}
                         />
                       </TouchableOpacity>
                     )}
                   </TouchableOpacity>
-                  {screen == 'allUser' || screen == 'groupList' ? null : (
+                  {screen == "allUser" || screen == "groupList" ? null : (
                     <TouchableOpacity
-                      ref={r => {
+                      ref={(r) => {
                         this.button = r;
                       }}
                       style={styles.iconDesign}
-                      onPress={this.optionsHandler}>
+                      onPress={this.optionsHandler}
+                    >
                       <FontAwesome
-                        name={'ellipsis-v'}
+                        name={"ellipsis-v"}
                         size={20}
-                        color={'white'}
+                        color={"white"}
                       />
                     </TouchableOpacity>
                   )}
@@ -622,18 +639,19 @@ class HomeHeader extends React.PureComponent {
             visible={this.state.showPopover}
             fromRect={this.state.popoverAnchor}
             onClose={() => {
-              this.setState({showPopover: false});
+              this.setState({ showPopover: false });
             }}
             useNativeDriver={true}
             placement="bottom"
-            backgroundStyle={{color: 'transparent'}}
-            contentStyle={{backgroundColor: 'white'}}
-            arrowStyle={{borderTopColor: 'transparent'}}>
+            backgroundStyle={{ color: "transparent" }}
+            contentStyle={{ backgroundColor: "white" }}
+            arrowStyle={{ borderTopColor: "transparent" }}
+          >
             <Popup
               navProps={this.props}
               searchShow={() => this.props.onSetSearchShow(true)}
-              callClose={() => this.setState({showPopover: false})}
-              filterData={data => this.filterDataResponse(data)}
+              callClose={() => this.setState({ showPopover: false })}
+              filterData={(data) => this.filterDataResponse(data)}
             />
           </Popover>
         </SafeAreaView>
@@ -644,47 +662,47 @@ class HomeHeader extends React.PureComponent {
 
 const styles = StyleSheet.create({
   header: {
-    justifyContent: 'space-between',
-    backgroundColor: '#008069',
-    paddingVertical: '2%',
+    justifyContent: "space-between",
+    backgroundColor: "#008069",
+    paddingVertical: "2%",
   },
   header1: {
-    justifyContent: 'space-between',
-    backgroundColor: '#008069',
-    paddingVertical: '3%',
+    justifyContent: "space-between",
+    backgroundColor: "#008069",
+    paddingVertical: "3%",
   },
   mainFlex: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   rowDirectionFlex: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   profileImage: {
     width: 50,
     height: 50,
     borderRadius: 25,
-    marginHorizontal: '5%',
+    marginHorizontal: "5%",
   },
   usernameText: {
     marginLeft: 0,
-    fontFamily: 'Roboto-Medium',
+    fontFamily: "Roboto-Medium",
     fontSize: 18,
-    color: 'white',
-    fontWeight: 'bold',
+    color: "white",
+    fontWeight: "bold",
   },
   onlineUserStatusText: {
     marginLeft: 0,
     marginTop: 5,
-    fontFamily: 'Roboto-Medium',
-    color: 'white',
+    fontFamily: "Roboto-Medium",
+    color: "white",
   },
   iconsFlex: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginHorizontal: '5%',
+    flexDirection: "row",
+    alignItems: "center",
+    marginHorizontal: "5%",
   },
   iconDesign: {
     marginLeft: 5,
@@ -695,32 +713,32 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   searchView: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#128C7E',
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    backgroundColor: "#128C7E",
     height: 50,
   },
   searchTextInput: {
-    width: '90%',
-    height: Platform.OS == 'android' ? '100%' : '50%',
-    color: 'white',
+    width: "90%",
+    height: Platform.OS == "android" ? "100%" : "50%",
+    color: "white",
   },
   slectedMessagesCountText: {
     fontSize: 16,
-    color: 'white',
-    marginLeft: '15%',
-    fontWeight: 'bold',
+    color: "white",
+    marginLeft: "15%",
+    fontWeight: "bold",
   },
   contactListText: {
     fontSize: 16,
-    color: 'white',
-    marginLeft: '15%',
-    fontWeight: 'bold',
+    color: "white",
+    marginLeft: "15%",
+    fontWeight: "bold",
   },
 });
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     longPress: state.messages.longPress,
     replyState: state.stateHandler.replyState,
@@ -732,37 +750,37 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    onSetOnLongPress: data => {
+    onSetOnLongPress: (data) => {
       dispatch(setOnLongPress(data));
     },
-    onSetReplyState: data => {
+    onSetReplyState: (data) => {
       dispatch(setReplyState(data));
     },
-    onSetSickerOpen: data => {
+    onSetSickerOpen: (data) => {
       dispatch(setSickerOpen(data));
     },
-    onSetMediaOptionsOpen: data => {
+    onSetMediaOptionsOpen: (data) => {
       dispatch(setMediaOptionsOpen(data));
     },
-    onSetSearchQuery: data => {
+    onSetSearchQuery: (data) => {
       dispatch(setSearchQuery(data));
     },
-    onSetSearchState: data => {
+    onSetSearchState: (data) => {
       dispatch(setSearchState(data));
     },
-    onSetSearchShow: data => {
+    onSetSearchShow: (data) => {
       dispatch(setSearchShow(data));
     },
 
-    onSetRenderState: data => {
+    onSetRenderState: (data) => {
       dispatch(setRenderState(data));
     },
-    onSetMessageEdit: data => {
+    onSetMessageEdit: (data) => {
       dispatch(setMessageEdit(data));
     },
-    onSetMessageText: text => {
+    onSetMessageText: (text) => {
       dispatch(setMessageText(text));
     },
   };

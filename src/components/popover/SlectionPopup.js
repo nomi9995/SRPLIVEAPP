@@ -1,26 +1,33 @@
-import React, {Component} from 'react';
-import {View, StyleSheet, Text, TouchableOpacity, Alert,Clipboard} from 'react-native';
+import React, { Component } from "react";
+import {
+  View,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Alert,
+  Clipboard,
+} from "react-native";
 
-import {W_WIDTH} from '../../utils/regex';
-import Ionicons from 'react-native-vector-icons/dist/Ionicons';
-import FontAwesome5 from 'react-native-vector-icons/dist/FontAwesome5';
-import Icon from 'react-native-vector-icons/dist/MaterialCommunityIcons';
-import moment from 'moment';
+import { W_WIDTH } from "../../utils/regex";
+import Ionicons from "react-native-vector-icons/dist/Ionicons";
+import FontAwesome5 from "react-native-vector-icons/dist/FontAwesome5";
+import Icon from "react-native-vector-icons/dist/MaterialCommunityIcons";
+import moment from "moment";
 
 //Component
-import RemindMeModel from '../Modal/RemindMeModel';
+import RemindMeModel from "../Modal/RemindMeModel";
 
 //redux
-import {connect} from 'react-redux';
+import { connect } from "react-redux";
 import {
   setOnLongPress,
   setReplyState,
   setMessageEdit,
-} from '../../store/actions';
+} from "../../store/actions";
 
 //Service
-import ChatServices from '../../services/ChatServices';
-import {MessagesQuieries} from '../../database/services/Services';
+import ChatServices from "../../services/ChatServices";
+import { MessagesQuieries } from "../../database/services/Services";
 
 class SelectionPopup extends Component {
   constructor(props) {
@@ -31,9 +38,9 @@ class SelectionPopup extends Component {
   }
 
   AcknowledgeRequest = () => {
-    const {longPress} = this.props;
+    const { longPress } = this.props;
     let token = this.props.user?.token;
-    longPress.map(message => {
+    longPress.map((message) => {
       let payload = {
         message_id: message._id,
         chat_type: message.chat_type,
@@ -43,20 +50,23 @@ class SelectionPopup extends Component {
       // });
       let Chatuser = message.chatUser;
       let Userid = this.props.user.user.id;
-      ChatServices.acknowledgeRequest(payload, token).then(res => {
+      ChatServices.acknowledgeRequest(payload, token).then((res) => {
         var deleteMeassgeId = message._id;
         var onlineUserId = Userid;
         var chatUserId = Chatuser;
         if (res.data.data.success) {
           MessagesQuieries.updateMessageAction(
-            {chatUserId, onlineUserId, deleteMeassgeId},
-            res3 => {
+            { chatUserId, onlineUserId, deleteMeassgeId },
+            (res3) => {
               if (res3) {
-                MessagesQuieries.selectDb({onlineUserId, chatUserId}, res2 => {
-                  this.props.callClose();
-                });
+                MessagesQuieries.selectDb(
+                  { onlineUserId, chatUserId },
+                  (res2) => {
+                    this.props.callClose();
+                  }
+                );
               }
-            },
+            }
           );
         }
       });
@@ -64,44 +74,47 @@ class SelectionPopup extends Component {
   };
 
   StarredMessage = () => {
-    const {longPress} = this.props;
+    const { longPress } = this.props;
     let token = this.props.user?.token;
-    longPress.map(message => {
+    longPress.map((message) => {
       let payload = {
         message_id: message._id,
         chat_type: message.chat_type,
       };
       let Chatuser = message.chatUser;
       let Userid = this.props.user.user.id;
-      ChatServices.starMessage(payload, token).then(res => {
+      ChatServices.starMessage(payload, token).then((res) => {
         var messageId = message._id;
         var onlineUserId = Userid;
         var chatUserId = Chatuser;
         if (res.data.data.success) {
           let star = 1;
-          if (res.data.data.message == 'Message Unstarred') {
+          if (res.data.data.message == "Message Unstarred") {
             star = 0;
           }
           MessagesQuieries.updateMessageActionAsStar(
-            {chatUserId, onlineUserId, messageId, star},
-            res3 => {
+            { chatUserId, onlineUserId, messageId, star },
+            (res3) => {
               if (res3) {
-                MessagesQuieries.selectDb({onlineUserId, chatUserId}, res2 => {
-                  this.props.messageupdateresponse(res2);
-                  this.props.onSetOnLongPress([]);
-                  this.props.callClose();
-                });
+                MessagesQuieries.selectDb(
+                  { onlineUserId, chatUserId },
+                  (res2) => {
+                    this.props.messageupdateresponse(res2);
+                    this.props.onSetOnLongPress([]);
+                    this.props.callClose();
+                  }
+                );
               }
-            },
+            }
           );
         }
       });
     });
   };
   RespondLater = () => {
-    const {longPress} = this.props;
+    const { longPress } = this.props;
     let token = this.props.user?.token;
-    longPress.map(message => {
+    longPress.map((message) => {
       let payload = {
         message_id: message._id,
         chat_type: message.chat_type,
@@ -112,26 +125,29 @@ class SelectionPopup extends Component {
       // });
       let Chatuser = message.chatUser;
       let Userid = this.props.user.user.id;
-      ChatServices.reponseLaterRequest(payload, token).then(res => {
+      ChatServices.reponseLaterRequest(payload, token).then((res) => {
         var messageId = message._id;
         var onlineUserId = Userid;
         var chatUserId = Chatuser;
         if (res.data.data.success) {
           let replyLater = 1;
-          if (res.data.data.message == 'Resond later cleared') {
+          if (res.data.data.message == "Resond later cleared") {
             replyLater = 0;
           }
           MessagesQuieries.updateMessageActionAsRespondLater(
-            {chatUserId, onlineUserId, messageId, replyLater},
-            res3 => {
+            { chatUserId, onlineUserId, messageId, replyLater },
+            (res3) => {
               if (res3) {
-                MessagesQuieries.selectDb({onlineUserId, chatUserId}, res2 => {
-                  this.props.messageupdateresponse(res2);
-                  this.props.onSetOnLongPress([]);
-                  this.props.callClose();
-                });
+                MessagesQuieries.selectDb(
+                  { onlineUserId, chatUserId },
+                  (res2) => {
+                    this.props.messageupdateresponse(res2);
+                    this.props.onSetOnLongPress([]);
+                    this.props.callClose();
+                  }
+                );
               }
-            },
+            }
           );
         }
       });
@@ -139,9 +155,9 @@ class SelectionPopup extends Component {
   };
 
   deleteMessage = () => {
-    const {longPress} = this.props;
+    const { longPress } = this.props;
     let token = this.props.user?.token;
-    longPress.map(message => {
+    longPress.map((message) => {
       let payload = {
         message_id: message._id,
         chat_type: message.chat_type,
@@ -149,31 +165,34 @@ class SelectionPopup extends Component {
       let Chatuser = message.chatUser;
       let Userid = this.props.user.user.id;
 
-      ChatServices.deleteMessage(payload, token).then(res => {
+      ChatServices.deleteMessage(payload, token).then((res) => {
         var deleteMeassgeId = message._id;
         var onlineUserId = Userid;
         var chatUserId = Chatuser;
         if (res.data.data.success) {
           MessagesQuieries.updateMessageAction(
-            {chatUserId, onlineUserId, deleteMeassgeId},
-            res3 => {
+            { chatUserId, onlineUserId, deleteMeassgeId },
+            (res3) => {
               if (res3) {
-                MessagesQuieries.selectDb({onlineUserId, chatUserId}, res2 => {
-                  this.props.callClose();
-                });
+                MessagesQuieries.selectDb(
+                  { onlineUserId, chatUserId },
+                  (res2) => {
+                    this.props.callClose();
+                  }
+                );
               }
-            },
+            }
           );
         }
       });
     });
   };
 
-  afterDbUpdated = data => {
+  afterDbUpdated = (data) => {
     this.props.messageupdateresponse(data);
     this.props.onSetOnLongPress([]);
     this.props.callClose();
-    this.setState({statusModal: false});
+    this.setState({ statusModal: false });
   };
 
   editMessage = () => {
@@ -183,55 +202,55 @@ class SelectionPopup extends Component {
   };
 
   copyToClipboard = (data) => {
-    Clipboard.setString(data)
-    this.props.onSetOnLongPress([])
+    Clipboard.setString(data);
+    this.props.onSetOnLongPress([]);
     this.props.callClose();
-  }
+  };
 
   render() {
-    let postion = '';
+    let postion = "";
     let shouldEdit = false;
-    let messagetype = ''
-    let messageData = ''
-    const {longPress} = this.props;
-    let date = moment.utc().zone('+0300').format('YYYY-MM-DD HH:mm:ss');
-    let timeCheck = moment(longPress[0].time, 'YYYY-MM-DD HH:mm:ss').from(date);
-    longPress.map(message => {
-      postion = message.user._id
-      messagetype = message.type
+    let messagetype = "";
+    let messageData = "";
+    const { longPress } = this.props;
+    let date = moment.utc().zone("+0300").format("YYYY-MM-DD HH:mm:ss");
+    let timeCheck = moment(longPress[0].time, "YYYY-MM-DD HH:mm:ss").from(date);
+    longPress.map((message) => {
+      postion = message.user._id;
+      messagetype = message.type;
 
-      messageData = message.message
-
+      messageData = message.message;
     });
     if (
       postion === 2 &&
       longPress.length === 1 &&
-      timeCheck === 'a few seconds ago'
+      timeCheck === "a few seconds ago"
     ) {
-      if(longPress[0].type === 1) {
+      if (longPress[0].type === 1) {
         shouldEdit = true;
-      } else if(longPress[0].type === 8) {
-        if(JSON.parse(longPress[0].message).new_message.new_type === 1) {
-          shouldEdit = true
+      } else if (longPress[0].type === 8) {
+        if (JSON.parse(longPress[0].message).new_message.new_type === 1) {
+          shouldEdit = true;
         }
       }
     }
     return (
-      <View style={{width: W_WIDTH / 1.75, backgroundColor: 'white'}}>
+      <View style={{ width: W_WIDTH / 1.75, backgroundColor: "white" }}>
         <View>
-          {messagetype == 1 &&
-          <TouchableOpacity style={styles.popButton} 
-          onPress={() => this.copyToClipboard(messageData) }
-          >
-            <View style={styles.iconContainer}>
-              <FontAwesome5 name="copy" size={30} color="#c2c2c2" />
-            </View>
+          {messagetype == 1 && (
+            <TouchableOpacity
+              style={styles.popButton}
+              onPress={() => this.copyToClipboard(messageData)}
+            >
+              <View style={styles.iconContainer}>
+                <FontAwesome5 name="copy" size={22} color="#c2c2c2" />
+              </View>
 
-            <View style={styles.textContainer}>
-              <Text style={styles.popTitleText}>copy</Text>
-            </View>
-          </TouchableOpacity>
-          }
+              <View style={styles.textContainer}>
+                <Text style={styles.popTitleText}>Copy</Text>
+              </View>
+            </TouchableOpacity>
+          )}
 
           {/* {shouldEdit && (
             <TouchableOpacity
@@ -261,9 +280,10 @@ class SelectionPopup extends Component {
 
           <TouchableOpacity
             style={styles.popButton}
-            onPress={() => this.AcknowledgeRequest()}>
+            onPress={() => this.AcknowledgeRequest()}
+          >
             <View style={styles.iconContainer}>
-              <FontAwesome5 name="hand-pointer" size={30} color="#c2c2c2" />
+              <FontAwesome5 name="hand-pointer" size={22} color="#c2c2c2" />
             </View>
             <View style={styles.textContainer}>
               <Text style={styles.popTitleText} numberOfLines={1}>
@@ -275,9 +295,10 @@ class SelectionPopup extends Component {
 
         <TouchableOpacity
           style={styles.popButton}
-          onPress={() => this.StarredMessage()}>
+          onPress={() => this.StarredMessage()}
+        >
           <View style={styles.iconContainer}>
-            <Icon name="flag-triangle" size={30} color="#c2c2c2" />
+            <Icon name="flag-triangle" size={24} color="#c2c2c2" />
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.popTitleText} numberOfLines={1}>
@@ -288,9 +309,10 @@ class SelectionPopup extends Component {
 
         <TouchableOpacity
           style={styles.popButton}
-          onPress={() => this.RespondLater()}>
+          onPress={() => this.RespondLater()}
+        >
           <View style={styles.iconContainer}>
-            <FontAwesome5 name="history" size={30} color="#c2c2c2" />
+            <FontAwesome5 name="history" size={19} color="#c2c2c2" />
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.popTitleText} numberOfLines={1}>
@@ -301,10 +323,11 @@ class SelectionPopup extends Component {
         <TouchableOpacity
           style={styles.popButton}
           onPress={() => {
-            this.setState({statusModal: true});
-          }}>
+            this.setState({ statusModal: true });
+          }}
+        >
           <View style={styles.iconContainer}>
-            <Ionicons name="alarm-outline" size={30} color="#c2c2c2" />
+            <Ionicons name="alarm-outline" size={26} color="#c2c2c2" />
           </View>
 
           <View style={styles.textContainer}>
@@ -313,8 +336,8 @@ class SelectionPopup extends Component {
           {this.state.statusModal ? (
             <RemindMeModel
               visible={this.state.statusModal}
-              closeModal={data => this.setState({statusModal: data})}
-              afterDbUpdate={data => this.afterDbUpdated(data)}
+              closeModal={(data) => this.setState({ statusModal: data })}
+              afterDbUpdate={(data) => this.afterDbUpdated(data)}
             />
           ) : null}
         </TouchableOpacity>
@@ -323,7 +346,7 @@ class SelectionPopup extends Component {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     longPress: state.messages.longPress,
     user: state.auth.user,
@@ -331,15 +354,15 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    onSetOnLongPress: data => {
+    onSetOnLongPress: (data) => {
       dispatch(setOnLongPress(data));
     },
-    onSetReplyState: data => {
+    onSetReplyState: (data) => {
       dispatch(setReplyState(data));
     },
-    onSetMessageEdit: data => {
+    onSetMessageEdit: (data) => {
       dispatch(setMessageEdit(data));
     },
   };
@@ -349,32 +372,32 @@ export default connect(mapStateToProps, mapDispatchToProps)(SelectionPopup);
 
 const styles = StyleSheet.create({
   popButton: {
-    paddingHorizontal: 5,
-    paddingVertical: 10,
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignContent: 'center',
+    paddingHorizontal: 0,
+    paddingVertical: 6,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignContent: "center",
     marginVertical: 1,
   },
 
   iconContainer: {
-    flex: 0.25,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 5,
+    flex: 0.2,
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 3,
   },
 
   textContainer: {
-    flex: 1,
-    alignItems: 'flex-start',
-    justifyContent: 'center',
-    padding: 5,
+    flex: 0.8,
+    alignItems: "flex-start",
+    justifyContent: "center",
+    padding: 3,
   },
 
   popTitleText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    textAlignVertical: 'center',
-    fontFamily: 'Roboto-Regular',
+    fontSize: 16,
+    fontWeight: "600",
+    textAlignVertical: "center",
+    fontFamily: "Roboto-Regular",
   },
 });
