@@ -272,7 +272,6 @@ class HomeHeader extends React.PureComponent {
       typingStatus,
       selectedUser,
     } = this.props;
-    console.log("screen", screen);
     let postion = "";
     let shouldEdit = false;
     var serverTime = moment.tz(longPress[0]?.time, "UTC").format();

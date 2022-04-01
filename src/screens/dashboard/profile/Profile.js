@@ -64,6 +64,7 @@ class Profile extends Component {
             </TouchableOpacity>
           </View>
         </SafeAreaView>
+
         <ScrollView>
           <Pressable
             onPress={() => {

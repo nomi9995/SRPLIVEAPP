@@ -5,6 +5,7 @@ import stickers from './Stickers';
 import stateHandler from './StateHandler';
 import messages from './Messages';
 import autoDownload from './autoDownload';
+import ScrollPosition from './ScrollPosition';
 
 export default combineReducers({
   theme,
@@ -13,4 +14,5 @@ export default combineReducers({
   stateHandler,
   messages,
   autoDownload,
+  ScrollPosition,
 });

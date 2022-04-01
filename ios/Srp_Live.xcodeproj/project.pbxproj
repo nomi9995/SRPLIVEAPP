@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0019039ADCD245E2B1012678 /* HelveticaNeueLTStd-Lt.otf in Resources */ = {isa = PBXBuildFile; fileRef = 0DA62FCE48E344C4BF8CEDA0 /* HelveticaNeueLTStd-Lt.otf */; };
 		00E356F31AD99517003FC87E /* Srp_LiveTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 00E356F21AD99517003FC87E /* Srp_LiveTests.m */; };
 		0E36E7F1E86E7A18280EBF6B /* libPods-Srp_Live-Srp_LiveTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 5490CEA8488A5571054AF6E1 /* libPods-Srp_Live-Srp_LiveTests.a */; };
 		104A1566028F4E2BAE17B98B /* Roboto-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 579DE7A6CD904DC7911D14F8 /* Roboto-BlackItalic.ttf */; };
@@ -17,6 +18,7 @@
 		18E2317B2752448700CB683C /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = 18E2317A2752448700CB683C /* File.swift */; };
 		2139FFEB6CAA44E1A35D6E86 /* Ubuntu-M.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 78FD701A1F0645F8BE210FE3 /* Ubuntu-M.ttf */; };
 		383500414FC44CF292D01112 /* Ubuntu-R.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8C7E69B67EAE4FDF95FA6B58 /* Ubuntu-R.ttf */; };
+		3A19EDA6EDEE4C509B0DA431 /* Helvetica Neue LT Std 75 Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = D3AB10BB05854376B266F7CD /* Helvetica Neue LT Std 75 Bold.otf */; };
 		5BF14BB31E5B413E8E72B47E /* Roboto-LightItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 5852D970AA534866BD3A7F6C /* Roboto-LightItalic.ttf */; };
 		6698BA547983429E99A2A311 /* Roboto-Medium.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A04D98D375134DE08815D42F /* Roboto-Medium.ttf */; };
 		6B3B4BFA64A9449EBFD8D4A6 /* Roboto-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 497CDC907CBC47C1A5C746C6 /* Roboto-Regular.ttf */; };
@@ -54,8 +56,6 @@
 		DC3C0C92EC134443ABD93A6D /* Roboto-MediumItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 430C718AD13943108D207D18 /* Roboto-MediumItalic.ttf */; };
 		E1F92B13AA174FA6AB0262DE /* Roboto-Light.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C27D7661EDA74927A76AD453 /* Roboto-Light.ttf */; };
 		F48A5E8DDE7A41CA8E687514 /* Roboto-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = CF0EDC07578F497FA5F2E529 /* Roboto-Black.ttf */; };
-		3A19EDA6EDEE4C509B0DA431 /* Helvetica Neue LT Std 75 Bold.otf in Resources */ = {isa = PBXBuildFile; fileRef = D3AB10BB05854376B266F7CD /* Helvetica Neue LT Std 75 Bold.otf */; };
-		0019039ADCD245E2B1012678 /* HelveticaNeueLTStd-Lt.otf in Resources */ = {isa = PBXBuildFile; fileRef = 0DA62FCE48E344C4BF8CEDA0 /* HelveticaNeueLTStd-Lt.otf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -101,6 +101,7 @@
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* Srp_LiveTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = Srp_LiveTests.m; sourceTree = "<group>"; };
 		054F2B0ABC6A4906BE1718D1 /* MaterialCommunityIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = MaterialCommunityIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/MaterialCommunityIcons.ttf"; sourceTree = "<group>"; };
+		0DA62FCE48E344C4BF8CEDA0 /* HelveticaNeueLTStd-Lt.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "HelveticaNeueLTStd-Lt.otf"; path = "../assets/fonts/HelveticaNeueLTStd-Lt.otf"; sourceTree = "<group>"; };
 		13B07F961A680F5B00A75B9A /* Srp_Live.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Srp_Live.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		13B07FAF1A68108700A75B9A /* AppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AppDelegate.h; path = Srp_Live/AppDelegate.h; sourceTree = "<group>"; };
 		13B07FB01A68108700A75B9A /* AppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AppDelegate.m; path = Srp_Live/AppDelegate.m; sourceTree = "<group>"; };
@@ -179,10 +180,9 @@
 		C27D7661EDA74927A76AD453 /* Roboto-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Roboto-Light.ttf"; path = "../assets/fonts/Roboto-Light.ttf"; sourceTree = "<group>"; };
 		C294BC6F4CF0491EB03D5826 /* AntDesign.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = AntDesign.ttf; path = "../node_modules/react-native-vector-icons/Fonts/AntDesign.ttf"; sourceTree = "<group>"; };
 		CF0EDC07578F497FA5F2E529 /* Roboto-Black.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Roboto-Black.ttf"; path = "../assets/fonts/Roboto-Black.ttf"; sourceTree = "<group>"; };
+		D3AB10BB05854376B266F7CD /* Helvetica Neue LT Std 75 Bold.otf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = undefined; includeInIndex = 0; lastKnownFileType = unknown; name = "Helvetica Neue LT Std 75 Bold.otf"; path = "../assets/fonts/Helvetica Neue LT Std 75 Bold.otf"; sourceTree = "<group>"; };
 		E345F992AE5C444F832871B8 /* SimpleLineIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = SimpleLineIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/SimpleLineIcons.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
-		D3AB10BB05854376B266F7CD /* Helvetica Neue LT Std 75 Bold.otf */ = {isa = PBXFileReference; name = "Helvetica Neue LT Std 75 Bold.otf"; path = "../assets/fonts/Helvetica Neue LT Std 75 Bold.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		0DA62FCE48E344C4BF8CEDA0 /* HelveticaNeueLTStd-Lt.otf */ = {isa = PBXFileReference; name = "HelveticaNeueLTStd-Lt.otf"; path = "../assets/fonts/HelveticaNeueLTStd-Lt.otf"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
