@@ -340,7 +340,7 @@ class MessageScreen extends Component {
                     message,
                   ]),
                 }));
-                // this.markMessagesAsRead([message]);
+                this.markMessagesAsRead([message]);
                 this.UpdateMessageRuntime(msg, message);
               } else if (
                 msg.chat?.room_id ===
