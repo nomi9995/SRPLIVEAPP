@@ -19,7 +19,7 @@ import FileViewer from "react-native-file-viewer";
 import LocalTimeZone from "react-native-localize";
 import Color from "react-native-gifted-chat/lib/Color";
 import HighlightText from "@sanar/react-native-highlight-text";
-import AudioRecorderPlayer from "react-native-audio-recorder-player";
+// import AudioRecorderPlayer from "react-native-audio-recorder-player";
 
 // Icons
 import Octicons from "react-native-vector-icons/dist/Octicons";
@@ -68,8 +68,8 @@ class MessageBubble extends React.Component {
       isDownloading: false,
       audio_playTime: "00:00",
     };
-    this.audioRecorderPlayer = new AudioRecorderPlayer();
-    this.audioRecorderPlayer.setSubscriptionDuration(0.1); // optional. Default is 0.1
+    // this.audioRecorderPlayer = new AudioRecorderPlayer();
+    // this.audioRecorderPlayer.setSubscriptionDuration(0.1); // optional. Default is 0.1
     this.setMessagesInState();
   }
 
@@ -930,12 +930,13 @@ class MessageBubble extends React.Component {
   changeTime = async (seconds) => {
     // 50 / duration
     let seektime = (seconds / 100) * this.state.audioDuration;
-    this.audioRecorderPlayer.seekToPlayer(seektime);
+    console.log("seektime", seektime);
+    // this.audioRecorderPlayer.seekToPlayer(seektime);
   };
 
   componentWillUnmount = async () => {
-    await this.audioRecorderPlayer.stopPlayer();
-    this.audioRecorderPlayer.removePlayBackListener();
+    // await this.audioRecorderPlayer.stopPlayer();
+    // this.audioRecorderPlayer.removePlayBackListener();
   };
 
   onPausePlay = async () => {
@@ -962,21 +963,12 @@ class MessageBubble extends React.Component {
           break;
         }
         case AudioManager.AUDIO_STATUS.play: {
-          // console.log('play', res);
+          console.log("play", res);
           let e = res.data;
           this.setState({
             currentPositionSec: e.currentPosition,
             currentDurationSec: e.duration,
-            audio_playTime:
-              this.audioRecorderPlayer
-                .mmssss(Math.floor(e.currentPosition))
-                .toString()
-                .split(":")[0] +
-              ":" +
-              this.audioRecorderPlayer
-                .mmssss(Math.floor(e.currentPosition))
-                .toString()
-                .split(":")[1],
+            audio_playTime: res.audio_playTime,
           });
           break;
         }
@@ -1568,16 +1560,18 @@ class MessageBubble extends React.Component {
     }
     return null;
   }
-
+  getVideoName = (video) => {
+    console.log("video0-0-0-0-", video);
+  };
   renderMessageVideo() {
     if (this.props?.currentMessage?.type === 11) {
       let showVideo = JSON.parse(this.props.currentMessage.message).content;
       return this.state?.videosArray ? (
         this.state?.videosArray.map((video, ind) => {
-          let videoImageName =
-            showVideo[ind]?.extenstion == "MOV"
-              ? showVideo[ind]?.name.split(".MOV")[0]
-              : showVideo[ind]?.name.split(".mp4")[0];
+          let videoImageName = showVideo[ind].thumbnail;
+          // showVideo[ind]?.extenstion == "MOV"
+          //   ? showVideo[ind]?.name.split(".MOV")[0]
+          //   : showVideo[ind]?.name.split(".mp4")[0];
           return (
             <View
               key={ind}
@@ -1589,7 +1583,7 @@ class MessageBubble extends React.Component {
               }}
             >
               <CalculatedImageViewer
-                uri={`https://www.srplivehelp.com/media/chats/videos/${videoImageName}.png`}
+                uri={`https://www.srplivehelp.com/media/chats/videos/${videoImageName}`}
               />
               {/* <FastImage
                 source={{
@@ -1675,10 +1669,11 @@ class MessageBubble extends React.Component {
       if (showReply?.reply_message?.reply_type === 11) {
         let showVideoReply = JSON.parse(showReply?.reply_message?.reply_content)
           .content[0];
-        let videoImageName =
-          showVideoReply?.extenstion == "MOV"
-            ? showVideoReply?.name.split(".MOV")[0]
-            : showVideoReply?.name.split(".mp4")[0];
+        console.log("videoreply", showVideoReply.thumbnail);
+        let videoImageName = showVideoReply.thumbnail;
+        // showVideoReply?.extenstion == "MOV"
+        //   ? showVideoReply?.name.split(".MOV")[0]
+        //   : showVideoReply?.name.split(".mp4")[0];
         return (
           <View style={styles[this.props.position].replyImageLinkStickerView}>
             <View style={{ marginRight: "40%" }}>
@@ -1706,7 +1701,7 @@ class MessageBubble extends React.Component {
             <View style={styles.replyVideoImage}>
               <FastImage
                 source={{
-                  uri: `https://www.srplivehelp.com/media/chats/videos/${videoImageName}.png`,
+                  uri: `https://www.srplivehelp.com/media/chats/videos/${videoImageName}`,
                 }}
                 style={styles[this.props.position].replyStickerLinkImage}
               />
@@ -1720,10 +1715,11 @@ class MessageBubble extends React.Component {
         let showVideoMsg = JSON.parse(showVideo.message).content;
         return this.state?.videosArray ? (
           this.state?.videosArray.map((video, ind) => {
-            let videoImageName =
-              showVideoMsg?.[ind]?.extenstion == "MOV"
-                ? showVideoMsg?.[ind]?.name.split(".MOV")[0]
-                : showVideoMsg?.[ind]?.name.split(".mp4")[0];
+            console.log("showVideoMsg", showVideoMsg);
+            let videoImageName = showVideoMsg?.[ind]?.thumbnail;
+            // showVideoMsg?.[ind]?.extenstion == "MOV"
+            //   ? showVideoMsg?.[ind]?.name.split(".MOV")[0]
+            //   : showVideoMsg?.[ind]?.name.split(".mp4")[0];
             return (
               <View
                 key={ind}
@@ -1735,7 +1731,7 @@ class MessageBubble extends React.Component {
                 }}
               >
                 <CalculatedImageViewer
-                  uri={`https://www.srplivehelp.com/media/chats/videos/${videoImageName}.png`}
+                  uri={`https://www.srplivehelp.com/media/chats/videos/${videoImageName}`}
                 />
                 {/* <FastImage
                   source={{
