@@ -81,17 +81,34 @@ class MediaUploadPreview extends React.Component {
       selectedMedia[page].uri = result;
       this.setState({ selectedMedia: selectedMedia });
     } else {
-      this.trimVideo();
-      // if (typeof trimmedUrl === "string") {
-      //   selectedMedia[page].uri = trimmedUrl;
-      //   this.setState({ selectedMedia: selectedMedia, doTrimming: false });
-      // } else {
-      //   this.setState({
-      //     doTrimming: true,
-      //     playVideo: true,
-      //   });
-      // }
+      // this.trimVideo();
+      if (typeof trimmedUrl === "string") {
+        selectedMedia[page].uri = trimmedUrl;
+        this.setState({ selectedMedia: selectedMedia, doTrimming: false });
+      } else {
+        this.setState({
+          doTrimming: true,
+          playVideo: true,
+        });
+      }
     }
+  };
+
+  getVideoInfo = () => {
+    this.videoPlayerRef
+      .getVideoInfo()
+      .then((info) => this.setState({ endTime: info.duration }))
+      .catch(console.warn);
+  };
+
+  getPreviewImageForSecond = (second) => {
+    const maximumSize = { width: 640, height: 1024 }; // default is { width: 1080, height: 1080 } iOS only
+    this.videoPlayerRef
+      .getPreviewForSecond(second, maximumSize) // maximumSize is iOS only
+      .then((base64String) =>
+        console.log("This is BASE64 of image", base64String)
+      )
+      .catch(console.warn);
   };
 
   trimVideo = () => {
@@ -111,6 +128,8 @@ class MediaUploadPreview extends React.Component {
 
     ProcessingManager.trim(selectedMedia[page].uri, options).then((data) => {
       console.log("data: ", data);
+      selectedMedia[page].uri = data;
+      this.setState({ selectedMedia: selectedMedia });
     });
   };
 
@@ -209,7 +228,14 @@ class MediaUploadPreview extends React.Component {
 
         {!doTrimming &&
           (this.props.mediaUploadState ? (
-            <View style={{ flex: 0.07, flexDirection: "row" }}>
+            <View
+              style={{
+                flex: 0.07,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
               <ActivityIndicator size="large" color="#008069" />
               <Text style={{ color: "white", fontSize: 20 }}>
                 {parseInt(this.props.progressData)} %
