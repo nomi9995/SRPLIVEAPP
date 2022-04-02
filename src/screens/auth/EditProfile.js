@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from "react";
 import {
   View,
   StyleSheet,
@@ -10,26 +10,26 @@ import {
   ActivityIndicator,
   SafeAreaView,
   Platform,
-} from 'react-native';
-import FontAwesome from 'react-native-vector-icons/dist/FontAwesome5';
-import {ONLINE} from '../../themes/constantColors';
-import FastImage from 'react-native-fast-image';
-import CountryPicker from 'react-native-country-picker-modal';
-import DateTimePicker from '@react-native-community/datetimepicker';
-import moment from 'moment';
-import DocumentPicker from 'react-native-document-picker';
-import UserService from '../../services/UserService';
-import SelectDropdown from 'react-native-select-dropdown';
-import FontAwesome5 from 'react-native-vector-icons/dist/FontAwesome5';
-import appConfig from '../../utils/appConfig';
+} from "react-native";
+import FontAwesome from "react-native-vector-icons/dist/FontAwesome5";
+import { ONLINE } from "../../themes/constantColors";
+import FastImage from "react-native-fast-image";
+import CountryPicker from "react-native-country-picker-modal";
+import DateTimePicker from "@react-native-community/datetimepicker";
+import moment from "moment";
+import DocumentPicker from "react-native-document-picker";
+import UserService from "../../services/UserService";
+import SelectDropdown from "react-native-select-dropdown";
+import FontAwesome5 from "react-native-vector-icons/dist/FontAwesome5";
+import appConfig from "../../utils/appConfig";
 
 //Component
-import DateTimeModal from '../../components/Modal/DatetimePicker';
-import TimeZoneModal from '../../components/Modal/TimeZoneModal';
+import DateTimeModal from "../../components/Modal/DatetimePicker";
+import TimeZoneModal from "../../components/Modal/TimeZoneModal";
 
 //Redux
-import {connect} from 'react-redux';
-import {setAuthUser} from '../../store/actions';
+import { connect } from "react-redux";
+import { setAuthUser } from "../../store/actions";
 
 class EditProfile extends Component {
   constructor(props) {
@@ -44,7 +44,7 @@ class EditProfile extends Component {
       sex: this.props?.route?.params?.user?.sex,
       timezone: this.props?.route?.params?.user?.timezone,
       imageView: this.props?.route?.params?.user?.avatar,
-      ImagePicked: '',
+      ImagePicked: "",
       loading: false,
       pickerOpen: false,
       showCalender: false,
@@ -58,42 +58,42 @@ class EditProfile extends Component {
     const res = await DocumentPicker.pick({
       type: [DocumentPicker.types.images],
     });
-    this.setState({loading: true});
+    this.setState({ loading: true });
     let avatar = {
       uri: res[0].uri,
       type: res[0].type,
       name: res[0].name,
     };
     let formdata = new FormData();
-    formdata.append('first_name', this.state.first_name);
-    formdata.append('last_name', this.state.last_name);
-    formdata.append('email', this.state.email);
-    formdata.append('timezone', this.state.timezone);
-    formdata.append('avatar', avatar);
-    fetch('https://www.srplivehelp.com/api/save-profile', {
-      method: 'post',
+    formdata.append("first_name", this.state.first_name);
+    formdata.append("last_name", this.state.last_name);
+    formdata.append("email", this.state.email);
+    formdata.append("timezone", this.state.timezone);
+    formdata.append("avatar", avatar);
+    fetch("https://www.srplivehelp.com/api/save-profile", {
+      method: "post",
       headers: {
         Authorization: `Bearer ${token}`,
-        'Content-Type': 'multipart/form-data',
+        "Content-Type": "multipart/form-data",
       },
       body: formdata,
-    }).then(res => {
+    }).then((res) => {
       if (res.status === 200) {
-        UserService.getUser({id: userId}, token).then(res => {
+        UserService.getUser({ id: userId }, token).then((res) => {
           let userObj = {
             token: this.props.user?.token,
             user: res.data.data,
           };
           this.props.onSetAuthUser(userObj);
-          this.props.navigation.navigate('Profile')
+          this.props.navigation.navigate("Profile");
         });
       }
-      this.setState({loading: false});
+      this.setState({ loading: false });
     });
   };
 
   updateProfile = () => {
-    this.setState({loading: true});
+    this.setState({ loading: true });
     let first_name = this.state.first_name;
     let last_name = this.state.last_name;
     let country = this.state.country;
@@ -113,45 +113,46 @@ class EditProfile extends Component {
         dob,
         timezone,
       },
-      token,
-    ).then(res => {
+      token
+    ).then((res) => {
       if (res.data?.data?.success) {
-        UserService.getUser({id: userId}, token).then(res => {
+        UserService.getUser({ id: userId }, token).then((res) => {
           let userObj = {
             token: this.props.user?.token,
             user: res.data.data,
           };
           this.props.onSetAuthUser(userObj);
-          Alert.alert('User Upadted!');
-          this.setState({loading: false});
+          Alert.alert("User Upadted!");
+          this.setState({ loading: false });
         });
       }
     });
   };
   showIcon = () => {
     return (
-      <View style={{marginTop: '3%'}}>
-        <FontAwesome5 name={'chevron-down'} size={17} />
+      <View style={{ marginTop: 0 }}>
+        <FontAwesome5 name={"chevron-down"} size={17} />
       </View>
     );
   };
 
-    onChangeTimezoneModal = (data) => {
-      if (data !== null && data !== undefined) {
-        this.setState({ timezone: data });
-      }
-      this.setState({ timeZoneModalShow: false });
-    };
+  onChangeTimezoneModal = (data) => {
+    if (data !== null && data !== undefined) {
+      this.setState({ timezone: data });
+    }
+    this.setState({ timeZoneModalShow: false });
+  };
 
   render() {
     return (
       <View style={styles.container}>
-        <SafeAreaView style={{backgroundColor: '#008069'}}>
+        <SafeAreaView style={{ backgroundColor: "#008069" }}>
           <View style={styles.headerview}>
             <TouchableOpacity
               style={styles.backButton}
-              onPress={() => this.props.navigation.replace('Profile')}>
-              <FontAwesome name={'arrow-left'} size={20} color={'white'} />
+              onPress={() => this.props.navigation.replace("Profile")}
+            >
+              <FontAwesome name={"arrow-left"} size={20} color={"white"} />
             </TouchableOpacity>
           </View>
         </SafeAreaView>
@@ -164,16 +165,17 @@ class EditProfile extends Component {
                 style={[
                   styles.profileView,
                   {
-                    borderColor: '#fff',
+                    borderColor: "#fff",
                     marginTop: -15,
                   },
-                ]}>
+                ]}
+              >
                 <FastImage
                   style={styles.profileImage}
-                  source={require('../../assets/deafultimage.png')}
+                  // source={require("../../assets/deafultimage.png")}
                   source={
                     this.props?.route?.params?.user?.avatar === null
-                      ? require('../../assets/deafultimage.png')
+                      ? require("../../assets/deafultimage.png")
                       : {
                           uri:
                             appConfig.avatarPath +
@@ -185,8 +187,9 @@ class EditProfile extends Component {
             )}
             <TouchableOpacity
               style={styles.CameraIcon}
-              onPress={() => this.pickImage()}>
-              <FontAwesome name={'camera'} size={20} color={'white'} />
+              onPress={() => this.pickImage()}
+            >
+              <FontAwesome name={"camera"} size={20} color={"white"} />
             </TouchableOpacity>
           </View>
 
@@ -194,7 +197,8 @@ class EditProfile extends Component {
             contentContainerStyle={{
               flexGrow: 1,
               paddingBottom: 40,
-            }}>
+            }}
+          >
             <View style={styles.textInput}>
               <Text style={styles.FirstLastnameText}>First Name</Text>
               <View style={styles.textInputComp}>
@@ -202,8 +206,8 @@ class EditProfile extends Component {
                   style={styles.FirstLastNameTestInput}
                   value={this.state.first_name}
                   placeholder="last name"
-                  placeholderTextColor={'grey'}
-                  onChangeText={first_name => this.setState({first_name})}
+                  placeholderTextColor={"grey"}
+                  onChangeText={(first_name) => this.setState({ first_name })}
                 />
               </View>
             </View>
@@ -215,8 +219,8 @@ class EditProfile extends Component {
                   style={styles.FirstLastNameTestInput}
                   value={this.state.last_name}
                   placeholder="Last name"
-                  placeholderTextColor={'grey'}
-                  onChangeText={last_name => this.setState({last_name})}
+                  placeholderTextColor={"grey"}
+                  onChangeText={(last_name) => this.setState({ last_name })}
                 />
               </View>
             </View>
@@ -228,9 +232,9 @@ class EditProfile extends Component {
                   style={styles.FirstLastNameTestInput}
                   value={this.state.email}
                   placeholder="Email"
-                  placeholderTextColor={'grey'}
-                  keyboardType={'email-address'}
-                  onChangeText={email => this.setState({email})}
+                  placeholderTextColor={"grey"}
+                  keyboardType={"email-address"}
+                  onChangeText={(email) => this.setState({ email })}
                 />
               </View>
             </View>
@@ -239,17 +243,17 @@ class EditProfile extends Component {
               <Text style={styles.FirstLastnameText}>Gender</Text>
               <SelectDropdown
                 renderDropdownIcon={this.showIcon}
-                buttonTextStyle={{marginRight: 250, width: 100}}
-                defaultButtonText={this.state.sex == 0 ? 'Male' : 'Female'}
-                data={['Male', 'Female']}
+                buttonTextStyle={{ left: 18, marginRight: 270, width: 100 }}
+                defaultButtonText={this.state.sex == 0 ? "Male" : "Female"}
+                data={["Male", "Female"]}
                 buttonStyle={{
                   height: 40,
-                  width: '100%',
-                  backgroundColor: '#EDEDED',
+                  width: "100%",
+                  backgroundColor: "#EDEDED",
                   borderRadius: 10,
                 }}
                 onSelect={async (selectedItem, index) => {
-                  await this.setState({sex: index});
+                  await this.setState({ sex: index });
                 }}
               />
             </View>
@@ -258,8 +262,9 @@ class EditProfile extends Component {
               <Text style={styles.FirstLastnameText}>Dob</Text>
               <TouchableOpacity
                 style={[styles.textInputComp, styles.CountryPickerStyle]}
-                onPress={() => this.setState({showCalender: true})}>
-                <Text style={{padding:10}}>{this.state.EventDate}</Text>
+                onPress={() => this.setState({ showCalender: true })}
+              >
+                <Text style={{ padding: 10 }}>{this.state.EventDate}</Text>
               </TouchableOpacity>
             </View>
 
@@ -267,19 +272,20 @@ class EditProfile extends Component {
               <Text style={styles.FirstLastnameText}>Country</Text>
               <TouchableOpacity
                 style={[styles.textInputComp, styles.CountryPickerStyle]}
-                onPress={() => this.setState({countrySelect: true})}>
+                onPress={() => this.setState({ countrySelect: true })}
+              >
                 <CountryPicker
                   {...{
                     countryCode: this.state.country,
                     withFilter: true,
                     withFlag: true,
                     withCountryNameButton: true,
-                    onSelect: country => {
-                      this.setState({country: country.cca2});
+                    onSelect: (country) => {
+                      this.setState({ country: country.cca2 });
                     },
                   }}
                   visible={this.state.countrySelect}
-                  onClose={() => this.setState({countrySelect: false})}
+                  onClose={() => this.setState({ countrySelect: false })}
                 />
               </TouchableOpacity>
             </View>
@@ -298,7 +304,7 @@ class EditProfile extends Component {
                 style={[styles.textInputComp, styles.CountryPickerStyle]}
                 onPress={() => this.setState({ timeZoneModalShow: true })}
               >
-                <Text style={{padding:10}}>{this.state.timezone}</Text>
+                <Text>{this.state.timezone}</Text>
 
                 <TimeZoneModal
                   modalShow={this.state.timeZoneModalShow}
@@ -309,12 +315,14 @@ class EditProfile extends Component {
             <View style={styles.updateButtonContainer}>
               <TouchableOpacity
                 onPress={() => this.updateProfile()}
-                style={styles.updateButton}>
+                style={styles.updateButton}
+              >
                 <Text
                   style={{
-                    color: 'white',
+                    color: "white",
                     fontSize: 16,
-                  }}>
+                  }}
+                >
                   Update Profile
                 </Text>
               </TouchableOpacity>
@@ -323,19 +331,19 @@ class EditProfile extends Component {
         </View>
         <DateTimeModal
           openModal={this.state.showCalender}
-          closeModel={val => this.setState({showCalender: val})}
-          onChangeData={val => this.setState({EventDate: val})}
+          closeModel={(val) => this.setState({ showCalender: val })}
+          onChangeData={(val) => this.setState({ EventDate: val })}
         />
-        {this.state.showCalender && Platform.OS == 'android' && (
+        {this.state.showCalender && Platform.OS == "android" && (
           <DateTimePicker
             testID="dateTimePicker"
             value={new Date()}
             mode="date"
             display="spinner"
             maximumDate={moment().toDate()}
-            onChange={date =>
+            onChange={(date) =>
               onChangeData(
-                moment(date.nativeEvent.timestamp).format('YYYY-MM-DD'),
+                moment(date.nativeEvent.timestamp).format("YYYY-MM-DD")
               )
             }
           />
@@ -345,16 +353,16 @@ class EditProfile extends Component {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     theme: state.auth.theme,
     user: state.auth.user,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    onSetAuthUser: user => {
+    onSetAuthUser: (user) => {
       dispatch(setAuthUser(user));
     },
   };
@@ -364,65 +372,66 @@ export default connect(mapStateToProps, mapDispatchToProps)(EditProfile);
 
 const styles = StyleSheet.create({
   updateButton: {
-    width: '40%',
+    width: "40%",
 
-    backgroundColor: '#008069',
+    backgroundColor: "#008069",
     paddingHorizontal: 6,
     paddingVertical: 10,
     borderRadius: 10,
-    display: 'flex',
-    alignItems: 'center',
+    display: "flex",
+    alignItems: "center",
   },
   updateButtonContainer: {
-    display: 'flex',
-    flexDirection: 'row',
-    alignItems: 'flex-end',
-    justifyContent: 'center',
-    marginTop: '10%',
+    display: "flex",
+    flexDirection: "row",
+    alignItems: "flex-end",
+    justifyContent: "center",
+    marginTop: "10%",
   },
   CountryPickerStyle: {
     height: 40,
-    display: 'flex',
-    flexDirection: 'row',
-    paddingLeft: '1%',
+    display: "flex",
+    alignItems: "center",
+    flexDirection: "row",
+    paddingLeft: "2.5%",
   },
   accountFormView: {
     flex: 1,
-    width: '90%',
+    width: "90%",
   },
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   innerView: {
     flex: 1,
     padding: 10,
-    paddingTop: '10%',
+    paddingTop: "10%",
     paddingBottom: 0,
   },
   bottomButton: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 35,
     right: 20,
     width: 60,
     height: 60,
     borderRadius: 30,
-    justifyContent: 'center',
+    justifyContent: "center",
     backgroundColor: ONLINE,
   },
   headerContainer: {
     flex: 1,
     height: 100,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     borderBottomWidth: 1,
   },
   profileView: {
     width: 100,
     height: 100,
     borderRadius: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   profileImage: {
     width: 100,
@@ -431,8 +440,8 @@ const styles = StyleSheet.create({
   },
   infoView: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginLeft: 10,
     height: 100,
   },
@@ -448,52 +457,52 @@ const styles = StyleSheet.create({
   },
 
   profileImageView: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
     marginTop: 15,
-    width: '100%',
+    width: "100%",
   },
   CameraIcon: {
     width: 40,
     height: 40,
-    backgroundColor: 'rgba(51, 182, 208,0.4)',
+    backgroundColor: "rgba(51, 182, 208,0.4)",
     borderRadius: 20,
-    position: 'absolute',
+    position: "absolute",
     top: -20,
     right: 120,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
   },
   textInput: {
     marginLeft: 10,
     marginRight: 10,
-    width: '95%',
+    width: "95%",
   },
   textInputComp: {
     borderRadius: 5,
     borderWidth: 1,
-    borderColor: 'lightgrey',
+    borderColor: "lightgrey",
     paddingLeft: 5,
-    backgroundColor: '#FAFAFA',
-    color: 'black',
+    backgroundColor: "#FAFAFA",
+    color: "black",
   },
   FirstLastnameText: {
-    color: 'black',
-    fontWeight: '500',
-    paddingVertical: '3%',
+    color: "black",
+    fontWeight: "500",
+    paddingVertical: "3%",
   },
   FirstLastNameTestInput: {
     height: 40,
-    color: 'black',
-    paddingLeft: '1%',
+    color: "black",
+    paddingLeft: "1%",
   },
   headerview: {
-    backgroundColor: '#008069',
+    backgroundColor: "#008069",
   },
   backButton: {
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
     padding: 10,
   },
 });

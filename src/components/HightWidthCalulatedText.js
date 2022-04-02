@@ -1,9 +1,9 @@
-import React, {useState} from 'react';
-import {Text, StyleSheet, Dimensions} from 'react-native';
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
+import React, { useState } from "react";
+import { Text, StyleSheet, Dimensions } from "react-native";
+const windowWidth = Dimensions.get("window").width;
+const windowHeight = Dimensions.get("window").height;
 
-const TextInANest = props => {
+const TextInANest = (props) => {
   const [msgHeight, setMsgHeight] = useState(0);
   const [msgWidth, setMsgWidth] = useState(0);
   return (
@@ -12,14 +12,15 @@ const TextInANest = props => {
         props.style,
         {
           width:
-            msgHeight > 21 && msgWidth > 200 ? windowWidth * 0.8 : undefined,
+            msgHeight > 21 && msgWidth > 200 ? windowWidth * 0.77 : undefined,
         },
       ]}
-      onLayout={e => {
-        const {height, width} = e.nativeEvent.layout;
+      onLayout={(e) => {
+        const { height, width } = e.nativeEvent.layout;
         setMsgHeight(height);
         setMsgWidth(width);
-      }}>
+      }}
+    >
       {props.message}
     </Text>
   );

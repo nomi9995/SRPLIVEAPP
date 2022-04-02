@@ -96,8 +96,12 @@ class Profile extends Component {
             </View>
             <View style={styles.profileDetailView}>
               <View style={styles.profileDetailInnerView}>
-                <FontAwesome name={"user"} size={20} color={"grey"} />
-                <Text style={styles.profileDetailText}>Name</Text>
+                <View style={styles.profileIconContainer}>
+                  <FontAwesome name={"user"} size={20} color={"grey"} />
+                </View>
+                <Text style={[styles.profileDetailText, { marginLeft: -2 }]}>
+                  Name
+                </Text>
               </View>
               <Text style={styles.profileDetailName}>
                 {loginUser?.first_name + " " + loginUser?.last_name}
@@ -105,7 +109,9 @@ class Profile extends Component {
             </View>
             <View style={styles.profileDetailView}>
               <View style={styles.profileDetailInnerView}>
-                <FontAwesome name={"envelope"} size={20} color={"grey"} />
+                <View style={styles.profileIconContainer}>
+                  <FontAwesome name={"envelope"} size={20} color={"grey"} />
+                </View>
                 <Text style={styles.profileDetailText}>Email</Text>
               </View>
               <Text style={styles.profileDetailName} numberOfLines={1}>
@@ -113,8 +119,14 @@ class Profile extends Component {
               </Text>
             </View>
             <View style={styles.profileDetailView}>
-              <View style={[styles.profileDetailInnerView, { width: "26.5%" }]}>
-                <FontAwesome name={"birthday-cake"} size={20} color={"grey"} />
+              <View style={[styles.profileDetailInnerView]}>
+                <View style={styles.profileIconContainer}>
+                  <FontAwesome
+                    name={"birthday-cake"}
+                    size={20}
+                    color={"grey"}
+                  />
+                </View>
                 <Text style={styles.profileDetailText}>Birthday</Text>
               </View>
               <Text style={{ marginLeft: "16%" }}>{loginUser?.dob}</Text>
@@ -122,8 +134,10 @@ class Profile extends Component {
 
             <>
               <View style={styles.profileDetailView}>
-                <View style={[styles.profileDetailInnerView, { width: "29%" }]}>
-                  <FontAwesome name={"clock"} size={20} color={"grey"} />
+                <View style={[styles.profileDetailInnerView]}>
+                  <View style={styles.profileIconContainer}>
+                    <FontAwesome name={"clock"} size={20} color={"grey"} />
+                  </View>
                   <Text style={styles.profileDetailText}>Timezone</Text>
                 </View>
                 <Text style={{ marginLeft: "12%", color: "grey" }}>
@@ -138,21 +152,27 @@ class Profile extends Component {
               style={styles.profileDetailView}
               onPress={() => this.setState({ statusModal: true })}
             >
-              <FontAwesome5 name={"check-circle"} size={20} color={"grey"} />
+              <View style={styles.profileIconContainer}>
+                <FontAwesome5 name={"check-circle"} size={20} color={"grey"} />
+              </View>
               <Text style={styles.SettingInner}>Status</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.profileDetailView}
               onPress={() => this.props.navigation.navigate("DataAndStorge")}
             >
-              <FontAwesome name={"database"} size={20} color={"grey"} />
+              <View style={styles.profileIconContainer}>
+                <FontAwesome name={"database"} size={20} color={"grey"} />
+              </View>
               <Text style={styles.SettingInner}>Data and Storage</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.profileDetailView}
               onPress={() => this.props.navigation.navigate("ChangePassword")}
             >
-              <FontAwesome name={"key"} size={20} color={"grey"} />
+              <View style={styles.profileIconContainer}>
+                <FontAwesome name={"key"} size={20} color={"grey"} />
+              </View>
               <Text style={styles.SettingInner}>Change Password</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -160,7 +180,9 @@ class Profile extends Component {
               // onPress={() => this.props.onSetAuthUser(null)}
               onPress={() => this.setState({ LogoutOutPop: true })}
             >
-              <FontAwesome5 name={"sign-out"} size={20} color={"grey"} />
+              <View style={styles.profileIconContainer}>
+                <FontAwesome5 name={"sign-out"} size={20} color={"grey"} />
+              </View>
               <Text style={styles.SettingInner}>Logout</Text>
             </TouchableOpacity>
           </View>
@@ -253,6 +275,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 5,
     // elevation: 5,
     flexDirection: "row",
+    alignItems: "center",
     marginBottom: 1,
     // shadowOffset: {
     //   width: 0,
@@ -289,8 +312,16 @@ const styles = StyleSheet.create({
   },
   profileDetailInnerView: {
     flexDirection: "row",
-    width: "20%",
+    // width: "20%",
+    alignItems: "center",
     justifyContent: "space-between",
+  },
+  profileIconContainer: {
+    width: 26,
+    height: 26,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: "3%",
   },
   profileDetailText: {
     fontSize: 16,
@@ -304,7 +335,7 @@ const styles = StyleSheet.create({
   SettingInner: {
     fontSize: 16,
     color: "grey",
-    marginLeft: "10%",
+    marginLeft: "1%",
     fontFamily: "Roboto-Bold",
   },
   EditButton: {
