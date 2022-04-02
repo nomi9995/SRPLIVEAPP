@@ -251,17 +251,19 @@ class EditProfile extends Component {
               <Text style={styles.FirstLastnameText}>Gender</Text>
               <SelectDropdown
                 renderDropdownIcon={this.showIcon}
-                buttonTextStyle={{ left: 18, marginRight: 270, width: 100 }}
+                buttonTextStyle={{ right: 0, position: "absolute" }}
                 defaultButtonText={this.state.sex == 0 ? "Male" : "Female"}
                 data={["Male", "Female"]}
                 buttonStyle={{
                   height: 40,
                   width: "100%",
-                  backgroundColor: "#EDEDED",
-                  borderRadius: 10,
+                  backgroundColor: "#fafafa",
+                  borderRadius: 5,
+                  borderColor: "#dcdcdc",
+                  borderWidth: 1,
                 }}
-                onSelect={async (selectedItem, index) => {
-                  await this.setState({ sex: index });
+                onSelect={(selectedItem, index) => {
+                  this.setState({ sex: index });
                 }}
               />
             </View>
@@ -572,7 +574,7 @@ const styles = StyleSheet.create({
     elevation: 5,
   },
   button: {
-    borderRadius: 20,
+    borderRadius: 5,
     padding: 10,
     elevation: 2,
   },
@@ -580,7 +582,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#F194FF",
   },
   buttonClose: {
-    backgroundColor: "green",
+    backgroundColor: "#008069",
   },
   textStyle: {
     color: "white",
