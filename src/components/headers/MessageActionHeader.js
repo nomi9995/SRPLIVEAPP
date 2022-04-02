@@ -1,29 +1,28 @@
-import React, { Component } from 'react';
+import React, { Component } from "react";
 import {
   View,
   StyleSheet,
   Text,
   TouchableOpacity,
   BackHandler,
-} from 'react-native';
-import FontAwesome from 'react-native-vector-icons/dist/FontAwesome';
+} from "react-native";
+import FontAwesome5 from "react-native-vector-icons/dist/FontAwesome5";
 export default class MessageActionHeader extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-    };
+    this.state = {};
   }
 
   componentDidMount = () => {
-    BackHandler.addEventListener('hardwareBackPress', this.hardwareBack);
-  }
+    BackHandler.addEventListener("hardwareBackPress", this.hardwareBack);
+  };
 
   componentWillUnmount = () => {
-    BackHandler.removeEventListener('hardwareBackPress', this.hardwareBack);
-  }
+    BackHandler.removeEventListener("hardwareBackPress", this.hardwareBack);
+  };
 
   hardwareBack = () => {
-    this.props.navProps.navigation.goBack()
+    this.props.navProps.navigation.goBack();
     return true;
   };
 
@@ -31,21 +30,22 @@ export default class MessageActionHeader extends Component {
     const { screen } = this.props;
 
     return (
-      <View >
+      <View>
         <View style={styles.headerview}>
           <TouchableOpacity
             style={styles.backButton}
-            onPress={() => this.props.navProps.navigation.goBack()}>
-            <FontAwesome name={'arrow-left'} size={20} color={'white'} />
+            onPress={() => this.props.navProps.navigation.goBack()}
+          >
+            <FontAwesome5 name={"arrow-left"} size={20} color={"white"} />
           </TouchableOpacity>
           <Text style={styles.settingText}>
-            {screen === "Acknowledgement" || screen === "Favourite" || screen === "NotificationList"
-              || screen === "RespondLater" || screen === "StarredList"
-              ?
-              <>
-                {this.props.screen} List
-              </>
-              : null}
+            {screen === "Acknowledgement" ||
+            screen === "Favourite" ||
+            screen === "NotificationList" ||
+            screen === "RespondLater" ||
+            screen === "StarredList" ? (
+              <>{this.props.screen} List</>
+            ) : null}
           </Text>
         </View>
       </View>
@@ -56,20 +56,20 @@ export default class MessageActionHeader extends Component {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   headerview: {
-    backgroundColor: '#008069',
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 5
+    backgroundColor: "#008069",
+    flexDirection: "row",
+    alignItems: "center",
+    paddingVertical: 5,
   },
   backButton: {
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
     padding: 10,
   },
   settingText: {
-    color: 'white',
+    color: "white",
     fontSize: 20,
     marginLeft: 10,
   },

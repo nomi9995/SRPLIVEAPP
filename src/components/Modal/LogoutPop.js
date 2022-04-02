@@ -72,16 +72,16 @@ class LogoutOut extends Component {
                 }}
               >
                 <Pressable
-                  style={[styles.button, styles.buttonClose]}
+                  style={[styles.button, { backgroundColor: "#38B000" }]}
                   onPress={() => this.props.closeLogoutModel()}
                 >
                   <Text style={styles.textStyle}>Cancel</Text>
                 </Pressable>
                 <Pressable
-                  style={[styles.button, styles.buttonClose]}
+                  style={[styles.button, { backgroundColor: "#d00" }]}
                   onPress={() => this.closeModal()}
                 >
-                  <Text style={styles.textStyle}>Logout</Text>
+                  <Text style={[styles.textStyle]}>Logout</Text>
                 </Pressable>
               </View>
             </View>
@@ -150,5 +150,7 @@ const styles = StyleSheet.create({
   modalText: {
     marginBottom: 10,
     textAlign: "center",
+    color: "black",
+    fontWeight: "600",
   },
 });

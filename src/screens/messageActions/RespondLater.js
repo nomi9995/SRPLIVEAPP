@@ -1,21 +1,21 @@
-import React, {Component} from 'react';
-import {View, StyleSheet, Text, ScrollView, Image} from 'react-native';
-import FontAwesome from 'react-native-vector-icons/dist/FontAwesome5';
-import moment from 'moment';
+import React, { Component } from "react";
+import { View, StyleSheet, Text, ScrollView, Image } from "react-native";
+import FontAwesome from "react-native-vector-icons/dist/FontAwesome5";
+import moment from "moment";
 
 //Redux
-import {setAuthUser, setStickers} from '../../store/actions';
-import {connect} from 'react-redux';
+import { setAuthUser, setStickers } from "../../store/actions";
+import { connect } from "react-redux";
 
 //Services
-import ChatServices from '../../services/ChatServices';
+import ChatServices from "../../services/ChatServices";
 import {
   MessagesQuieries,
   ChatUsersQuieries,
-} from '../../database/services/Services';
+} from "../../database/services/Services";
 //Component
-import MessageActionHeader from '../../components/headers/MessageActionHeader';
-import MessageBubble from '../../components/MessageBubble';
+import MessageActionHeader from "../../components/headers/MessageActionHeader";
+import MessageBubble from "../../components/MessageBubble";
 
 class RespondLater extends Component {
   constructor(props) {
@@ -27,12 +27,12 @@ class RespondLater extends Component {
   }
 
   componentDidMount = () => {
-    if (this.props.route.params?.userData === 'singleUserData') {
+    if (this.props.route.params?.userData === "singleUserData") {
       this.getAllMsgsFromDb();
     } else {
       let token = this.props.user?.token;
-      ChatServices.reponselater(token).then(res => {
-        this.setState({reponselater: res?.data?.data?.chats});
+      ChatServices.reponselater(token).then((res) => {
+        this.setState({ reponselater: res?.data?.data?.chats });
       });
     }
   };
@@ -45,13 +45,13 @@ class RespondLater extends Component {
     } else {
       chatUserId = this.props?.route?.params.selectedUser.user_id;
     }
-    let respondLater = '1';
+    let respondLater = "1";
     MessagesQuieries.selectDbSingleListmessageReppondLater(
-      {onlineUserId, chatUserId, respondLater},
-      res2 => {
-        this.setState({reponselater: res2});
+      { onlineUserId, chatUserId, respondLater },
+      (res2) => {
+        this.setState({ reponselater: res2 });
         // this.setMessageAsGifted(res2, true);
-      },
+      }
     );
   };
 
@@ -60,27 +60,27 @@ class RespondLater extends Component {
       <View style={styles.container}>
         <MessageActionHeader navProps={this.props} screen="RespondLater" />
         <ScrollView style={styles.responseMainView}>
-          {this.state.reponselater?.map(messages => {
+          {this.state.reponselater?.map((messages) => {
             return (
               <>
                 <View style={styles.responseInnerView}>
                   <View style={styles.senderNameAndReceiverView}>
                     <Image
-                      source={require('../../assets/deafultimage.png')}
+                      source={require("../../assets/deafultimage.png")}
                       style={styles.senderReciverImage}
                     />
                     <Text style={styles.senderRevicerText}>
-                      {messages?.first_name + ' ' + messages?.last_name}
+                      {messages?.first_name + " " + messages?.last_name}
                     </Text>
                     <View style={styles.Icon}>
-                      <FontAwesome name={'play'} size={5} color={'white'} />
+                      <FontAwesome name={"play"} size={5} color={"white"} />
                     </View>
                     {/* <Text style={styles.youText}>{messages?.to_user_firstname+' ' +messages?.to_user_lastname}</Text> */}
                     {this.props?.route?.params?.selectedUser?.chat_name ===
                     undefined ? (
                       <Text style={styles.youText}>
                         {messages?.to_user_firstname +
-                          ' ' +
+                          " " +
                           messages?.to_user_lastname}
                       </Text>
                     ) : messages?.first_name ==
@@ -91,26 +91,26 @@ class RespondLater extends Component {
                     ) : (
                       <Text style={styles.youText}>
                         {this.props?.user?.user?.first_name +
-                          ' ' +
+                          " " +
                           this.props?.user?.user?.last_name}
                       </Text>
                     )}
                   </View>
                   <Text style={styles.youText}>
-                    {moment(messages?.time).format('MMM Do YY')}
+                    {moment(messages?.time).format("MMM Do YY")}
                   </Text>
                 </View>
                 <View style={styles.responseMessage}>
                   <MessageBubble starredList={true} currentMessage={messages} />
                   <View style={styles.starAndTime}>
                     <FontAwesome
-                      name={'clock'}
+                      name={"clock"}
                       size={10}
-                      color={'black'}
+                      color={"black"}
                       style={styles.starIcon}
                     />
                     <Text style={styles.responseMessagetime}>
-                      {moment(messages?.time).format('LT')}
+                      {moment(messages?.time).format("LT")}
                     </Text>
                   </View>
                 </View>
@@ -123,19 +123,19 @@ class RespondLater extends Component {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     theme: state.theme.theme,
     user: state.auth.user,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    onSetAuthUser: user => {
+    onSetAuthUser: (user) => {
       dispatch(setAuthUser(user));
     },
-    onSetStickers: stickers => {
+    onSetStickers: (stickers) => {
       dispatch(setStickers(stickers));
     },
   };
@@ -146,37 +146,37 @@ export default connect(mapStateToProps, mapDispatchToProps)(RespondLater);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#dbdbdb',
+    backgroundColor: "#dbdbdb",
   },
   cardDesign: {
-    padding: '5%',
+    padding: "5%",
   },
   Loader_container: {
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
     height: 700,
   },
   header: {
-    justifyContent: 'space-between',
-    marginTop: '2%',
-    backgroundColor: '#008069',
+    justifyContent: "space-between",
+    marginTop: "2%",
+    backgroundColor: "#008069",
   },
   responseMainView: {
     borderBottomWidth: 1,
-    borderBottomColor: 'rgba(0,0,0,0.2)',
+    borderBottomColor: "rgba(0,0,0,0.2)",
     margin: 5,
     marginTop: 10,
   },
   responseInnerView: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
   },
   senderNameAndReceiverView: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
   },
   senderReciverImage: {
     width: 20,
@@ -184,31 +184,31 @@ const styles = StyleSheet.create({
   },
   senderRevicerText: {
     marginHorizontal: 5,
-    color: 'grey',
-    fontWeight: '500',
+    color: "grey",
+    fontWeight: "500",
   },
   Icon: {
-    backgroundColor: 'skyblue',
+    backgroundColor: "skyblue",
     padding: 2,
   },
   youText: {
     marginHorizontal: 5,
-    color: 'grey',
-    fontWeight: '500',
+    color: "grey",
+    fontWeight: "500",
   },
   responseMessage: {
-    backgroundColor: 'white',
-    alignSelf: 'flex-start',
-    marginVertical: '4%',
+    backgroundColor: "white",
+    alignSelf: "flex-start",
+    marginVertical: "4%",
     padding: 5,
     minWidth: 80,
     borderRadius: 5,
-    marginLeft: '2%',
+    marginLeft: "2%",
   },
   starAndTime: {
-    flexDirection: 'row',
-    alignSelf: 'flex-end',
-    justifyContent: 'center',
+    flexDirection: "row",
+    alignSelf: "flex-end",
+    justifyContent: "center",
   },
   starIcon: {
     marginHorizontal: 5,

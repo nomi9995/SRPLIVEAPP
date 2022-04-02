@@ -272,7 +272,7 @@ const styles = StyleSheet.create({
   profileDetailView: {
     backgroundColor: "#FAFAFA",
     padding: 15,
-    marginHorizontal: 5,
+    marginHorizontal: 0,
     // elevation: 5,
     flexDirection: "row",
     alignItems: "center",

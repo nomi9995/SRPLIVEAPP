@@ -8,7 +8,7 @@ import {
   TouchableOpacity,
   ScrollView,
 } from "react-native";
-import FontAwesome5 from 'react-native-vector-icons/dist/FontAwesome5';
+import FontAwesome5 from "react-native-vector-icons/dist/FontAwesome5";
 import TimeZoneHelper from "../Modal/TimeZoneHelper";
 
 class TimeZoneModal extends Component {

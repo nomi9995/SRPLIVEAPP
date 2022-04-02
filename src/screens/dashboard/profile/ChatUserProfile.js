@@ -260,7 +260,7 @@ class ChatUserProfile extends Component {
                           <FontAwesome name={"user"} size={20} color={"grey"} />
                         </View>
                         <Text
-                          style={[styles.profileDetailText, { marginLeft: -3 }]}
+                          style={[styles.profileDetailText, { marginLeft: -2 }]}
                         >
                           Name
                         </Text>

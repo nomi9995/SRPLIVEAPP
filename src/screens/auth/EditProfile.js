@@ -143,6 +143,12 @@ class EditProfile extends Component {
     this.setState({ timeZoneModalShow: false });
   };
 
+  onChangeData = (selectedDate) => {
+    console.log("Selected Date", selectedDate);
+    this.setState({ showCalender: false });
+    this.setState({ EventDate: selectedDate });
+  };
+
   render() {
     return (
       <View style={styles.container}>
@@ -264,7 +270,7 @@ class EditProfile extends Component {
                 style={[styles.textInputComp, styles.CountryPickerStyle]}
                 onPress={() => this.setState({ showCalender: true })}
               >
-                <Text style={{ padding: 10 }}>{this.state.EventDate}</Text>
+                <Text style={{ color: "black" }}>{this.state.EventDate}</Text>
               </TouchableOpacity>
             </View>
 
@@ -304,7 +310,7 @@ class EditProfile extends Component {
                 style={[styles.textInputComp, styles.CountryPickerStyle]}
                 onPress={() => this.setState({ timeZoneModalShow: true })}
               >
-                <Text>{this.state.timezone}</Text>
+                <Text style={{ color: "black" }}>{this.state.timezone}</Text>
 
                 <TimeZoneModal
                   modalShow={this.state.timeZoneModalShow}
@@ -329,20 +335,21 @@ class EditProfile extends Component {
             </View>
           </ScrollView>
         </View>
-        <DateTimeModal
+        {/* <DateTimeModal
           openModal={this.state.showCalender}
           closeModel={(val) => this.setState({ showCalender: val })}
           onChangeData={(val) => this.setState({ EventDate: val })}
-        />
+        /> */}
         {this.state.showCalender && Platform.OS == "android" && (
           <DateTimePicker
+            textColor="#eee"
             testID="dateTimePicker"
             value={new Date()}
             mode="date"
             display="spinner"
             maximumDate={moment().toDate()}
             onChange={(date) =>
-              onChangeData(
+              this.onChangeData(
                 moment(date.nativeEvent.timestamp).format("YYYY-MM-DD")
               )
             }
