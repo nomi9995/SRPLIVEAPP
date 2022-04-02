@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from "react";
 import {
   StyleSheet,
   View,
@@ -10,22 +10,22 @@ import {
   SafeAreaView,
   Dimensions,
   FlatList,
-} from 'react-native';
-import {connect} from 'react-redux';
-import FastImage from 'react-native-fast-image';
-import appConfig from '../../../utils/appConfig';
+} from "react-native";
+import { connect } from "react-redux";
+import FastImage from "react-native-fast-image";
+import appConfig from "../../../utils/appConfig";
 // import ScrollableTabView from 'react-native-scrollable-tab-view';
-import FontAwesome5 from 'react-native-vector-icons/dist/FontAwesome5';
-import FontAwesome from 'react-native-vector-icons/dist/FontAwesome';
-import {SliderBox} from 'react-native-image-slider-box';
-import {onDownload} from '../../../utils/regex';
-import FileViewer from 'react-native-file-viewer';
-import {TabView, SceneMap, TabBar} from 'react-native-tab-view';
+import FontAwesome5 from "react-native-vector-icons/dist/FontAwesome5";
+import FontAwesome from "react-native-vector-icons/dist/FontAwesome";
+import { SliderBox } from "react-native-image-slider-box";
+import { onDownload } from "../../../utils/regex";
+import FileViewer from "react-native-file-viewer";
+import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 
 const BASE_URL = appConfig.imagePath;
 const LOCAL_URL = appConfig.localPath;
 
-const {width, height} = Dimensions.get('window');
+const { width, height } = Dimensions.get("window");
 
 class MediaLinkDoc extends Component {
   constructor(props) {
@@ -37,9 +37,9 @@ class MediaLinkDoc extends Component {
       filesArray: [],
       index: 0,
       routes: [
-        {key: 'first', title: 'MEDIA'},
-        {key: 'second', title: 'DOCS'},
-        {key: 'third', title: 'LINKS'},
+        { key: "first", title: "MEDIA" },
+        { key: "second", title: "DOCS" },
+        { key: "third", title: "LINKS" },
       ],
     };
   }
@@ -47,11 +47,11 @@ class MediaLinkDoc extends Component {
   componentDidMount = () => {
     this.setImagesInState();
     this.setFilesInState();
-    BackHandler.addEventListener('hardwareBackPress', this.hardwareBack);
+    BackHandler.addEventListener("hardwareBackPress", this.hardwareBack);
   };
 
   componentWillUnmount = () => {
-    BackHandler.removeEventListener('hardwareBackPress', this.hardwareBack);
+    BackHandler.removeEventListener("hardwareBackPress", this.hardwareBack);
   };
 
   hardwareBack = () => {
@@ -62,10 +62,10 @@ class MediaLinkDoc extends Component {
   setImagesInState = () => {
     const sharedPhotos = this.props?.route?.params?.item?.shared_photos;
     if (sharedPhotos !== undefined && sharedPhotos !== null) {
-      sharedPhotos.map(res => {
+      sharedPhotos.map((res) => {
         if (JSON.parse(res.message)?.content !== undefined) {
-          JSON.parse(res.message).content.map(data => {
-            if (typeof data === 'string') {
+          JSON.parse(res.message).content.map((data) => {
+            if (typeof data === "string") {
               this.chekcMedia(data);
             } else {
               this.chekcMedia(data.name);
@@ -79,19 +79,19 @@ class MediaLinkDoc extends Component {
   setFilesInState = () => {
     const sharedFiles = this.props?.route?.params?.item?.shared_files;
     if (sharedFiles !== undefined && sharedFiles !== null) {
-      sharedFiles.map(res => {
+      sharedFiles.map((res) => {
         if (JSON.parse(res.message)?.content !== undefined) {
-          JSON.parse(res.message).content.map(data => {
-            if (typeof data === 'string') {
+          JSON.parse(res.message).content.map((data) => {
+            if (typeof data === "string") {
               let imgs = [];
               onDownload
-                .checkExistingMedia(data, 'Files/Sent')
-                .then(resSent => {
+                .checkExistingMedia(data, "Files/Sent")
+                .then((resSent) => {
                   if (resSent) {
                     let file = Object.assign(
-                      {name: data},
-                      {isDownloaded: true},
-                      {isSent: true},
+                      { name: data },
+                      { isDownloaded: true },
+                      { isSent: true }
                     );
                     imgs.push(file);
                     this.setState({
@@ -99,13 +99,13 @@ class MediaLinkDoc extends Component {
                     });
                   } else {
                     onDownload
-                      .checkExistingMedia(data.name, 'Files')
-                      .then(resReceived => {
+                      .checkExistingMedia(data.name, "Files")
+                      .then((resReceived) => {
                         if (resReceived) {
                           let file = Object.assign(
-                            {name: data},
-                            {isDownloaded: true},
-                            {isSent: true},
+                            { name: data },
+                            { isDownloaded: true },
+                            { isSent: true }
                           );
                           imgs.push(file);
                           this.setState({
@@ -113,9 +113,9 @@ class MediaLinkDoc extends Component {
                           });
                         } else {
                           let file = Object.assign(
-                            {name: data},
-                            {isDownloaded: true},
-                            {isSent: true},
+                            { name: data },
+                            { isDownloaded: true },
+                            { isSent: true }
                           );
                           imgs.push(file);
                           this.setState({
@@ -123,24 +123,24 @@ class MediaLinkDoc extends Component {
                           });
                         }
                       })
-                      .catch(err => {
-                        console.log('CheckExistingMediaReceivedError: ', err);
+                      .catch((err) => {
+                        console.log("CheckExistingMediaReceivedError: ", err);
                       });
                   }
                 })
-                .catch(err => {
-                  console.log('CheckExistingMediaSentError: ', err);
+                .catch((err) => {
+                  console.log("CheckExistingMediaSentError: ", err);
                 });
             } else {
               let imgs = [];
               onDownload
-                .checkExistingMedia(data.name, 'Files/Sent')
-                .then(resSent => {
+                .checkExistingMedia(data.name, "Files/Sent")
+                .then((resSent) => {
                   if (resSent) {
                     let file = Object.assign(
                       data,
-                      {isDownloaded: true},
-                      {isSent: true},
+                      { isDownloaded: true },
+                      { isSent: true }
                     );
                     imgs.push(file);
                     this.setState({
@@ -148,13 +148,13 @@ class MediaLinkDoc extends Component {
                     });
                   } else {
                     onDownload
-                      .checkExistingMedia(data.name, 'Files')
-                      .then(resReceived => {
+                      .checkExistingMedia(data.name, "Files")
+                      .then((resReceived) => {
                         if (resReceived) {
                           let file = Object.assign(
                             data,
-                            {isDownloaded: true},
-                            {isSent: false},
+                            { isDownloaded: true },
+                            { isSent: false }
                           );
                           imgs.push(file);
                           this.setState({
@@ -163,8 +163,8 @@ class MediaLinkDoc extends Component {
                         } else {
                           let file = Object.assign(
                             data,
-                            {isDownloaded: false},
-                            {isSent: false},
+                            { isDownloaded: false },
+                            { isSent: false }
                           );
                           imgs.push(file);
                           this.setState({
@@ -172,13 +172,13 @@ class MediaLinkDoc extends Component {
                           });
                         }
                       })
-                      .catch(err => {
-                        console.log('CheckExistingMediaReceivedError: ', err);
+                      .catch((err) => {
+                        console.log("CheckExistingMediaReceivedError: ", err);
                       });
                   }
                 })
-                .catch(err => {
-                  console.log('CheckExistingMediaSentError: ', err);
+                .catch((err) => {
+                  console.log("CheckExistingMediaSentError: ", err);
                 });
             }
           });
@@ -187,20 +187,20 @@ class MediaLinkDoc extends Component {
     }
   };
 
-  chekcMedia = data => {
+  chekcMedia = (data) => {
     let imgs = [];
     onDownload
-      .checkExistingMedia(data, 'Images/Sent')
-      .then(resSent => {
+      .checkExistingMedia(data, "Images/Sent")
+      .then((resSent) => {
         if (resSent) {
-          imgs.push('file://' + LOCAL_URL + 'Images/Sent/' + data);
-          this.setState({imagesArray: [...this.state.imagesArray, ...imgs]});
+          imgs.push("file://" + LOCAL_URL + "Images/Sent/" + data);
+          this.setState({ imagesArray: [...this.state.imagesArray, ...imgs] });
         } else {
           onDownload
-            .checkExistingMedia(data, 'Images')
-            .then(resReceived => {
+            .checkExistingMedia(data, "Images")
+            .then((resReceived) => {
               if (resReceived) {
-                imgs.push('file://' + LOCAL_URL + 'Images/' + data);
+                imgs.push("file://" + LOCAL_URL + "Images/" + data);
                 this.setState({
                   imagesArray: [...this.state.imagesArray, ...imgs],
                 });
@@ -211,22 +211,22 @@ class MediaLinkDoc extends Component {
                 });
               }
             })
-            .catch(err => {
-              console.log('CheckExistingMediaReceivedError: ', err);
+            .catch((err) => {
+              console.log("CheckExistingMediaReceivedError: ", err);
             });
         }
       })
-      .catch(err => {
-        console.log('CheckExistingMediaSentError: ', err);
+      .catch((err) => {
+        console.log("CheckExistingMediaSentError: ", err);
       });
   };
 
-  openFile = data => {
+  openFile = (data) => {
     if (data.isDownloaded && !data.isSent) {
-      let url = LOCAL_URL + 'Files/' + data.name;
+      let url = LOCAL_URL + "Files/" + data.name;
       this.openOptions(url);
     } else if (data.isDownloaded && data.isSent) {
-      let url = LOCAL_URL + 'Files/Sent/' + data.name;
+      let url = LOCAL_URL + "Files/Sent/" + data.name;
       this.openOptions(url);
     } else {
       let url = appConfig.filePath + data.name;
@@ -234,18 +234,18 @@ class MediaLinkDoc extends Component {
     }
   };
 
-  openOptions = async url => {
+  openOptions = async (url) => {
     try {
       await FileViewer.open(url, {
         showOpenWithDialog: true,
         showAppsSuggestions: true,
       });
     } catch (e) {
-      console.log('An error occurred', e);
+      console.log("An error occurred", e);
     }
   };
 
-  renderItem = ({item, index}) => {
+  renderItem = ({ item, index }) => {
     return (
       <TouchableOpacity
         onPress={async () => {
@@ -253,14 +253,15 @@ class MediaLinkDoc extends Component {
             imageView: true,
             firstItem: index,
           });
-        }}>
-        <FastImage style={styles.mediaImages} source={{uri: item}} />
+        }}
+      >
+        <FastImage style={styles.mediaImages} source={{ uri: item }} />
       </TouchableOpacity>
     );
   };
 
   FirstRoute = () => {
-    const {imagesArray} = this.state;
+    const { imagesArray } = this.state;
     return (
       <FlatList
         data={imagesArray}
@@ -291,7 +292,7 @@ class MediaLinkDoc extends Component {
   };
 
   SecondRoute = () => {
-    const {filesArray} = this.state;
+    const { filesArray } = this.state;
     return (
       <ScrollView>
         {filesArray.map((data, ind) => {
@@ -299,18 +300,19 @@ class MediaLinkDoc extends Component {
             <TouchableOpacity
               key={ind}
               style={styles.fileCard1}
-              onPress={() => this.openFile(data)}>
+              onPress={() => this.openFile(data)}
+            >
               <View style={styles.iconView}>
-                {data.extenstion == 'pdf' ? (
+                {data.extenstion == "pdf" ? (
                   <FontAwesome5 name="file-pdf" style={styles.IconStyle} />
-                ) : data.extenstion == 'docx' ? (
+                ) : data.extenstion == "docx" ? (
                   <FontAwesome5 name="file-word" style={styles.IconStyle} />
                 ) : (
                   <FontAwesome5 name="file-alt" style={styles.IconStyle} />
                 )}
 
                 <View style={styles.docView}>
-                  <Text style={{color: 'black'}}>{data.name}</Text>
+                  <Text style={{ color: "black" }}>{data.name}</Text>
                   <Text style={styles.docSize}>
                     {data.size}.{data.extenstion}
                   </Text>
@@ -324,7 +326,7 @@ class MediaLinkDoc extends Component {
   };
 
   ThirdRoute = () => {
-    const {shared_links} = this.props?.route?.params?.item;
+    const { shared_links } = this.props?.route?.params?.item;
     return (
       <ScrollView>
         {shared_links !== 0 &&
@@ -333,7 +335,8 @@ class MediaLinkDoc extends Component {
               <TouchableOpacity
                 key={ind}
                 style={styles.fileCard1}
-                onPress={() => Linking.openURL(JSON.parse(res.message).url)}>
+                onPress={() => Linking.openURL(JSON.parse(res.message).url)}
+              >
                 <View style={styles.linkView}>
                   <View style={styles.link}>
                     <View style={styles.linkInnerView}>
@@ -363,27 +366,28 @@ class MediaLinkDoc extends Component {
     third: this.ThirdRoute,
   });
 
-  renderTabBar = props => (
+  renderTabBar = (props) => (
     <TabBar
       {...props}
-      indicatorStyle={{backgroundColor: 'white'}}
-      style={{backgroundColor: '#008069'}}
+      indicatorStyle={{ backgroundColor: "white" }}
+      style={{ backgroundColor: "#008069" }}
     />
   );
 
   render() {
-    const {index, routes, imagesArray} = this.state;
+    const { index, routes, imagesArray } = this.state;
     return this.state.imageView ? (
-      <SafeAreaView style={{backgroundColor: '#000'}}>
-        <View style={{backgroundColor: '#000'}}>
+      <SafeAreaView style={{ backgroundColor: "#000" }}>
+        <View style={{ backgroundColor: "#000" }}>
           <TouchableOpacity
-            onPress={() => this.setState({imageView: false})}
-            style={styles.crossIconPosition}>
-            <FontAwesome name={'times-circle'} size={40} color="white" />
+            onPress={() => this.setState({ imageView: false })}
+            style={styles.crossIconPosition}
+          >
+            <FontAwesome name={"times-circle"} size={40} color="white" />
           </TouchableOpacity>
           <SliderBox
             firstItem={this.state.firstItem}
-            sliderBoxHeight={'100%'}
+            sliderBoxHeight={"100%"}
             resizeMode="contain"
             images={imagesArray}
           />
@@ -391,38 +395,39 @@ class MediaLinkDoc extends Component {
       </SafeAreaView>
     ) : (
       <View style={styles.container}>
-        <SafeAreaView style={{backgroundColor: '#008069'}}>
+        <SafeAreaView style={{ backgroundColor: "#008069" }}>
           <View style={styles.headerview}>
             <TouchableOpacity
               style={styles.backButton}
-              onPress={() => this.props.navigation.goBack()}>
-              <FontAwesome name={'arrow-left'} size={20} color={'white'} />
+              onPress={() => this.props.navigation.goBack()}
+            >
+              <FontAwesome5 name={"arrow-left"} size={20} color={"white"} />
             </TouchableOpacity>
             <Text style={styles.settingText}> Media </Text>
           </View>
         </SafeAreaView>
         <TabView
-          navigationState={{index, routes}}
+          navigationState={{ index, routes }}
           renderTabBar={this.renderTabBar}
           renderScene={this.renderScene}
-          onIndexChange={data => {
-            this.setState({index: data});
+          onIndexChange={(data) => {
+            this.setState({ index: data });
           }}
-          initialLayout={{width: Dimensions.get('window').width}}
+          initialLayout={{ width: Dimensions.get("window").width }}
         />
       </View>
     );
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     theme: state.auth.theme,
     user: state.auth.user,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {};
 };
 
@@ -431,29 +436,29 @@ export default connect(mapStateToProps, mapDispatchToProps)(MediaLinkDoc);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   fileCard: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    marginHorizontal: '5%',
-    marginVertical: '2%',
-    padding: '2%',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "white",
+    marginHorizontal: "5%",
+    marginVertical: "2%",
+    padding: "2%",
     borderRadius: 5,
     elevation: 5,
   },
   tabView: {
     flex: 1,
-    paddingBottom: '5%',
-    backgroundColor: 'white',
+    paddingBottom: "5%",
+    backgroundColor: "white",
   },
   imageFlexWrap: {
     flex: 1,
-    alignItems: 'center',
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+    alignItems: "center",
+    flexDirection: "row",
+    flexWrap: "wrap",
   },
   mediaImages: {
     width: width * 0.2178,
@@ -464,84 +469,84 @@ const styles = StyleSheet.create({
   },
   tabBarTextStyle: {
     fontSize: 15,
-    fontFamily: 'Roboto-Regular',
+    fontFamily: "Roboto-Regular",
   },
   tabView1: {
     flex: 1,
-    paddingBottom: '5%',
-    backgroundColor: '#EEEEEE',
+    paddingBottom: "5%",
+    backgroundColor: "#EEEEEE",
   },
   fileCard1: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    marginVertical: '1%',
-    padding: '2%',
-    backgroundColor: 'white',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    backgroundColor: "white",
+    marginVertical: "1%",
+    padding: "2%",
+    backgroundColor: "white",
   },
   link: {
-    backgroundColor: '#F7F7F7',
-    flexDirection: 'row',
-    alignItems: 'center',
+    backgroundColor: "#F7F7F7",
+    flexDirection: "row",
+    alignItems: "center",
   },
   headerview: {
-    backgroundColor: '#008069',
-    flexDirection: 'row',
-    alignItems: 'center',
+    backgroundColor: "#008069",
+    flexDirection: "row",
+    alignItems: "center",
   },
   backButton: {
-    alignSelf: 'flex-start',
+    alignSelf: "flex-start",
     padding: 10,
   },
   settingText: {
-    color: 'white',
+    color: "white",
     fontSize: 18,
     marginLeft: 5,
-    fontFamily: 'Roboto-Regular',
+    fontFamily: "Roboto-Regular",
   },
   iconView: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   IconStyle: {
-    color: '#06A88E',
+    color: "#06A88E",
     fontSize: 25,
-    padding: '3%',
+    padding: "3%",
   },
   docView: {
-    marginLeft: '5%',
+    marginLeft: "5%",
     maxWidth: 300,
   },
   docSize: {
-    color: 'grey',
+    color: "grey",
     fontSize: 12,
   },
   linkView: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   linkInnerView: {
-    padding: '7%',
-    backgroundColor: '#CFD8DD',
+    padding: "7%",
+    backgroundColor: "#CFD8DD",
   },
   linkIcon: {
-    color: 'white',
+    color: "white",
     fontSize: 22,
   },
   linkMessage: {
-    width: '80%',
-    justifyContent: 'space-between',
+    width: "80%",
+    justifyContent: "space-between",
     paddingLeft: 5,
   },
   linkTitle: {
     marginTop: 10,
     fontSize: 10,
-    color: 'grey',
+    color: "grey",
   },
 
   crossIconPosition: {
-    position: 'absolute',
+    position: "absolute",
     right: 10,
     top: 10,
     zIndex: 1,

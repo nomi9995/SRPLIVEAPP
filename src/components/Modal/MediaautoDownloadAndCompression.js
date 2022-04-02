@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from "react";
 import {
   Alert,
   Modal,
@@ -8,13 +8,13 @@ import {
   View,
   TouchableOpacity,
   SafeAreaView,
-} from 'react-native';
-import FontAwesome5 from 'react-native-vector-icons/dist/FontAwesome5';
-import UserService from '../../services/UserService';
+} from "react-native";
+import FontAwesome5 from "react-native-vector-icons/dist/FontAwesome5";
+import UserService from "../../services/UserService";
 
 //redux
-import {connect} from 'react-redux';
-import {setAuthUser} from '../../store/actions';
+import { connect } from "react-redux";
+import { setAuthUser } from "../../store/actions";
 
 class MediaautoDownloadAndCompression extends Component {
   state = {
@@ -25,18 +25,19 @@ class MediaautoDownloadAndCompression extends Component {
     this.props.closeBottomModel();
   };
 
-  CompressionData = data => {
+  CompressionData = (data) => {
     let token = this.props.authToken;
     let payload = {
       compression: data,
     };
-    UserService.compressionImage(payload, token).then(res => {
-      console.log('Compression data', res);
+    UserService.compressionImage(payload, token).then((res) => {
+      console.log("Compression data", res);
+      this.props.CompressionData(data);
     });
   };
 
   render() {
-    const {modalVisible} = this.state;
+    const { modalVisible } = this.state;
     return (
       <SafeAreaView style={styles.mainContainer}>
         <Modal
@@ -45,7 +46,8 @@ class MediaautoDownloadAndCompression extends Component {
           visible={this.props.openModal}
           onRequestClose={() => {
             this.closeModal();
-          }}>
+          }}
+        >
           <View style={styles.centeredView}>
             <TouchableOpacity
               onPress={() => this.closeModal()}
@@ -56,20 +58,23 @@ class MediaautoDownloadAndCompression extends Component {
                 <>
                   <TouchableOpacity
                     style={styles.statusButton}
-                    onPress={() => this.CompressionData('low')}>
-                    <Text style={{fontSize: 16}}>Low</Text>
+                    onPress={() => this.CompressionData("low")}
+                  >
+                    <Text style={{ fontSize: 16 }}>Low</Text>
                   </TouchableOpacity>
                   <View style={styles.bottomLine} />
                   <TouchableOpacity
                     style={styles.statusButton}
-                    onPress={() => this.CompressionData('medium')}>
-                    <Text style={{fontSize: 16}}>Medium</Text>
+                    onPress={() => this.CompressionData("medium")}
+                  >
+                    <Text style={{ fontSize: 16 }}>Medium</Text>
                   </TouchableOpacity>
                   <View style={styles.bottomLine} />
                   <TouchableOpacity
                     style={styles.statusButton}
-                    onPress={() => this.CompressionData('high')}>
-                    <Text style={{fontSize: 16}}>High</Text>
+                    onPress={() => this.CompressionData("high")}
+                  >
+                    <Text style={{ fontSize: 16 }}>High</Text>
                   </TouchableOpacity>
                   <View style={styles.bottomLine} />
                 </>
@@ -77,33 +82,38 @@ class MediaautoDownloadAndCompression extends Component {
                 <>
                   <TouchableOpacity
                     style={styles.statusButton}
-                    onPress={() => this.props.setdownload('Always')}>
-                    <Text style={{fontSize: 16}}>Always</Text>
+                    onPress={() => this.props.setdownload("Always")}
+                  >
+                    <Text style={{ fontSize: 16 }}>Always</Text>
                   </TouchableOpacity>
                   <View style={styles.bottomLine} />
                   <TouchableOpacity
                     style={styles.statusButton}
-                    onPress={() => this.props.setdownload('Wifi')}>
-                    <Text style={{fontSize: 16}}>Wifi</Text>
+                    onPress={() => this.props.setdownload("Wifi")}
+                  >
+                    <Text style={{ fontSize: 16 }}>Wifi</Text>
                   </TouchableOpacity>
                   <View style={styles.bottomLine} />
                   <TouchableOpacity
                     style={styles.statusButton}
-                    onPress={() => this.props.setdownload('Mobile Data')}>
-                    <Text style={{fontSize: 16}}>Mobile Data</Text>
+                    onPress={() => this.props.setdownload("Mobile Data")}
+                  >
+                    <Text style={{ fontSize: 16 }}>Mobile Data</Text>
                   </TouchableOpacity>
                   <View style={styles.bottomLine} />
                   <TouchableOpacity
                     style={styles.statusButton}
-                    onPress={() => this.props.setdownload('Never')}>
-                    <Text style={{fontSize: 16}}>Never</Text>
+                    onPress={() => this.props.setdownload("Never")}
+                  >
+                    <Text style={{ fontSize: 16 }}>Never</Text>
                   </TouchableOpacity>
                   <View style={styles.bottomLine} />
                 </>
               )}
               <TouchableOpacity
                 style={styles.cancelButton}
-                onPress={() => this.closeModal()}>
+                onPress={() => this.closeModal()}
+              >
                 <Text>Cancel</Text>
               </TouchableOpacity>
             </View>
@@ -119,16 +129,16 @@ export default MediaautoDownloadAndCompression;
 const styles = StyleSheet.create({
   mainContainer: {
     flex: 1,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
   },
 
   centeredView: {
     flex: 1,
-    justifyContent: 'flex-end',
+    justifyContent: "flex-end",
   },
   modalView: {
-    backgroundColor: 'white',
-    shadowColor: '#000',
+    backgroundColor: "white",
+    shadowColor: "#000",
     shadowOpacity: 0.25,
     shadowRadius: 4,
     elevation: 5,
@@ -141,14 +151,14 @@ const styles = StyleSheet.create({
     shadowRadius: 4,
   },
   statusButton: {
-    flexDirection: 'row',
+    flexDirection: "row",
     padding: 12,
-    alignSelf: 'center',
+    alignSelf: "center",
   },
   cancelButton: {
-    backgroundColor: 'white',
+    backgroundColor: "white",
     padding: 12,
-    alignItems: 'center',
+    alignItems: "center",
     paddingHorizontal: 10,
     marginTop: 5,
     marginBottom: 1,
@@ -164,13 +174,13 @@ const styles = StyleSheet.create({
   },
   modalOpacityView: {
     flex: 1,
-    backgroundColor: 'grey',
+    backgroundColor: "grey",
     opacity: 0.9,
     borderRadius: 10,
   },
 
   bottomLine: {
     borderBottomWidth: 1,
-    borderBottomColor: 'lightgrey',
+    borderBottomColor: "lightgrey",
   },
 });
