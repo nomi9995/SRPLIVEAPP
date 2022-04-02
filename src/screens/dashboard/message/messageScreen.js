@@ -228,7 +228,7 @@ class MessageScreen extends Component {
       { onlineUserId, chatUserId, isroom, offset },
       (res2) => {
         if (res2 !== null) {
-          this.setMessageAsGifted(res2);
+          this.setMessageAsGifted(res2, true);
         }
       }
     );
@@ -340,7 +340,7 @@ class MessageScreen extends Component {
                     message,
                   ]),
                 }));
-                // this.markMessagesAsRead([message]);
+                this.markMessagesAsRead([message]);
                 this.UpdateMessageRuntime(msg, message);
               } else if (
                 msg.chat?.room_id ===
