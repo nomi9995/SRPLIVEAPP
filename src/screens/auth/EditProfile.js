@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   SafeAreaView,
   Platform,
+  Modal,
 } from "react-native";
 import FontAwesome from "react-native-vector-icons/dist/FontAwesome5";
 import { ONLINE } from "../../themes/constantColors";
@@ -22,6 +23,7 @@ import UserService from "../../services/UserService";
 import SelectDropdown from "react-native-select-dropdown";
 import FontAwesome5 from "react-native-vector-icons/dist/FontAwesome5";
 import appConfig from "../../utils/appConfig";
+let ioschangeDate = moment().format("YYYY-MM-DD");
 
 //Component
 import DateTimeModal from "../../components/Modal/DatetimePicker";
@@ -355,6 +357,48 @@ class EditProfile extends Component {
             }
           />
         )}
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={this.state.showCalender && Platform.OS === "ios"}
+          onRequestClose={() => {
+            // Alert.alert('Modal has been closed.');
+            setShowCalender(!this.state.showCalender);
+          }}
+        >
+          <View style={styles.centeredView}>
+            <View style={styles.modalView}>
+              <TouchableOpacity
+                onPress={() => {
+                  this.setState({ showCalender: !this.state.showCalender });
+                }}
+                style={{ alignSelf: "flex-end" }}
+              >
+                <FontAwesome5 name={"times-circle"} size={20} color="grey" />
+              </TouchableOpacity>
+              <Text style={styles.pickDateText}>Pick a date</Text>
+              <DateTimePicker
+                testID="dateTimePicker"
+                value={moment().toDate()}
+                mode="date"
+                display="spinner"
+                maximumDate={moment().toDate()}
+                onChange={(date) =>
+                  (ioschangeDate = moment(date.nativeEvent.timestamp).format(
+                    "YYYY-MM-DD"
+                  ))
+                }
+              />
+
+              <TouchableOpacity
+                style={[styles.button, styles.buttonClose]}
+                onPress={() => this.onChangeData(ioschangeDate)}
+              >
+                <Text style={styles.textStyle}>Save</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </Modal>
       </View>
     );
   }
@@ -511,5 +555,46 @@ const styles = StyleSheet.create({
   backButton: {
     alignSelf: "flex-start",
     padding: 10,
+  },
+  modalView: {
+    margin: 10,
+    backgroundColor: "white",
+    borderRadius: 20,
+    padding: 35,
+    // alignItems: 'center',
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 2,
+    },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+    elevation: 5,
+  },
+  button: {
+    borderRadius: 20,
+    padding: 10,
+    elevation: 2,
+  },
+  buttonOpen: {
+    backgroundColor: "#F194FF",
+  },
+  buttonClose: {
+    backgroundColor: "green",
+  },
+  textStyle: {
+    color: "white",
+    fontWeight: "bold",
+    textAlign: "center",
+  },
+  centeredView: {
+    flex: 1,
+    justifyContent: "flex-end",
+    marginTop: 22,
+  },
+  pickDateText: {
+    alignSelf: "center",
+    fontWeight: "bold",
+    fontSize: 15,
   },
 });
