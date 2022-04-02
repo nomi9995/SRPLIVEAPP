@@ -928,6 +928,7 @@ class MessageBubble extends React.Component {
   }
 
   changeTime = async (seconds) => {
+    console.log("seconds", seconds);
     // 50 / duration
     let seektime = (seconds / 100) * this.state.audioDuration;
     console.log("seektime", seektime);
@@ -2278,9 +2279,10 @@ const styles = {
   },
   videoPlayIcon: {
     position: "absolute",
-    top: "40%",
-    left: "40%",
+    width: "100%",
+    height: "100%",
     alignItems: "center",
+    justifyContent: "center",
   },
   messageSendReplyImage: {
     marginHorizontal: 20,
