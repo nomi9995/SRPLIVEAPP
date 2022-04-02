@@ -228,7 +228,7 @@ class MessageScreen extends Component {
       { onlineUserId, chatUserId, isroom, offset },
       (res2) => {
         if (res2 !== null) {
-          this.setMessageAsGifted(res2);
+          this.setMessageAsGifted(res2, true);
         }
       }
     );
