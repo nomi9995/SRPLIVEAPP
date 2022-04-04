@@ -16,6 +16,7 @@ import {
 //Component
 import MessageActionHeader from "../../components/headers/MessageActionHeader";
 import MessageBubble from "../../components/MessageBubble";
+import NoItemCard from "../../components/NoItemCard";
 
 class RespondLater extends Component {
   constructor(props) {
@@ -59,65 +60,72 @@ class RespondLater extends Component {
     return (
       <View style={styles.container}>
         <MessageActionHeader navProps={this.props} screen="RespondLater" />
-        <ScrollView style={styles.responseMainView}>
-          {this.state.reponselater?.map((messages) => {
-            return (
-              <>
-                <View style={styles.responseInnerView}>
-                  <View style={styles.senderNameAndReceiverView}>
-                    <Image
-                      source={require("../../assets/deafultimage.png")}
-                      style={styles.senderReciverImage}
-                    />
-                    <Text style={styles.senderRevicerText}>
-                      {messages?.first_name + " " + messages?.last_name}
-                    </Text>
-                    <View style={styles.Icon}>
-                      <FontAwesome name={"play"} size={5} color={"white"} />
+        {this.state.reponselater && this.state.reponselater.length > 0 ? (
+          <ScrollView style={styles.responseMainView}>
+            {this.state.reponselater?.map((messages) => {
+              return (
+                <>
+                  <View style={styles.responseInnerView}>
+                    <View style={styles.senderNameAndReceiverView}>
+                      <Image
+                        source={require("../../assets/deafultimage.png")}
+                        style={styles.senderReciverImage}
+                      />
+                      <Text style={styles.senderRevicerText}>
+                        {messages?.first_name + " " + messages?.last_name}
+                      </Text>
+                      <View style={styles.Icon}>
+                        <FontAwesome name={"play"} size={5} color={"white"} />
+                      </View>
+                      {/* <Text style={styles.youText}>{messages?.to_user_firstname+' ' +messages?.to_user_lastname}</Text> */}
+                      {this.props?.route?.params?.selectedUser?.chat_name ===
+                      undefined ? (
+                        <Text style={styles.youText}>
+                          {messages?.to_user_firstname +
+                            " " +
+                            messages?.to_user_lastname}
+                        </Text>
+                      ) : messages?.first_name ==
+                        this.props.user.user.first_name ? (
+                        <Text style={styles.youText}>
+                          {this.props?.route?.params?.selectedUser?.chat_name}
+                        </Text>
+                      ) : (
+                        <Text style={styles.youText}>
+                          {this.props?.user?.user?.first_name +
+                            " " +
+                            this.props?.user?.user?.last_name}
+                        </Text>
+                      )}
                     </View>
-                    {/* <Text style={styles.youText}>{messages?.to_user_firstname+' ' +messages?.to_user_lastname}</Text> */}
-                    {this.props?.route?.params?.selectedUser?.chat_name ===
-                    undefined ? (
-                      <Text style={styles.youText}>
-                        {messages?.to_user_firstname +
-                          " " +
-                          messages?.to_user_lastname}
-                      </Text>
-                    ) : messages?.first_name ==
-                      this.props.user.user.first_name ? (
-                      <Text style={styles.youText}>
-                        {this.props?.route?.params?.selectedUser?.chat_name}
-                      </Text>
-                    ) : (
-                      <Text style={styles.youText}>
-                        {this.props?.user?.user?.first_name +
-                          " " +
-                          this.props?.user?.user?.last_name}
-                      </Text>
-                    )}
-                  </View>
-                  <Text style={styles.youText}>
-                    {moment(messages?.time).format("MMM Do YY")}
-                  </Text>
-                </View>
-                <View style={styles.responseMessage}>
-                  <MessageBubble starredList={true} currentMessage={messages} />
-                  <View style={styles.starAndTime}>
-                    <FontAwesome
-                      name={"clock"}
-                      size={10}
-                      color={"black"}
-                      style={styles.starIcon}
-                    />
-                    <Text style={styles.responseMessagetime}>
-                      {moment(messages?.time).format("LT")}
+                    <Text style={styles.youText}>
+                      {moment(messages?.time).format("MMM Do YY")}
                     </Text>
                   </View>
-                </View>
-              </>
-            );
-          })}
-        </ScrollView>
+                  <View style={styles.responseMessage}>
+                    <MessageBubble
+                      starredList={true}
+                      currentMessage={messages}
+                    />
+                    <View style={styles.starAndTime}>
+                      <FontAwesome
+                        name={"clock"}
+                        size={10}
+                        color={"black"}
+                        style={styles.starIcon}
+                      />
+                      <Text style={styles.responseMessagetime}>
+                        {moment(messages?.time).format("LT")}
+                      </Text>
+                    </View>
+                  </View>
+                </>
+              );
+            })}
+          </ScrollView>
+        ) : (
+          <NoItemCard icon="history" msg="You have no message to respond." />
+        )}
       </View>
     );
   }

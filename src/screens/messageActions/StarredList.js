@@ -27,6 +27,7 @@ import {
 //Component
 import MessageActionHeader from "../../components/headers/MessageActionHeader";
 import MessageBubble from "../../components/MessageBubble";
+import NoItemCard from "../../components/NoItemCard";
 
 class StarredList extends Component {
   constructor(props) {
@@ -71,7 +72,7 @@ class StarredList extends Component {
     return (
       <View style={styles.container}>
         <MessageActionHeader navProps={this.props} screen="StarredList" />
-        {this.state.starredList.length > 0 ? (
+        {this.state.starredList && this.state.starredList.length > 0 ? (
           <ScrollView style={styles.starredMainView}>
             {this.state.starredList?.map((messages) => {
               return (
@@ -134,17 +135,11 @@ class StarredList extends Component {
             })}
           </ScrollView>
         ) : (
-          <View style={styles.noStarContainer}>
-            <View style={{ width: "70%", alignItems: "center" }}>
-              <View style={styles.iconContainer}>
-                <Ionicons name="star" size={55} color="white" />
-              </View>
-              <Text style={styles.noStarText}>
-                Tap and hold on any message in any chat to star it, so you can
-                easliy find it later.
-              </Text>
-            </View>
-          </View>
+          <NoItemCard
+            icon="star"
+            msg="Tap and hold on any message in any chat to star it, so you can
+          easliy find it later."
+          />
         )}
       </View>
     );
@@ -238,25 +233,5 @@ const styles = StyleSheet.create({
   },
   starredMessagetime: {
     fontSize: 10,
-  },
-  noStarContainer: {
-    flex: 0.95,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  iconContainer: {
-    justifyContent: "center",
-    alignItems: "center",
-    width: 140,
-    height: 140,
-    borderRadius: 140 / 2,
-    backgroundColor: "#008069",
-    marginBottom: "10%",
-  },
-  noStarText: {
-    color: "grey",
-    fontSize: 16,
-    lineHeight: 24,
-    textAlign: "center",
   },
 });
