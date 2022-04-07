@@ -356,9 +356,9 @@ class HomeHeader extends React.PureComponent {
                           size={20}
                           color={"white"}
                         />
-                        <Text style={{ color: "white", fontSize: 12 }}>
+                        {/* <Text style={{ color: "white", fontSize: 12 }}>
                           share
-                        </Text>
+                        </Text> */}
                       </TouchableOpacity>
                     ) : null}
                   </>
@@ -680,9 +680,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   profileImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 45,
+    height: 45,
+    borderRadius: 45 / 2,
     marginHorizontal: "5%",
   },
   usernameText: {

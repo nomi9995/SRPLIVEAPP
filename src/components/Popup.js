@@ -23,6 +23,7 @@ import { connect } from "react-redux";
 
 //Component
 import FilterModal from "./Modal/FilterModal";
+import RemindMeModel from "./Modal/RemindMeModel";
 
 class Popup extends Component {
   constructor(props) {
@@ -30,6 +31,7 @@ class Popup extends Component {
     this.state = {
       currentIndex: 0,
       filtermodal: false,
+      statusModal: false,
     };
   }
   AcknowledgementMessage = (data) => {
@@ -169,7 +171,12 @@ class Popup extends Component {
                 </View>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.popButton}>
+              <TouchableOpacity
+                style={styles.popButton}
+                onPress={() => {
+                  this.setState({ statusModal: true });
+                }}
+              >
                 <View style={styles.iconContainer}>
                   <Ionicons name="alarm-outline" size={26} color="#c2c2c2" />
                 </View>
@@ -177,6 +184,13 @@ class Popup extends Component {
                 <View style={styles.textContainer}>
                   <Text style={styles.popTitleText}>Remind Me</Text>
                 </View>
+                {this.state.statusModal ? (
+                  <RemindMeModel
+                    visible={this.state.statusModal}
+                    closeModal={(data) => this.setState({ statusModal: data })}
+                    afterDbUpdate={(data) => this.afterDbUpdated(data)}
+                  />
+                ) : null}
               </TouchableOpacity>
             </View>
             <TouchableOpacity
