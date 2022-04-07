@@ -2,13 +2,11 @@ import React from "react";
 import { Text, LogBox, Platform } from "react-native";
 import AppNavigator from "./src/AppNavigator";
 import AsyncStorage from "@react-native-community/async-storage";
-import {
-  PESDK,
-  PhotoEditorModal,
-  Configuration,
-} from "react-native-photoeditorsdk";
+import { PESDK, PhotoEditorModal } from "react-native-photoeditorsdk";
+import { VESDK, VideoEditorModal } from "react-native-videoeditorsdk";
+
 import sdklicense from "./src/license/pesdk_android_license";
-import iossdklicense from "./src/license/pesdk_Ios_license";
+import VESDKandroidlicense from "./src/license/vesdk_android_license";
 // Redux
 import { Provider } from "react-redux";
 import { PersistGate } from "redux-persist/integration/react";
@@ -38,7 +36,9 @@ export default class App extends React.Component {
     console.log("sdklicense", sdklicense);
     if (Platform.OS == "android") {
       PESDK.unlockWithLicense(sdklicense);
+      VESDK.unlockWithLicense(VESDKandroidlicense);
     } else {
+      // VESDK.unlockWithLicense(VESDKandroidlicense);
       // PESDK.unlockWithLicense(iossdklicense);
     }
   };
