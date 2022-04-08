@@ -11,8 +11,8 @@ const TextInANest = (props) => {
       style={[
         props.style,
         {
-          width:
-            msgHeight > 21 && msgWidth > 200 ? windowWidth * 0.77 : undefined,
+          width: props.message.length > 40 ? windowWidth * 0.77 : undefined,
+          //   msgHeight > 21 && msgWidth > 200 ? windowWidth * 0.77 : undefined,
         },
       ]}
       onLayout={(e) => {

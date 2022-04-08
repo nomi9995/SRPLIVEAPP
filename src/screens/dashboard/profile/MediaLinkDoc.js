@@ -21,6 +21,7 @@ import { SliderBox } from "react-native-image-slider-box";
 import { onDownload } from "../../../utils/regex";
 import FileViewer from "react-native-file-viewer";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
+import NotFoundText from "../../../components/NotFoundText";
 
 const BASE_URL = appConfig.imagePath;
 const LOCAL_URL = appConfig.localPath;
@@ -263,12 +264,19 @@ class MediaLinkDoc extends Component {
   FirstRoute = () => {
     const { imagesArray } = this.state;
     return (
-      <FlatList
-        data={imagesArray}
-        keyExtractor={(item, index) => index}
-        renderItem={this.renderItem}
-        numColumns={4}
-      />
+      <>
+        {imagesArray.length > 0 ? (
+          <FlatList
+            data={imagesArray}
+            keyExtractor={(item, index) => index}
+            renderItem={this.renderItem}
+            numColumns={4}
+          />
+        ) : (
+          <NotFoundText text="No media found" />
+        )}
+      </>
+
       // <ScrollView>
       //   <View style={styles.imageFlexWrap}>
       //     <>
@@ -294,69 +302,81 @@ class MediaLinkDoc extends Component {
   SecondRoute = () => {
     const { filesArray } = this.state;
     return (
-      <ScrollView>
-        {filesArray.map((data, ind) => {
-          return (
-            <TouchableOpacity
-              key={ind}
-              style={styles.fileCard1}
-              onPress={() => this.openFile(data)}
-            >
-              <View style={styles.iconView}>
-                {data.extenstion == "pdf" ? (
-                  <FontAwesome5 name="file-pdf" style={styles.IconStyle} />
-                ) : data.extenstion == "docx" ? (
-                  <FontAwesome5 name="file-word" style={styles.IconStyle} />
-                ) : (
-                  <FontAwesome5 name="file-alt" style={styles.IconStyle} />
-                )}
+      <>
+        {filesArray.length > 0 ? (
+          <ScrollView>
+            {filesArray.map((data, ind) => {
+              return (
+                <TouchableOpacity
+                  key={ind}
+                  style={styles.fileCard1}
+                  onPress={() => this.openFile(data)}
+                >
+                  <View style={styles.iconView}>
+                    {data.extenstion == "pdf" ? (
+                      <FontAwesome5 name="file-pdf" style={styles.IconStyle} />
+                    ) : data.extenstion == "docx" ? (
+                      <FontAwesome5 name="file-word" style={styles.IconStyle} />
+                    ) : (
+                      <FontAwesome5 name="file-alt" style={styles.IconStyle} />
+                    )}
 
-                <View style={styles.docView}>
-                  <Text style={{ color: "black" }}>{data.name}</Text>
-                  <Text style={styles.docSize}>
-                    {data.size}.{data.extenstion}
-                  </Text>
-                </View>
-              </View>
-            </TouchableOpacity>
-          );
-        })}
-      </ScrollView>
+                    <View style={styles.docView}>
+                      <Text style={{ color: "black" }}>{data.name}</Text>
+                      <Text style={styles.docSize}>
+                        {data.size}.{data.extenstion}
+                      </Text>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              );
+            })}
+          </ScrollView>
+        ) : (
+          <NotFoundText text="No documents found" />
+        )}
+      </>
     );
   };
 
   ThirdRoute = () => {
     const { shared_links } = this.props?.route?.params?.item;
     return (
-      <ScrollView>
-        {shared_links !== 0 &&
-          shared_links?.map((res, ind) => {
-            return (
-              <TouchableOpacity
-                key={ind}
-                style={styles.fileCard1}
-                onPress={() => Linking.openURL(JSON.parse(res.message).url)}
-              >
-                <View style={styles.linkView}>
-                  <View style={styles.link}>
-                    <View style={styles.linkInnerView}>
-                      <FontAwesome name="link" style={styles.linkIcon} />
+      <>
+        {shared_links ? (
+          <ScrollView>
+            {shared_links !== 0 &&
+              shared_links?.map((res, ind) => {
+                return (
+                  <TouchableOpacity
+                    key={ind}
+                    style={styles.fileCard1}
+                    onPress={() => Linking.openURL(JSON.parse(res.message).url)}
+                  >
+                    <View style={styles.linkView}>
+                      <View style={styles.link}>
+                        <View style={styles.linkInnerView}>
+                          <FontAwesome name="link" style={styles.linkIcon} />
+                        </View>
+                        <View style={styles.linkMessage}>
+                          <Text></Text>
+                          <Text numberOfLines={1}>
+                            {JSON.parse(res.message).url}
+                          </Text>
+                          <Text style={styles.linkTitle}>
+                            {JSON.parse(res.message).title}
+                          </Text>
+                        </View>
+                      </View>
                     </View>
-                    <View style={styles.linkMessage}>
-                      <Text></Text>
-                      <Text numberOfLines={1}>
-                        {JSON.parse(res.message).url}
-                      </Text>
-                      <Text style={styles.linkTitle}>
-                        {JSON.parse(res.message).title}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-              </TouchableOpacity>
-            );
-          })}
-      </ScrollView>
+                  </TouchableOpacity>
+                );
+              })}
+          </ScrollView>
+        ) : (
+          <NotFoundText text="No links found" />
+        )}
+      </>
     );
   };
 

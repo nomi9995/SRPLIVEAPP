@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 import {
   View,
   StyleSheet,
@@ -7,10 +7,10 @@ import {
   Platform,
   Keyboard,
   Alert,
-} from 'react-native';
-import FontAwesome from 'react-native-vector-icons/dist/FontAwesome5';
-import Feather from 'react-native-vector-icons/dist/Feather';
-import {socket} from '../../../sockets/connection';
+} from "react-native";
+import FontAwesome from "react-native-vector-icons/dist/FontAwesome5";
+import Feather from "react-native-vector-icons/dist/Feather";
+import { socket } from "../../../sockets/connection";
 
 //Redux
 import {
@@ -20,13 +20,13 @@ import {
   setReplyState,
   setMediaType,
   setMessageText,
-} from '../../../store/actions';
+} from "../../../store/actions";
 
-import {connect} from 'react-redux';
+import { connect } from "react-redux";
 
 //Components
-import ReplySelectedMessage from '../../../components/ReplySelectedMessage';
-import AudioMessage from '../../../components/AudioMessage';
+import ReplySelectedMessage from "../../../components/ReplySelectedMessage";
+import AudioMessage from "../../../components/AudioMessage";
 
 class MessageInputToolBar extends React.PureComponent {
   constructor(props) {
@@ -38,48 +38,48 @@ class MessageInputToolBar extends React.PureComponent {
   }
 
   renderMediaOptions() {
-    return <View>{this.props.renderMediaOptions('mediaOptionOpen')}</View>;
+    return <View>{this.props.renderMediaOptions("mediaOptionOpen")}</View>;
   }
 
   renderStickers() {
-    return <View>{this.props.renderMediaOptions('stickers')}</View>;
+    return <View>{this.props.renderMediaOptions("stickers")}</View>;
   }
 
-  onChangeText = text => {
+  onChangeText = (text) => {
     this.props.onSetMessageText(text);
-    if (text === '') {
+    if (text === "") {
       let typing_off = {
         typing_user: this.props.user?.user.id,
         active_room: null,
         active_user: this.props.selectedUser.user_id,
       };
-      socket.emit('typing_off', JSON.stringify(typing_off));
+      socket.emit("typing_off", JSON.stringify(typing_off));
     } else {
       let obj = {
         typing_user: this.props.user?.user.id,
         active_room: null,
         active_user: this.props.selectedUser.user_id,
       };
-      socket.emit('typing_on', JSON.stringify(obj));
+      socket.emit("typing_on", JSON.stringify(obj));
     }
   };
 
   render() {
-    const {longPress} = this.props;
+    const { longPress } = this.props;
 
     if (longPress.length !== 0 && this.props.messageEdit) {
       if (longPress[0].type === 1 && this.state.changeText) {
         this.props.onSetMessageText(longPress[0].message);
-        this.setState({changeText: false});
+        this.setState({ changeText: false });
       } else if (longPress[0].type === 8) {
         let msg = JSON.parse(longPress[0].message).new_message;
         if (msg.new_type === 1 && this.state.changeText) {
           this.props.onSetMessageText(msg.new_content);
-          this.setState({changeText: false});
+          this.setState({ changeText: false });
         }
       }
     } else {
-      this.setState({changeText: true});
+      this.setState({ changeText: true });
     }
 
     return (
@@ -88,8 +88,8 @@ class MessageInputToolBar extends React.PureComponent {
         {this.props.stickerOpen && this.renderStickers()}
         {this.state.audioRecod ? (
           <AudioMessage
-            onCancelAudio={() => this.setState({audioRecod: false})}
-            sendAudioMessage={data => this.props.onSendAudioMessage(data)}
+            onCancelAudio={() => this.setState({ audioRecod: false })}
+            sendAudioMessage={(data) => this.props.onSendAudioMessage(data)}
           />
         ) : (
           <View style={styles.container}>
@@ -100,9 +100,9 @@ class MessageInputToolBar extends React.PureComponent {
                   <TextInput
                     placeholder="Type Here"
                     value={this.props.messageText}
-                    placeholderTextColor={'lightgrey'}
+                    placeholderTextColor={"grey"}
                     multiline={true}
-                    onChangeText={text => this.onChangeText(text)}
+                    onChangeText={(text) => this.onChangeText(text)}
                     style={styles.inputField}
                     maxLength={999}
                   />
@@ -119,17 +119,19 @@ class MessageInputToolBar extends React.PureComponent {
                     } else if (!this.props.mediaOptionsOpen) {
                       this.props.onSetMediaOptionsOpen(true);
                     }
-                  }}>
-                  <Feather name={'plus'} size={30} color="#6B93F9" />
+                  }}
+                >
+                  <Feather name={"plus"} size={30} color="#6B93F9" />
                 </TouchableOpacity>
 
                 {(this.props.messageText === null ||
-                  this.props.messageText.trim() === '') &&
+                  this.props.messageText.trim() === "") &&
                 !this.props.replyState ? (
                   <TouchableOpacity
                     style={styles.buttonWrapper}
-                    onPress={() => this.setState({audioRecod: true})}>
-                    <Feather name={'mic'} size={25} color="#6B93F9" />
+                    onPress={() => this.setState({ audioRecod: true })}
+                  >
+                    <Feather name={"mic"} size={25} color="#6B93F9" />
                   </TouchableOpacity>
                 ) : (
                   <TouchableOpacity
@@ -138,31 +140,32 @@ class MessageInputToolBar extends React.PureComponent {
                       if (this.props.replyState && !this.props.messageEdit) {
                         if (this.props.messageText.trim().length < 1000) {
                           this.props.onSendReplyMessage(
-                            this.props.messageText.trim(),
+                            this.props.messageText.trim()
                           );
                           this.props.onSetMessageText(null);
                         } else {
                           Alert.alert(
-                            'Sorry',
-                            `Sorry, Your message is too long!`,
+                            "Sorry",
+                            `Sorry, Your message is too long!`
                           );
                         }
                       } else {
                         if (this.props.messageText.trim().length < 1000) {
                           this.props.onSendTextMessage(
-                            this.props.messageText.trim(),
+                            this.props.messageText.trim()
                           );
                           this.props.onSetMessageText(null);
                         } else {
                           Alert.alert(
-                            'Sorry',
-                            `Sorry, Your message is too long!`,
+                            "Sorry",
+                            `Sorry, Your message is too long!`
                           );
                         }
                       }
-                    }}>
+                    }}
+                  >
                     <FontAwesome
-                      name={'paper-plane'}
+                      name={"paper-plane"}
                       size={25}
                       color="#6B93F9"
                     />
@@ -184,10 +187,10 @@ const styles = {
 
   mainWrapper: {
     flex: 1,
-    flexDirection: 'row',
+    flexDirection: "row",
     paddingVertical: 5,
     paddingHorizontal: 15,
-    backgroundColor: '#f9f9f9',
+    backgroundColor: "#fff",
   },
 
   textInputWrapper: {
@@ -195,11 +198,11 @@ const styles = {
   },
 
   inputField: {
-    color: 'black',
+    color: "black",
     borderWidth: 1,
-    borderColor: 'lightgrey',
-    borderRadius: 25,
-    backgroundColor: '#fff',
+    borderColor: "#f1f1f1",
+    borderRadius: 12,
+    backgroundColor: "#fff",
     paddingHorizontal: 20,
     paddingTop: 10,
     paddingBottom: 10,
@@ -209,12 +212,12 @@ const styles = {
 
   buttonWrapper: {
     flex: 0.1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     mediaOptionsOpen: state.stateHandler.mediaOptionsOpen,
     stickerOpen: state.stateHandler.stickerOpen,
@@ -226,24 +229,24 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    onSetMediaOptionsOpen: data => {
+    onSetMediaOptionsOpen: (data) => {
       dispatch(setMediaOptionsOpen(data));
     },
-    onSetSickerOpen: data => {
+    onSetSickerOpen: (data) => {
       dispatch(setSickerOpen(data));
     },
-    onSetOnLongPress: data => {
+    onSetOnLongPress: (data) => {
       dispatch(setOnLongPress(data));
     },
-    onSetReplyState: data => {
+    onSetReplyState: (data) => {
       dispatch(setReplyState(data));
     },
-    onSetMediaType: data => {
+    onSetMediaType: (data) => {
       dispatch(setMediaType(data));
     },
-    onSetMessageText: text => {
+    onSetMessageText: (text) => {
       dispatch(setMessageText(text));
     },
   };
@@ -251,5 +254,5 @@ const mapDispatchToProps = dispatch => {
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps,
+  mapDispatchToProps
 )(MessageInputToolBar);

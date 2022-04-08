@@ -9,14 +9,14 @@ import {
   Text,
   Platform,
 } from "react-native";
-
+import { VESDK, VideoEditorModal } from "react-native-videoeditorsdk";
 import FastImage from "react-native-fast-image";
 import FontAwesome from "react-native-vector-icons/dist/FontAwesome5";
 import PhotoEditor from "@baronha/react-native-photo-editor";
 import PagerView from "react-native-pager-view";
 import Video from "react-native-video";
 import { ProcessingManager } from "react-native-video-processing";
-
+import { PESDK, PhotoEditorModal } from "react-native-photoeditorsdk";
 //Redux
 import { connect } from "react-redux";
 import {
@@ -209,19 +209,20 @@ class MediaUploadPreview extends React.Component {
                       }}
                     />
                   ) : (
-                    <Video
-                      source={{ uri: media.uri }}
-                      paused={playVideo}
-                      controls={true}
-                      repeat={true}
-                      ignoreSilentSwitch={"ignore"}
-                      playInBackground={false}
-                      resizeMode={"contain"}
-                      style={{
-                        height: "100%",
-                        width: "100%",
-                      }}
-                    />
+                    <VideoEditorModal visible={true} video={media.uri} />
+                    // <Video
+                    //   source={{ uri: media.uri }}
+                    //   paused={playVideo}
+                    //   controls={true}
+                    //   repeat={true}
+                    //   ignoreSilentSwitch={"ignore"}
+                    //   playInBackground={false}
+                    //   resizeMode={"contain"}
+                    //   style={{
+                    //     height: "100%",
+                    //     width: "100%",
+                    //   }}
+                    // />
                   )
                 ) : null}
               </View>

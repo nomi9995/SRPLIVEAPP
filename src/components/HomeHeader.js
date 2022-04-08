@@ -348,7 +348,10 @@ class HomeHeader extends React.PureComponent {
                     this.props.longPress[0].type == 7 ||
                     this.props.longPress[0].type == 11 ? (
                       <TouchableOpacity
-                        style={[styles.iconDesign, { alignItems: "center" }]}
+                        style={[
+                          styles.iconDesign,
+                          { alignItems: "center", marginRight: 12 },
+                        ]}
                         onPress={() => this.shareButton()}
                       >
                         <FontAwesome
@@ -356,9 +359,9 @@ class HomeHeader extends React.PureComponent {
                           size={20}
                           color={"white"}
                         />
-                        <Text style={{ color: "white", fontSize: 12 }}>
+                        {/* <Text style={{ color: "white", fontSize: 12 }}>
                           share
-                        </Text>
+                        </Text> */}
                       </TouchableOpacity>
                     ) : null}
                   </>
@@ -366,7 +369,10 @@ class HomeHeader extends React.PureComponent {
                 <View style={{ flexDirection: "row" }}>
                   {shouldEdit && (
                     <TouchableOpacity
-                      style={[styles.iconDesign, { alignItems: "center" }]}
+                      style={[
+                        styles.iconDesign,
+                        { alignItems: "center", marginRight: 12 },
+                      ]}
                       onPress={this.editMessage}
                     >
                       <FontAwesome
@@ -377,7 +383,10 @@ class HomeHeader extends React.PureComponent {
                     </TouchableOpacity>
                   )}
                   <TouchableOpacity
-                    style={[styles.iconDesign, { alignItems: "center" }]}
+                    style={[
+                      styles.iconDesign,
+                      { alignItems: "center", marginRight: 12 },
+                    ]}
                     onPress={() => this.deleteMessage()}
                   >
                     <FontAwesome name={"trash"} size={20} color={"white"} />
@@ -386,7 +395,10 @@ class HomeHeader extends React.PureComponent {
                     onPress={() => {
                       this.props.onSetReplyState(true);
                     }}
-                    style={[styles.iconDesign, { alignItems: "center" }]}
+                    style={[
+                      styles.iconDesign,
+                      { alignItems: "center", marginRight: 12 },
+                    ]}
                   >
                     <FontAwesome name={"reply"} size={20} color={"white"} />
                   </TouchableOpacity>
@@ -396,7 +408,10 @@ class HomeHeader extends React.PureComponent {
                         selectedUser: selectedUser,
                       })
                     }
-                    style={[styles.iconDesign, { alignItems: "center" }]}
+                    style={[
+                      styles.iconDesign,
+                      { alignItems: "center", marginRight: 12 },
+                    ]}
                   >
                     <FontAwesome name={"share"} size={20} color={"white"} />
                   </TouchableOpacity>
@@ -602,7 +617,9 @@ class HomeHeader extends React.PureComponent {
                   )}
                 </View>
                 <View style={styles.iconsFlex}>
-                  <TouchableOpacity style={styles.iconDesign}>
+                  <TouchableOpacity
+                    style={[styles.iconDesign, { marginRight: 12 }]}
+                  >
                     {screen === "message" ? (
                       <FontAwesome name={"phone"} size={20} color={"white"} />
                     ) : (
@@ -680,9 +697,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   profileImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
+    width: 45,
+    height: 45,
+    borderRadius: 45 / 2,
     marginHorizontal: "5%",
   },
   usernameText: {
