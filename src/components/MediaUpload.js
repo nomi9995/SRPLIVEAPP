@@ -240,43 +240,58 @@ class MediaUpload extends Component {
     ImagePicker.openPicker({
       multiple: true,
       cropping: false,
-    }).then((images) => {
-      let formdata = new FormData();
-      let selectMessageArray = [];
-      let check = null;
+    })
+      .then((data) => {
+        let formdata = new FormData();
+        let selectMessageArray = [];
+        let check = null;
 
-      images.forEach((element) => {
-        formdata.append("files[]", {
-          uri: element.path,
-          name:
-            Platform.OS === "ios"
-              ? element.filename
-              : element.path.split("/")[element.path.split("/").length - 1],
-          type: element.mime,
+        data.forEach((element) => {
+          formdata.append("files[]", {
+            uri: element.path,
+            name:
+              Platform.OS === "ios"
+                ? element.filename
+                : element.path.split("/")[element.path.split("/").length - 1],
+            type: element.mime,
+          });
+          if (this.props.statusState === true) {
+            formdata.append("video_duration", element?.duration);
+          } else {
+            formdata.append("upload_type", "media");
+          }
+
+          selectMessageArray.push({
+            uri: element.path,
+            source: Platform.OS === "ios" ? element.sourceURL : element.path,
+            name:
+              Platform.OS === "ios"
+                ? element.filename
+                : element.path.split("/")[element.path.split("/").length - 1],
+            type: element.mime,
+          });
+          check = element?.duration;
         });
-        if (this.props.statusState === true) {
-          formdata.append("video_duration", element?.duration);
+        this.props.onSetImagePreview(true);
+        this.setState({
+          selectedMedia: selectMessageArray,
+          messageTypeState: check ? 11 : 2,
+          saveFormData: formdata,
+        });
+      })
+      .catch((e) => {
+        Toast.show("User cancelled media selection", Toast.SHORT);
+        if (this.props.statusState) {
+          this.props.onSetStatus(false);
+          this.props.onSetMediaType(null);
+          this.props.onBack();
         } else {
-          formdata.append("upload_type", "media");
+          this.props.onSetImagePreview(false);
+          this.props.onSetMediaType(null);
+          this.props.onSetMediaOptionsOpen(false);
+          this.props.onSetMediaUploadState(false);
         }
-
-        selectMessageArray.push({
-          uri: element.path,
-          name:
-            Platform.OS === "ios"
-              ? element.filename
-              : element.path.split("/")[element.path.split("/").length - 1],
-          type: element.mime,
-        });
-        check = element?.duration;
       });
-      this.props.onSetImagePreview(true);
-      this.setState({
-        selectedMedia: selectMessageArray,
-        messageTypeState: check ? 11 : 2,
-        saveFormData: formdata,
-      });
-    });
   };
 
   slectedGifMedia = (res) => {
@@ -294,7 +309,7 @@ class MediaUpload extends Component {
     let formdata = new FormData();
     imgs?.forEach((element, index) => {
       formdata.append("files[]", {
-        uri: element.uri,
+        uri: element.source ? element.source : element.uri,
         name: element.name,
         type: element.type,
       });

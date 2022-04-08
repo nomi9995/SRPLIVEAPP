@@ -74,16 +74,19 @@ class MediaUploadPreview extends React.Component {
     let type = selectedMedia[page].type.split("/")[0];
     if (type === "image") {
       const options = {
-        path: selectedMedia[page].uri,
+        path: selectedMedia[page].source
+          ? selectedMedia[page].source
+          : selectedMedia[page].uri,
       };
 
       const result = await PhotoEditor.open(options);
-      selectedMedia[page].uri = result;
+      if (selectedMedia[page].source) selectedMedia[page].source = result;
+      else selectedMedia[page].uri = result;
       this.setState({ selectedMedia: selectedMedia });
     } else {
       // this.trimVideo();
       if (typeof trimmedUrl === "string") {
-        selectedMedia[page].uri = trimmedUrl;
+        selectedMedia[page].source = trimmedUrl;
         this.setState({ selectedMedia: selectedMedia, doTrimming: false });
       } else {
         this.setState({
@@ -190,7 +193,7 @@ class MediaUploadPreview extends React.Component {
               >
                 {type === "image" ? (
                   <FastImage
-                    source={{ uri: media.uri }}
+                    source={{ uri: media.source ? media.source : media.uri }}
                     style={{ height: "100%", width: "100%" }}
                     resizeMode={"contain"}
                   />
