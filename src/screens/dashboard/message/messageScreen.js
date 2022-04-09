@@ -18,6 +18,7 @@ import { regex } from "../../../utils/regex";
 import Toast from "react-native-simple-toast";
 import FontAwesome from "react-native-vector-icons/dist/FontAwesome5";
 import DeviceInfo from "react-native-device-info";
+import * as AudioManager from "../../../components/audioPlayerManager/AudioManager";
 
 //Components
 import HomeHeader from "../../../components/HomeHeader";
@@ -133,7 +134,7 @@ class MessageScreen extends Component {
     socket.off("message_saved");
     socket.off("users_online_status");
     socket.off("typing_on_off_user");
-
+    AudioManager.stopPlayer();
     this.subscribeToMessages?.unsubscribe?.();
     this.subscribeToMessagesUpdate?.unsubscribe?.();
 
