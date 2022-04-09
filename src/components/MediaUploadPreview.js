@@ -31,6 +31,7 @@ import PlayerAndTrimmer from "./PlayerAndTrimmer";
 
 class MediaUploadPreview extends React.Component {
   constructor(props) {
+    console.log("MEDIA PROP", props);
     super(props);
     this.state = {
       page: 0,
@@ -43,12 +44,35 @@ class MediaUploadPreview extends React.Component {
       viewHeight: 0,
       playVideo: true,
       doTrimming: false,
+      loader: false,
     };
   }
 
   sendHandler = (caption) => {
     this.props.onSetMediaUploadState(true);
     this.props.onUploadMedia(this.state.selectedMedia, caption);
+  };
+
+  exportButton = (val) => {
+    let editVideo = [...this.state.selectedMedia];
+
+    if (val.hasChanges === true) {
+      editVideo[0].name = val.video.substr(39, 30);
+      editVideo[0].source = val.video;
+      editVideo[0].type = `video/${val.video.substr(65, 4)}`;
+      editVideo[0].uri = val.video;
+
+      this.setState({ selectedMedia: editVideo });
+      this.sendHandler(""), this.crossButton();
+    } else {
+      editVideo[0].name = val.video.substr(70, 23);
+      editVideo[0].source = val.video;
+      editVideo[0].type = `video/${val.video.substr(90, 3)}`;
+      editVideo[0].uri = val.video;
+
+      this.setState({ selectedMedia: editVideo });
+      this.sendHandler(""), this.crossButton();
+    }
   };
 
   crossButton = () => {
@@ -178,8 +202,8 @@ class MediaUploadPreview extends React.Component {
           keyboardDismissMode={"on-drag"}
           transitionStyle={"curl"}
           style={{ flex: 0.86 }}
-          onPageSelected={async (e) => {
-            await this.setState({ page: e.nativeEvent.position });
+          onPageSelected={(e) => {
+            this.setState({ page: e.nativeEvent.position });
           }}
         >
           {selectedMedia.map((media, index) => {
@@ -209,7 +233,14 @@ class MediaUploadPreview extends React.Component {
                       }}
                     />
                   ) : (
-                    <VideoEditorModal visible={true} video={media.uri} />
+                    <VideoEditorModal
+                      visible={true}
+                      video={media.uri}
+                      onCancel={() => this.crossButton()}
+                      onExport={(val) => {
+                        this.exportButton(val);
+                      }}
+                    />
                     // <Video
                     //   source={{ uri: media.uri }}
                     //   paused={playVideo}
