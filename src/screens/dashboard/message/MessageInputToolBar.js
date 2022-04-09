@@ -84,7 +84,9 @@ class MessageInputToolBar extends React.PureComponent {
 
     return (
       <View style={styles.container}>
-        {this.props.mediaOptionsOpen && this.renderMediaOptions()}
+        <View style={{ position: "absolute", bottom: 0, zIndex: 1 }}>
+          {this.props.mediaOptionsOpen && this.renderMediaOptions()}
+        </View>
         {this.props.stickerOpen && this.renderStickers()}
         {this.state.audioRecod ? (
           <AudioMessage
