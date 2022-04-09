@@ -23,11 +23,7 @@ class MediaOptions extends React.PureComponent {
 
   render() {
     return (
-      <TouchableOpacity
-        style={styles.container}
-        activeOpacity={1}
-        onPress={() => this.props.onSetMediaOptionsOpen(false)}
-      >
+      <TouchableOpacity style={styles.container} activeOpacity={1}>
         <View style={styles.mainWrapper}>
           <TouchableOpacity
             onPress={() => {

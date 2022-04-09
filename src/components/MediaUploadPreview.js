@@ -4,23 +4,31 @@ import {
   View,
   TouchableOpacity,
   SafeAreaView,
+  KeyboardAvoidingView,
   TextInput,
   ActivityIndicator,
   Text,
   Platform,
+  Dimensions,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { VESDK, VideoEditorModal } from "react-native-videoeditorsdk";
 import FastImage from "react-native-fast-image";
-import FontAwesome from "react-native-vector-icons/dist/FontAwesome5";
+import MaterialCommunityIcons from "react-native-vector-icons/dist/MaterialCommunityIcons";
+import FontAwesome5 from "react-native-vector-icons/dist/FontAwesome5";
+import Ionicons from "react-native-vector-icons/dist/Ionicons";
+import Octicons from "react-native-vector-icons/dist/Octicons";
 import PhotoEditor from "@baronha/react-native-photo-editor";
 import PagerView from "react-native-pager-view";
 import Video from "react-native-video";
+import { Thumbnail } from "react-native-thumbnail-video";
 import { ProcessingManager } from "react-native-video-processing";
 import { PESDK, PhotoEditorModal } from "react-native-photoeditorsdk";
 //Redux
 import { connect } from "react-redux";
 import {
   setImagePreview,
+  setMediaOptionsOpen,
   setMediaType,
   setMediaUploadState,
   setStatusState,
@@ -29,9 +37,10 @@ import {
 // Components
 import PlayerAndTrimmer from "./PlayerAndTrimmer";
 
+const { width, height } = Dimensions.get("window");
+
 class MediaUploadPreview extends React.Component {
   constructor(props) {
-    console.log("MEDIA PROP", props);
     super(props);
     this.state = {
       page: 0,
@@ -160,6 +169,14 @@ class MediaUploadPreview extends React.Component {
     });
   };
 
+  handleMediaType = (type) => {
+    this.props.onSetMediaType(type);
+    alert(type);
+    this.props.onSetImagePreview(false);
+    this.props.onSetMediaUploadState(false);
+    this.props.onSetMediaOptionsOpen(false);
+  };
+
   render() {
     let caption = "";
     const { page, selectedMedia, playVideo, doTrimming } = this.state;
@@ -168,32 +185,49 @@ class MediaUploadPreview extends React.Component {
         {!doTrimming && (
           <View
             style={{
+              zIndex: 1,
+              marginBottom: -130,
               flex: 0.07,
               flexDirection: "row",
+              alignItems: "center",
             }}
           >
             <TouchableOpacity
               onPress={this.crossButton}
               disabled={this.props.mediaUploadState}
               style={{
-                flex: 0.5,
+                flex: 1,
                 justifyContent: "center",
-                paddingLeft: 10,
+                paddingLeft: 5,
               }}
             >
-              <FontAwesome name="times" size={30} color={"#fff"} />
+              <Ionicons name="close" size={30} color={"#fff"} />
             </TouchableOpacity>
+            {selectedMedia.length > 1 && (
+              <TouchableOpacity
+                onPress={() => alert("Delete")}
+                disabled={this.props.mediaUploadState}
+                style={{
+                  // flex: 0.5,
+                  justifyContent: "center",
+                  marginRight: 25,
+                  alignItems: "flex-end",
+                }}
+              >
+                <Ionicons name={"trash-outline"} size={27} color={"white"} />
+              </TouchableOpacity>
+            )}
             <TouchableOpacity
               onPress={this.editButton}
               disabled={this.props.mediaUploadState}
               style={{
-                flex: 0.5,
+                // flex: 0.5,
                 justifyContent: "center",
                 paddingRight: 10,
                 alignItems: "flex-end",
               }}
             >
-              <FontAwesome name="edit" size={25} color={"#fff"} />
+              <Octicons name="pencil" size={25} color={"#fff"} />
             </TouchableOpacity>
           </View>
         )}
@@ -201,7 +235,7 @@ class MediaUploadPreview extends React.Component {
         <PagerView
           keyboardDismissMode={"on-drag"}
           transitionStyle={"curl"}
-          style={{ flex: 0.86 }}
+          style={{ flex: selectedMedia.length === 1 ? 0.89 : 0.85 }}
           onPageSelected={(e) => {
             this.setState({ page: e.nativeEvent.position });
           }}
@@ -218,42 +252,38 @@ class MediaUploadPreview extends React.Component {
                 {type === "image" ? (
                   <FastImage
                     source={{ uri: media.source ? media.source : media.uri }}
-                    style={{ height: "100%", width: "100%" }}
+                    style={{
+                      height: height,
+                      width: width,
+                    }}
                     resizeMode={"contain"}
                   />
                 ) : type === "video" ? (
-                  doTrimming ? (
-                    <PlayerAndTrimmer
-                      url={media.uri}
-                      tickBtn={(trimmedUrl) => {
-                        this.editButton(trimmedUrl);
-                      }}
-                      crossButton={() => {
-                        this.setState({ doTrimming: false });
-                      }}
-                    />
-                  ) : (
+                  doTrimming === true ? (
                     <VideoEditorModal
                       visible={true}
                       video={media.uri}
-                      onCancel={() => this.crossButton()}
+                      onCancel={() => this.setState({ doTrimming: false })}
                       onExport={(val) => {
                         this.exportButton(val);
                       }}
                     />
-                    // <Video
-                    //   source={{ uri: media.uri }}
-                    //   paused={playVideo}
-                    //   controls={true}
-                    //   repeat={true}
-                    //   ignoreSilentSwitch={"ignore"}
-                    //   playInBackground={false}
-                    //   resizeMode={"contain"}
-                    //   style={{
-                    //     height: "100%",
-                    //     width: "100%",
-                    //   }}
-                    // />
+                  ) : (
+                    <>
+                      <Video
+                        source={{ uri: media.uri }}
+                        paused={playVideo}
+                        controls={true}
+                        repeat={true}
+                        ignoreSilentSwitch={"ignore"}
+                        playInBackground={false}
+                        resizeMode={"contain"}
+                        style={{
+                          height: "100%",
+                          width: "100%",
+                        }}
+                      />
+                    </>
                   )
                 ) : null}
               </View>
@@ -277,53 +307,148 @@ class MediaUploadPreview extends React.Component {
               </Text>
             </View>
           ) : (
-            <View style={{ flex: 0.07, flexDirection: "row" }}>
+            <>
               <View
                 style={{
-                  flex: 0.9,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  paddingHorizontal: 5,
-                  paddingVertical: 10,
+                  flexDirection: "row",
+                  height: 60,
+                  marginHorizontal: 5,
+                  // marginTop: 10,
+                  bottom: selectedMedia.length === 1 ? -20 : 0,
                 }}
               >
-                {!this.props.statusState && (
-                  <TextInput
-                    placeholder="Write a Caption!"
-                    onChangeText={(val) => (caption = val)}
-                    style={{
-                      borderRadius: 25,
-                      backgroundColor: "#fff",
-                      height: "100%",
-                      width: "100%",
-                    }}
-                  />
-                )}
-              </View>
-              <View
-                style={{
-                  flex: 0.1,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  paddingHorizontal: 5,
-                  paddingVertical: 10,
-                }}
-              >
-                <TouchableOpacity
-                  onPress={() => this.sendHandler(caption)}
+                <View
                   style={{
-                    backgroundColor: "#018679",
-                    borderRadius: 50,
-                    height: "100%",
-                    width: "100%",
+                    flexDirection: "row",
+                    flex: 0.88,
                     alignItems: "center",
-                    justifyContent: "center",
+                    marginVertical: 5.5,
+                    backgroundColor: "#fff",
+                    borderRadius: 25,
+                    width: "100%",
                   }}
                 >
-                  <FontAwesome name={"paper-plane"} size={20} color="white" />
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    // activeOpacity={1}
+                    onPress={() => this.handleMediaType("gallery")}
+                  >
+                    <MaterialCommunityIcons
+                      name="image-multiple-outline"
+                      size={20}
+                      color="grey"
+                      style={{ marginLeft: 12, marginRight: 10 }}
+                    />
+                  </TouchableOpacity>
+                  {!this.props.statusState && (
+                    <TextInput
+                      placeholderTextColor={"grey"}
+                      placeholder="Write a Caption!"
+                      onChangeText={(val) => (caption = val)}
+                      style={{ flex: 1, fontSize: 16 }}
+                    />
+                  )}
+                </View>
+                <View
+                  style={{
+                    flex: 0.1,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingHorizontal: 5,
+                    paddingVertical: 10,
+                  }}
+                >
+                  <TouchableOpacity
+                    onPress={() => this.sendHandler(caption)}
+                    style={{
+                      backgroundColor: "#018679",
+                      borderRadius: 50 / 2,
+                      height: 50,
+                      width: 50,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginLeft: 10,
+                    }}
+                  >
+                    <FontAwesome5
+                      name={"paper-plane"}
+                      size={20}
+                      color="white"
+                    />
+                  </TouchableOpacity>
+                </View>
               </View>
-            </View>
+              {selectedMedia.length > 1 && (
+                <TouchableOpacity
+                  activeOpacity={1}
+                  // onPress={() => }
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    bottom: 4,
+                    position: "absolute",
+                  }}
+                >
+                  {selectedMedia.map((media, index) => {
+                    let type = media.type.split("/")[0];
+                    return (
+                      <View
+                        key={index}
+                        style={{
+                          width: 60,
+                          height: 60,
+                          borderWidth: 2,
+                          borderColor: "cyan",
+                        }}
+                      >
+                        {type === "image" ? (
+                          <FastImage
+                            source={{
+                              uri: media.source ? media.source : media.uri,
+                            }}
+                            style={{ height: "100%", width: "100%" }}
+                            resizeMode={"contain"}
+                          />
+                        ) : type === "video" ? (
+                          doTrimming ? (
+                            <PlayerAndTrimmer
+                              url={media.uri}
+                              tickBtn={(trimmedUrl) => {
+                                this.editButton(trimmedUrl);
+                              }}
+                              crossButton={() => {
+                                this.setState({ doTrimming: false });
+                              }}
+                            />
+                          ) : (
+                            <VideoEditorModal
+                              visible={true}
+                              video={media.uri}
+                              onCancel={() => this.crossButton()}
+                              onExport={(val) => {
+                                this.exportButton(val);
+                              }}
+                            />
+                            // <Video
+                            //   source={{ uri: media.uri }}
+                            //   paused={playVideo}
+                            //   controls={true}
+                            //   repeat={true}
+                            //   ignoreSilentSwitch={"ignore"}
+                            //   playInBackground={false}
+                            //   resizeMode={"contain"}
+                            //   style={{
+                            //     height: "100%",
+                            //     width: "100%",
+                            //   }}
+                            // />
+                          )
+                        ) : null}
+                      </View>
+                    );
+                  })}
+                </TouchableOpacity>
+              )}
+            </>
           ))}
       </View>
     );
@@ -353,6 +478,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     onSetStatus: (data) => {
       dispatch(setStatusState(data));
+    },
+    onSetMediaOptionsOpen: (data) => {
+      dispatch(setMediaOptionsOpen(data));
     },
   };
 };
