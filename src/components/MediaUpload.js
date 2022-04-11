@@ -45,6 +45,7 @@ class MediaUpload extends Component {
       messageTypeState: 0,
       saveFormData: [],
       progress: 0,
+      galleryState: false,
     };
   }
 
@@ -57,7 +58,6 @@ class MediaUpload extends Component {
     if (this.props.mediaType === "VideoRecoder") {
       this.recordVideo();
     }
-
     if (this.props.mediaType === "gallery") {
       this.slectedGalleryMedia();
     }
@@ -402,6 +402,13 @@ class MediaUpload extends Component {
       });
   };
 
+  galleryCallback = (val) => {
+    this.props.onSetMediaType(val);
+    if (this.props.mediaType === "gallery") {
+      this.slectedGalleryMedia();
+    }
+  };
+
   renderContent() {
     return (
       <View style={styles.controlLayer}>
@@ -479,6 +486,7 @@ class MediaUpload extends Component {
 
         {this.state.selectedMedia.length > 0 && (
           <MediaUploadPreview
+            galleryCallback={this.galleryCallback}
             progressData={this.state.progress}
             selectedMedia={this.state.selectedMedia}
             previewVisible={this.props.imagePreview}

@@ -54,6 +54,7 @@ class MediaUploadPreview extends React.Component {
       playVideo: true,
       doTrimming: false,
       loader: false,
+      galleryCallback: props?.galleryCallback,
     };
   }
 
@@ -170,11 +171,7 @@ class MediaUploadPreview extends React.Component {
   };
 
   handleMediaType = (type) => {
-    this.props.onSetMediaType(type);
-    alert(type);
-    this.props.onSetImagePreview(false);
-    this.props.onSetMediaUploadState(false);
-    this.props.onSetMediaOptionsOpen(false);
+    this.state.galleryCallback(type);
   };
 
   render() {
@@ -242,6 +239,7 @@ class MediaUploadPreview extends React.Component {
         >
           {selectedMedia.map((media, index) => {
             let type = media.type.split("/")[0];
+            console.log("SELEC", selectedMedia);
             return (
               <View
                 key={index}
@@ -410,16 +408,6 @@ class MediaUploadPreview extends React.Component {
                           />
                         ) : type === "video" ? (
                           doTrimming ? (
-                            <PlayerAndTrimmer
-                              url={media.uri}
-                              tickBtn={(trimmedUrl) => {
-                                this.editButton(trimmedUrl);
-                              }}
-                              crossButton={() => {
-                                this.setState({ doTrimming: false });
-                              }}
-                            />
-                          ) : (
                             <VideoEditorModal
                               visible={true}
                               video={media.uri}
@@ -428,19 +416,18 @@ class MediaUploadPreview extends React.Component {
                                 this.exportButton(val);
                               }}
                             />
-                            // <Video
-                            //   source={{ uri: media.uri }}
-                            //   paused={playVideo}
-                            //   controls={true}
-                            //   repeat={true}
-                            //   ignoreSilentSwitch={"ignore"}
-                            //   playInBackground={false}
-                            //   resizeMode={"contain"}
-                            //   style={{
-                            //     height: "100%",
-                            //     width: "100%",
-                            //   }}
-                            // />
+                          ) : (
+                            <Video
+                              source={{ uri: media.uri }}
+                              paused={playVideo}
+                              ignoreSilentSwitch={"ignore"}
+                              playInBackground={false}
+                              resizeMode={"contain"}
+                              style={{
+                                height: "100%",
+                                width: "100%",
+                              }}
+                            />
                           )
                         ) : null}
                       </View>
