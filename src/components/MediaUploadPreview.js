@@ -20,7 +20,7 @@ import Ionicons from "react-native-vector-icons/dist/Ionicons";
 import Octicons from "react-native-vector-icons/dist/Octicons";
 import PhotoEditor from "@baronha/react-native-photo-editor";
 import PagerView from "react-native-pager-view";
-import Video from "react-native-video";
+import Video from "react-native-video-controls";
 import { Thumbnail } from "react-native-thumbnail-video";
 import { ProcessingManager } from "react-native-video-processing";
 import { PESDK, PhotoEditorModal } from "react-native-photoeditorsdk";
@@ -42,6 +42,8 @@ const { width, height } = Dimensions.get("window");
 class MediaUploadPreview extends React.Component {
   constructor(props) {
     super(props);
+    this.pagerRef = React.createRef();
+    this.playerRef = React.createRef(null);
     this.state = {
       page: 0,
       selectedMedia: props?.selectedMedia,
@@ -55,6 +57,7 @@ class MediaUploadPreview extends React.Component {
       doTrimming: false,
       loader: false,
       galleryCallback: props?.galleryCallback,
+      selected: 0,
     };
   }
 
@@ -230,16 +233,19 @@ class MediaUploadPreview extends React.Component {
         )}
 
         <PagerView
+          ref={(viewPager) => {
+            this.pagerRef = viewPager;
+          }}
           keyboardDismissMode={"on-drag"}
           transitionStyle={"curl"}
           style={{ flex: selectedMedia.length === 1 ? 0.89 : 0.85 }}
           onPageSelected={(e) => {
             this.setState({ page: e.nativeEvent.position });
+            this.setState({ selected: e.nativeEvent.position });
           }}
         >
           {selectedMedia.map((media, index) => {
             let type = media.type.split("/")[0];
-            console.log("SELEC", selectedMedia);
             return (
               <View
                 key={index}
@@ -269,9 +275,10 @@ class MediaUploadPreview extends React.Component {
                   ) : (
                     <>
                       <Video
+                        ref={(videoRef) => (this.playerRef = videoRef)}
+                        showOnStart={true}
                         source={{ uri: media.uri }}
                         paused={playVideo}
-                        controls={true}
                         repeat={true}
                         ignoreSilentSwitch={"ignore"}
                         playInBackground={false}
@@ -279,6 +286,11 @@ class MediaUploadPreview extends React.Component {
                         style={{
                           height: "100%",
                           width: "100%",
+                        }}
+                        onLoad={(e) => {
+                          console.log("ON LOAD", e);
+                          console.log("RED", this.playerRef);
+                          this.playerRef.player?.ref?.seek(0.1);
                         }}
                       />
                     </>
@@ -378,7 +390,6 @@ class MediaUploadPreview extends React.Component {
               {selectedMedia.length > 1 && (
                 <TouchableOpacity
                   activeOpacity={1}
-                  // onPress={() => }
                   style={{
                     flexDirection: "row",
                     alignItems: "center",
@@ -389,13 +400,19 @@ class MediaUploadPreview extends React.Component {
                   {selectedMedia.map((media, index) => {
                     let type = media.type.split("/")[0];
                     return (
-                      <View
+                      <TouchableOpacity
+                        activeOpacity={1}
+                        onPress={() => {
+                          this.pagerRef.setPage(index);
+                          this.setState({ selected: index });
+                        }}
                         key={index}
                         style={{
                           width: 60,
                           height: 60,
                           borderWidth: 2,
-                          borderColor: "cyan",
+                          borderColor:
+                            this.state.selected === index ? "cyan" : "#000",
                         }}
                       >
                         {type === "image" ? (
@@ -407,30 +424,26 @@ class MediaUploadPreview extends React.Component {
                             resizeMode={"contain"}
                           />
                         ) : type === "video" ? (
-                          doTrimming ? (
-                            <VideoEditorModal
-                              visible={true}
-                              video={media.uri}
-                              onCancel={() => this.crossButton()}
-                              onExport={(val) => {
-                                this.exportButton(val);
-                              }}
-                            />
-                          ) : (
-                            <Video
-                              source={{ uri: media.uri }}
-                              paused={playVideo}
-                              ignoreSilentSwitch={"ignore"}
-                              playInBackground={false}
-                              resizeMode={"contain"}
-                              style={{
-                                height: "100%",
-                                width: "100%",
-                              }}
-                            />
-                          )
+                          <Video
+                            disablePlayPause={true}
+                            disableSeekbar={true}
+                            disableBack={true}
+                            disableFullscreen={true}
+                            disableVolume={true}
+                            disableTimer={true}
+                            controlTimeout={0}
+                            source={{ uri: media.uri }}
+                            paused={playVideo}
+                            ignoreSilentSwitch={"ignore"}
+                            playInBackground={false}
+                            resizeMode={"contain"}
+                            style={{
+                              height: "100%",
+                              width: "100%",
+                            }}
+                          />
                         ) : null}
-                      </View>
+                      </TouchableOpacity>
                     );
                   })}
                 </TouchableOpacity>
