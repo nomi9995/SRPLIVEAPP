@@ -9,7 +9,7 @@ import {
 import RNFetchBlob from "rn-fetch-blob";
 import appConfig from "../utils/appConfig";
 import Toast from "react-native-simple-toast";
-import { Image } from "react-native-compressor";
+import { Image, Video } from "react-native-compressor";
 
 export const { OS } = Platform;
 
@@ -252,7 +252,6 @@ export const onDownload = {
       Platform.OS == "ios"
         ? `${fs.dirs.DocumentDir}/srp_live/${type}/Sent/${media}`
         : appConfig.localPath + type + "/Sent" + "/" + media;
-    console.log("path", path);
     return RNFetchBlob.fs.exists(path);
   },
 
@@ -284,7 +283,7 @@ export const onDownload = {
         name = `/${names[index].name}`;
       } else if (type === 11) {
         url = appConfig.localPath + "Videos/Sent";
-        name = `/${names[index]}`;
+        name = `/${names[index].name}`;
       }
 
       onDownload.checkPermission().then((isPermitted) => {
@@ -293,9 +292,14 @@ export const onDownload = {
             if (isDir) {
               if (type === 6) {
                 onDownload.doCopy(element.fileCopyUri, url + name);
-              } else {
+              } else if (type === 2) {
                 const compressedMedia = await Image.compress(element.uri, {
                   quality: 0.8,
+                });
+                onDownload.doCopy(compressedMedia, url + name);
+              } else if (type === 11) {
+                const compressedMedia = await Video.compress(element.uri, {
+                  compressionMethod: "auto",
                 });
                 onDownload.doCopy(compressedMedia, url + name);
               }
@@ -306,11 +310,19 @@ export const onDownload = {
                   if (isDirMade) {
                     if (type === 6) {
                       onDownload.doCopy(element.fileCopyUri, url + name);
-                    } else {
+                    } else if (type === 2) {
                       const compressedMedia = await Image.compress(
                         element.uri,
                         {
                           quality: 0.8,
+                        }
+                      );
+                      onDownload.doCopy(compressedMedia, url + name);
+                    } else if (type === 11) {
+                      const compressedMedia = await Video.compress(
+                        element.uri,
+                        {
+                          compressionMethod: "auto",
                         }
                       );
                       onDownload.doCopy(compressedMedia, url + name);
@@ -331,9 +343,14 @@ export const onDownload = {
                 if (isDir) {
                   if (type === 6) {
                     onDownload.doCopy(element.fileCopyUri, url + name);
-                  } else {
+                  } else if (type === 2) {
                     const compressedMedia = await Image.compress(element.uri, {
                       quality: 0.8,
+                    });
+                    onDownload.doCopy(compressedMedia, url + name);
+                  } else if (type === 11) {
+                    const compressedMedia = await Video.compress(element.uri, {
+                      compressionMethod: "auto",
                     });
                     onDownload.doCopy(compressedMedia, url + name);
                   }
@@ -344,11 +361,19 @@ export const onDownload = {
                       if (isDirMade) {
                         if (type === 6) {
                           onDownload.doCopy(element.fileCopyUri, url + name);
-                        } else {
+                        } else if (type === 2) {
                           const compressedMedia = await Image.compress(
                             element.uri,
                             {
                               quality: 0.8,
+                            }
+                          );
+                          onDownload.doCopy(compressedMedia, url + name);
+                        } else if (type === 11) {
+                          const compressedMedia = await Video.compress(
+                            element.uri,
+                            {
+                              compressionMethod: "auto",
                             }
                           );
                           onDownload.doCopy(compressedMedia, url + name);
