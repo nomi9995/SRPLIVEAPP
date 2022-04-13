@@ -247,6 +247,14 @@ export const onDownload = {
         : appConfig.localPath + type + "/" + media;
     return RNFetchBlob.fs.exists(path);
   },
+  checkExistingMediaSend: (media, type) => {
+    let path =
+      Platform.OS == "ios"
+        ? `${fs.dirs.DocumentDir}/srp_live/${type}/Sent/${media}`
+        : appConfig.localPath + type + "/Sent" + "/" + media;
+    console.log("path", path);
+    return RNFetchBlob.fs.exists(path);
+  },
 
   doCopy: (src, des) => {
     console.log("src: ", src);
@@ -440,6 +448,12 @@ export async function getFolderSize(mediaType, send = 0) {
     Platform.OS == "ios"
       ? `${fs.dirs.DocumentDir}/srp_live/${mediaType}`
       : appConfig.localPath + mediaType;
+  return {
+    recieve: await getFolderSendRecSize(FOLDER_PATH, mediaType),
+    send: await getFolderSendRecSize(FOLDER_PATH + "/Sent", mediaType),
+  };
+}
+export async function getFolderSendRecSize(FOLDER_PATH, mediaType) {
   let sendFolder;
   let SendFolderSize = 0;
   let FolderSize = 0;
@@ -447,7 +461,7 @@ export async function getFolderSize(mediaType, send = 0) {
   return RNFetchBlob.fs
     .lstat(FOLDER_PATH)
     .then((result) => {
-      console.log("result", result);
+      console.log(`result${mediaType}:`, result);
       if (result?.length > 0) {
         sendFolder = result.filter((res) => res.type == "directory");
         if (sendFolder?.length > 0) {
@@ -458,17 +472,14 @@ export async function getFolderSize(mediaType, send = 0) {
         result.map(
           (res) => (FolderSize = parseFloat(res.size) + parseFloat(FolderSize))
         );
-        return {
-          recieve: parseFloat(FolderSize - SendFolderSize),
-          send: parseFloat(SendFolderSize),
-        };
+        return parseFloat(FolderSize - SendFolderSize);
       } else {
-        return { recieve: 0, send: 0 };
+        return 0;
       }
     })
     .catch((err) => {
       console.log("err", err);
-      return { recieve: 0, send: 0 };
+      return 0;
     });
 }
 
