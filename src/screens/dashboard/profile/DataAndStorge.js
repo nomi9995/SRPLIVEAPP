@@ -61,8 +61,8 @@ class DataandStorage extends Component {
         totalsize: this.state.totalsize + res.recieve + res.send,
       });
       console.log(res);
-      console.log("totalsize", this.state.totalsize);
     });
+    console.log("totalsize", this.state.totalsize);
   };
   CloseMediaOption = () => {
     this.setState({
