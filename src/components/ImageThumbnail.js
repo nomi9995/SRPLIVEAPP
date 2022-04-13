@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from "react";
 import {
   View,
   StyleSheet,
@@ -8,16 +8,16 @@ import {
   ActivityIndicator,
   Platform,
   Dimensions,
-} from 'react-native';
-import FastImage from 'react-native-fast-image';
-import Icon from 'react-native-vector-icons/FontAwesome';
-import appConfig from '../utils/appConfig';
-import {onDownload} from '../utils/regex';
-import RNFetchBlob from 'rn-fetch-blob';
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
-const {config, fs} = RNFetchBlob;
-const {dirs} = RNFetchBlob.fs;
+} from "react-native";
+import FastImage from "react-native-fast-image";
+import Icon from "react-native-vector-icons/FontAwesome";
+import appConfig from "../utils/appConfig";
+import { onDownload } from "../utils/regex";
+import RNFetchBlob from "rn-fetch-blob";
+const windowWidth = Dimensions.get("window").width;
+const windowHeight = Dimensions.get("window").height;
+const { config, fs } = RNFetchBlob;
+const { dirs } = RNFetchBlob.fs;
 export default class ImageThumbnail extends Component {
   constructor(props) {
     super(props);
@@ -36,36 +36,36 @@ export default class ImageThumbnail extends Component {
 
   setImagesInState = () => {
     let img = this.props?.images;
-    img.map(img => {
-      this.state.imagesArray.push({uri: img.uri, isDownloaded: false});
+    img.map((img) => {
+      this.state.imagesArray.push({ uri: img.uri, isDownloaded: false });
     });
   };
 
   donwloadImages = () => {
-    this.setState({isDownloading: true});
+    this.setState({ isDownloading: true });
     let imgArray = this.state?.imagesArray;
-    if (Platform.OS == 'android') {
-      imgArray.map(img => {
+    if (Platform.OS == "android") {
+      imgArray.map((img) => {
         if (!img.isDownloaded) {
-          onDownload.downloadFile(img.uri, 'Images', res => {
+          onDownload.downloadFile(img.uri, "Images", (res) => {
             if (res) {
               let ind = this.state.imagesArray.indexOf(img);
-              imgArray[ind].uri = 'file://' + res.data;
+              imgArray[ind].uri = "file://" + res.data;
               imgArray[ind].isDownloaded = true;
-              this.setState({imagesArray: imgArray, isDownloading: false});
+              this.setState({ imagesArray: imgArray, isDownloading: false });
             }
           });
         }
       });
     } else {
-      imgArray.map(img => {
+      imgArray.map((img) => {
         if (!img.isDownloaded) {
-          onDownload.downloadFileIos(img.uri, 'Images', res => {
+          onDownload.downloadFileIos(img.uri, "Images", (res) => {
             if (res) {
               let ind = this.state.imagesArray.indexOf(img);
               imgArray[ind].uri = res.data;
               imgArray[ind].isDownloaded = true;
-              this.setState({imagesArray: imgArray, isDownloading: false});
+              this.setState({ imagesArray: imgArray, isDownloading: false });
             }
           });
         }
@@ -75,55 +75,55 @@ export default class ImageThumbnail extends Component {
 
   checkExisingImages = () => {
     let imgArray = this.state?.imagesArray;
-    imgArray.map(img => {
-      onDownload.checkExistingMedia(img.uri, 'Images').then(res => {
-        if (Platform.OS == 'android') {
+    imgArray.map((img) => {
+      onDownload.checkExistingMedia(img.uri, "Images").then((res) => {
+        if (Platform.OS == "android") {
           let ind = this.state.imagesArray.indexOf(img);
           imgArray[ind].uri = res
-            ? 'file://' + appConfig.localPath + 'Images/' + img.uri
+            ? "file://" + appConfig.localPath + "Images/" + img.uri
             : img.uri;
           imgArray[ind].isDownloaded = res;
-          this.setState({imagesArray: imgArray});
+          this.setState({ imagesArray: imgArray });
         } else {
           let ind = this.state.imagesArray.indexOf(img);
           imgArray[ind].uri = res
-            ? fs.dirs.DocumentDir + '/srp_live/Images/' + img.uri
+            ? fs.dirs.DocumentDir + "/srp_live/Images/" + img.uri
             : img.uri;
           imgArray[ind].isDownloaded = res;
-          this.setState({imagesArray: imgArray});
+          this.setState({ imagesArray: imgArray });
         }
       });
     });
   };
-  ImageCalculateHeight = img => {
+  ImageCalculateHeight = (img) => {
     try {
       let heightWidth = img.uri.slice(
-        img.uri.lastIndexOf('_') + 1,
-        img.uri.lastIndexOf('.'),
+        img.uri.lastIndexOf("_") + 1,
+        img.uri.lastIndexOf(".")
       );
       // console.log('img', heightWidth.slice(0, heightWidth.indexOf('x')));
       return parseInt(
-        heightWidth.slice(heightWidth.indexOf('x') + 1, heightWidth.length),
+        heightWidth.slice(heightWidth.indexOf("x") + 1, heightWidth.length)
       );
     } catch (e) {
-      console.log('error', img, e);
+      console.log("error", img, e);
       return 20;
     }
   };
-  ImageCalculateWidth = img => {
+  ImageCalculateWidth = (img) => {
     try {
       let heightWidth = img.uri.slice(
-        img.uri.lastIndexOf('_') + 1,
-        img.uri.lastIndexOf('.'),
+        img.uri.lastIndexOf("_") + 1,
+        img.uri.lastIndexOf(".")
       );
-      return parseInt(heightWidth.slice(0, heightWidth.indexOf('x')));
+      return parseInt(heightWidth.slice(0, heightWidth.indexOf("x")));
     } catch (e) {
-      console.log('error', img, e);
+      console.log("error", img, e);
       return 20;
     }
   };
   render() {
-    const {msgType, msgPosition} = this.props;
+    const { msgType, msgPosition } = this.props;
     const radiusValue = this.props.size ? 3 : 10;
     const maxWidth = this.props.size ? this.props.size : 300;
     const maxHeight = this.props.size ? this.props.size : 300;
@@ -140,7 +140,7 @@ export default class ImageThumbnail extends Component {
         maxHeight: windowHeight * 0.5,
         // minHeight: minHeight,
         borderRadius: radiusValue,
-        overflow: 'hidden',
+        overflow: "hidden",
       },
       imageMessageFlex: {
         maxWidth: windowWidth * 0.85,
@@ -157,18 +157,19 @@ export default class ImageThumbnail extends Component {
         borderRadius: radiusValue,
       },
       bgImg: {
-        position: 'absolute',
+        position: "absolute",
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
-        alignItems: 'center',
-        justifyContent: 'center',
+        alignItems: "center",
+        justifyContent: "center",
         zIndex: 1,
+        backgroundColor: "rgba(52, 52, 52, 0.8)",
       },
 
       downloadText: {
-        color: '#fff',
+        color: "#fff",
         fontSize: 15,
       },
 
@@ -180,42 +181,42 @@ export default class ImageThumbnail extends Component {
       },
 
       fastImageStyleTwoImg: {
-        height: msgType === 8 ? '45%' : '49.2%',
-        width: msgType === 8 ? '95%' : singleImageWidth,
+        height: msgType === 8 ? "45%" : "49.2%",
+        width: msgType === 8 ? "95%" : singleImageWidth,
         margin: 1,
         borderRadius: radiusValue,
       },
 
       fastImageStyleThreeImgLeft: {
-        height: msgType === 8 ? '45%' : '49.2%',
-        width: msgType === 8 ? '45%' : multipleImagesWidth,
+        height: msgType === 8 ? "45%" : "49.2%",
+        width: msgType === 8 ? "45%" : multipleImagesWidth,
         margin: 1,
         borderRadius: radiusValue,
       },
 
       fastImageStyleThreeImgRight: {
-        height: msgType === 8 ? '95%' : '99%',
-        width: msgType === 8 ? '45%' : multipleImagesWidth,
+        height: msgType === 8 ? "95%" : "99%",
+        width: msgType === 8 ? "45%" : multipleImagesWidth,
         margin: 1,
         borderRadius: radiusValue,
       },
 
       fastImageStyleFiveImgRight: {
-        height: msgType === 8 ? '28%' : '32.5%',
-        width: msgType === 8 ? '45%' : multipleImagesWidth,
+        height: msgType === 8 ? "28%" : "32.5%",
+        width: msgType === 8 ? "45%" : multipleImagesWidth,
         margin: 1,
         borderRadius: radiusValue,
       },
 
       imageBackgroundSixPlus: {
-        alignItems: 'center',
-        justifyContent: 'center',
+        alignItems: "center",
+        justifyContent: "center",
       },
 
       imageBackgroundSixPlusTextStyle: {
         fontSize: 50,
-        color: '#fff',
-        fontWeight: 'bold',
+        color: "#fff",
+        fontWeight: "bold",
       },
     });
 
@@ -228,7 +229,8 @@ export default class ImageThumbnail extends Component {
               msgType === 8
                 ? styles.replyImageMessageFlex
                 : styles.imageMessageSingleFlex
-            }>
+            }
+          >
             {/* {this.ImageCalculate(img)} */}
             <FastImage
               source={{
@@ -239,14 +241,14 @@ export default class ImageThumbnail extends Component {
                 {
                   height:
                     msgType === 8
-                      ? '95%'
+                      ? "95%"
                       : (this.ImageCalculateHeight(img) /
                           this.ImageCalculateWidth(img)) *
                         windowWidth *
                         0.85,
 
                   //  this.state.calcImgHeight
-                  width: msgType === 8 ? '95%' : singleImageWidth,
+                  width: msgType === 8 ? "95%" : singleImageWidth,
                 },
               ]}
               resizeMode="stretch"
@@ -261,18 +263,19 @@ export default class ImageThumbnail extends Component {
             />
             {this.state.isDownloading ? (
               <View style={styles.bgImg}>
-                <ActivityIndicator size={'large'} color={'#fff'} />
+                <ActivityIndicator size={"large"} color={"#fff"} />
               </View>
             ) : !img.isDownloaded &&
-              msgPosition === 'left' &&
+              msgPosition === "left" &&
               (msgType === 2 || msgType === 9) ? (
               <TouchableOpacity
                 style={styles.bgImg}
-                onPress={this.donwloadImages}>
+                onPress={this.donwloadImages}
+              >
                 <Icon
-                  name={'arrow-circle-down'}
+                  name={"arrow-circle-down"}
                   size={iconSize}
-                  color={'#fff'}
+                  color={"#fff"}
                 />
                 <Text style={styles.downloadText}>Download</Text>
               </TouchableOpacity>
@@ -287,7 +290,8 @@ export default class ImageThumbnail extends Component {
             msgType === 8
               ? styles.replyImageMessageFlex
               : styles.imageMessageFlex
-          }>
+          }
+        >
           {this.state?.imagesArray.map((img, ind) => {
             return (
               <>
@@ -313,19 +317,20 @@ export default class ImageThumbnail extends Component {
                 />
                 {this.state.isDownloading ? (
                   <View style={styles.bgImg} key={ind + 1000}>
-                    <ActivityIndicator size={'large'} color={'#fff'} />
+                    <ActivityIndicator size={"large"} color={"#fff"} />
                   </View>
                 ) : !img.isDownloaded &&
-                  msgPosition === 'left' &&
+                  msgPosition === "left" &&
                   (msgType === 2 || msgType === 9) ? (
                   <TouchableOpacity
                     key={ind + 10000}
                     style={styles.bgImg}
-                    onPress={this.donwloadImages}>
+                    onPress={this.donwloadImages}
+                  >
                     <Icon
-                      name={'arrow-circle-down'}
+                      name={"arrow-circle-down"}
                       size={iconSize}
-                      color={'#fff'}
+                      color={"#fff"}
                     />
                     <Text style={styles.downloadText}>Download</Text>
                   </TouchableOpacity>
@@ -342,8 +347,9 @@ export default class ImageThumbnail extends Component {
             msgType === 8
               ? styles.replyImageMessageFlex
               : styles.imageMessageFlex,
-            {flexWrap: 'wrap'},
-          ]}>
+            { flexWrap: "wrap" },
+          ]}
+        >
           {this.state?.imagesArray.map((img, ind) => {
             return (
               <>
@@ -377,19 +383,20 @@ export default class ImageThumbnail extends Component {
                 />
                 {this.state.isDownloading ? (
                   <View style={styles.bgImg} key={ind + 1000}>
-                    <ActivityIndicator size={'large'} color={'#fff'} />
+                    <ActivityIndicator size={"large"} color={"#fff"} />
                   </View>
                 ) : !img.isDownloaded &&
-                  msgPosition === 'left' &&
+                  msgPosition === "left" &&
                   (msgType === 2 || msgType === 9) ? (
                   <TouchableOpacity
                     key={ind + 10000}
                     style={styles.bgImg}
-                    onPress={this.donwloadImages}>
+                    onPress={this.donwloadImages}
+                  >
                     <Icon
-                      name={'arrow-circle-down'}
+                      name={"arrow-circle-down"}
                       size={iconSize}
-                      color={'#fff'}
+                      color={"#fff"}
                     />
                     <Text style={styles.downloadText}>Download</Text>
                   </TouchableOpacity>
@@ -406,8 +413,9 @@ export default class ImageThumbnail extends Component {
             msgType === 8
               ? styles.replyImageMessageFlex
               : styles.imageMessageFlex,
-            {flexWrap: 'wrap'},
-          ]}>
+            { flexWrap: "wrap" },
+          ]}
+        >
           {this.state?.imagesArray.map((img, ind) => {
             return (
               <>
@@ -439,19 +447,20 @@ export default class ImageThumbnail extends Component {
                 />
                 {this.state.isDownloading ? (
                   <View style={styles.bgImg} key={ind + 1000}>
-                    <ActivityIndicator size={'large'} color={'#fff'} />
+                    <ActivityIndicator size={"large"} color={"#fff"} />
                   </View>
                 ) : !img.isDownloaded &&
-                  msgPosition === 'left' &&
+                  msgPosition === "left" &&
                   (msgType === 2 || msgType === 9) ? (
                   <TouchableOpacity
                     key={ind + 10000}
                     style={styles.bgImg}
-                    onPress={this.donwloadImages}>
+                    onPress={this.donwloadImages}
+                  >
                     <Icon
-                      name={'arrow-circle-down'}
+                      name={"arrow-circle-down"}
                       size={iconSize}
-                      color={'#fff'}
+                      color={"#fff"}
                     />
                     <Text style={styles.downloadText}>Download</Text>
                   </TouchableOpacity>
@@ -468,8 +477,9 @@ export default class ImageThumbnail extends Component {
             msgType === 8
               ? styles.replyImageMessageFlex
               : styles.imageMessageFlex,
-            {flexWrap: 'wrap'},
-          ]}>
+            { flexWrap: "wrap" },
+          ]}
+        >
           {this.state?.imagesArray.map((img, ind) => {
             return (
               <>
@@ -508,19 +518,20 @@ export default class ImageThumbnail extends Component {
                 />
                 {this.state.isDownloading ? (
                   <View style={styles.bgImg} key={ind + 1000}>
-                    <ActivityIndicator size={'large'} color={'#fff'} />
+                    <ActivityIndicator size={"large"} color={"#fff"} />
                   </View>
                 ) : !img.isDownloaded &&
-                  msgPosition === 'left' &&
+                  msgPosition === "left" &&
                   (msgType === 2 || msgType === 9) ? (
                   <TouchableOpacity
                     key={ind + 10000}
                     style={styles.bgImg}
-                    onPress={this.donwloadImages}>
+                    onPress={this.donwloadImages}
+                  >
                     <Icon
-                      name={'arrow-circle-down'}
+                      name={"arrow-circle-down"}
                       size={iconSize}
-                      color={'#fff'}
+                      color={"#fff"}
                     />
                     <Text style={styles.downloadText}>Download</Text>
                   </TouchableOpacity>
@@ -537,8 +548,9 @@ export default class ImageThumbnail extends Component {
             msgType === 8
               ? styles.replyImageMessageFlex
               : styles.imageMessageFlex,
-            {flexWrap: 'wrap'},
-          ]}>
+            { flexWrap: "wrap" },
+          ]}
+        >
           {this.state?.imagesArray.map((img, ind) => {
             return (
               <>
@@ -584,7 +596,8 @@ export default class ImageThumbnail extends Component {
                       styles.fastImageStyleFiveImgRight,
                       styles.imageBackgroundSixPlus,
                     ]}
-                    imageStyle={{borderBottomRightRadius: radiusValue}}>
+                    imageStyle={{ borderBottomRightRadius: radiusValue }}
+                  >
                     <Text style={styles.imageBackgroundSixPlusTextStyle}>
                       + {this.state?.imagesArray.length - 5}
                     </Text>
@@ -592,19 +605,20 @@ export default class ImageThumbnail extends Component {
                 ) : null}
                 {this.state.isDownloading ? (
                   <View style={styles.bgImg} key={ind + 2000}>
-                    <ActivityIndicator size={'large'} color={'#fff'} />
+                    <ActivityIndicator size={"large"} color={"#fff"} />
                   </View>
                 ) : !img.isDownloaded &&
-                  msgPosition === 'left' &&
+                  msgPosition === "left" &&
                   (msgType === 2 || msgType === 9) ? (
                   <TouchableOpacity
                     key={ind + 10000}
                     style={styles.bgImg}
-                    onPress={this.donwloadImages}>
+                    onPress={this.donwloadImages}
+                  >
                     <Icon
-                      name={'arrow-circle-down'}
+                      name={"arrow-circle-down"}
                       size={iconSize}
-                      color={'#fff'}
+                      color={"#fff"}
                     />
                     <Text style={styles.downloadText}>Download</Text>
                   </TouchableOpacity>
