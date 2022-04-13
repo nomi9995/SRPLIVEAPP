@@ -3,7 +3,6 @@ import {
   StyleSheet,
   View,
   TouchableOpacity,
-  SafeAreaView,
   TextInput,
   ActivityIndicator,
   Text,
@@ -17,6 +16,8 @@ import PagerView from "react-native-pager-view";
 import Video from "react-native-video";
 import { ProcessingManager } from "react-native-video-processing";
 import { PESDK, PhotoEditorModal } from "react-native-photoeditorsdk";
+import ProgressCircle from "react-native-progress-circle";
+
 //Redux
 import { connect } from "react-redux";
 import {
@@ -138,114 +139,170 @@ class MediaUploadPreview extends React.Component {
 
   render() {
     let caption = "";
+    const { progressData } = this.props;
     const { page, selectedMedia, playVideo, doTrimming } = this.state;
     return (
-      <View style={{ flex: 1, backgroundColor: "#000" }}>
-        {!doTrimming && (
+      <>
+        {this.props.mediaUploadState && (
           <View
             style={{
-              flex: 0.07,
-              flexDirection: "row",
+              position: "absolute",
+              top: "43%",
+              bottom: "43%",
+              right: "10%",
+              left: "10%",
+              backgroundColor: "#fff",
+              zIndex: 1,
+              borderRadius: 10,
+              padding: 5,
             }}
           >
-            <TouchableOpacity
-              onPress={this.crossButton}
-              disabled={this.props.mediaUploadState}
+            <View
               style={{
-                flex: 0.5,
-                justifyContent: "center",
-                paddingLeft: 10,
+                height: "100%",
+                width: "100%",
+                flexDirection: "row",
+                // backgroundColor: "grey",
+                borderRadius: 5,
+                alignItems: "center",
+                // justifyContent: "center",
+                paddingHorizontal: 10,
               }}
             >
-              <FontAwesome name="times" size={30} color={"#fff"} />
-            </TouchableOpacity>
-            <TouchableOpacity
-              onPress={this.editButton}
-              disabled={this.props.mediaUploadState}
-              style={{
-                flex: 0.5,
-                justifyContent: "center",
-                paddingRight: 10,
-                alignItems: "flex-end",
-              }}
-            >
-              <FontAwesome name="edit" size={25} color={"#fff"} />
-            </TouchableOpacity>
+              <ProgressCircle
+                percent={parseInt(progressData.percentage)}
+                radius={40}
+                borderWidth={4}
+                color="#42ba96"
+                shadowColor="#ddd"
+                bgColor="#fff"
+              >
+                <Text style={{ fontSize: 18 }}>
+                  {parseInt(progressData.percentage)} %
+                </Text>
+              </ProgressCircle>
+
+              <View style={{ marginLeft: 25 }}>
+                <Text
+                  style={{
+                    fontSize: 18,
+                    lineHeight: 32,
+                    fontWeight: "bold",
+                    letterSpacing: 1,
+                  }}
+                >
+                  Sending...
+                </Text>
+                <Text
+                  style={{
+                    fontSize: 15,
+                    lineHeight: 32,
+                  }}
+                >
+                  {progressData.loaded.toFixed(2)} /{" "}
+                  {progressData.total.toFixed(2)} MB
+                </Text>
+              </View>
+            </View>
           </View>
         )}
-
-        <PagerView
-          keyboardDismissMode={"on-drag"}
-          transitionStyle={"curl"}
-          style={{ flex: 0.86 }}
-          onPageSelected={async (e) => {
-            await this.setState({ page: e.nativeEvent.position });
+        <View
+          style={{
+            flex: 1,
+            backgroundColor: "#000",
+            opacity: this.props.mediaUploadState ? 0.8 : 1,
           }}
         >
-          {selectedMedia.map((media, index) => {
-            let type = media.type.split("/")[0];
-            return (
-              <View
-                key={index}
-                style={{
-                  flex: 1,
-                }}
-              >
-                {type === "image" ? (
-                  <FastImage
-                    source={{ uri: media.source ? media.source : media.uri }}
-                    style={{ height: "100%", width: "100%" }}
-                    resizeMode={"contain"}
-                  />
-                ) : type === "video" ? (
-                  doTrimming ? (
-                    <PlayerAndTrimmer
-                      url={media.uri}
-                      tickBtn={(trimmedUrl) => {
-                        this.editButton(trimmedUrl);
-                      }}
-                      crossButton={() => {
-                        this.setState({ doTrimming: false });
-                      }}
-                    />
-                  ) : (
-                    <VideoEditorModal visible={true} video={media.uri} />
-                    // <Video
-                    //   source={{ uri: media.uri }}
-                    //   paused={playVideo}
-                    //   controls={true}
-                    //   repeat={true}
-                    //   ignoreSilentSwitch={"ignore"}
-                    //   playInBackground={false}
-                    //   resizeMode={"contain"}
-                    //   style={{
-                    //     height: "100%",
-                    //     width: "100%",
-                    //   }}
-                    // />
-                  )
-                ) : null}
-              </View>
-            );
-          })}
-        </PagerView>
-
-        {!doTrimming &&
-          (this.props.mediaUploadState ? (
+          {!doTrimming && (
             <View
               style={{
                 flex: 0.07,
                 flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "center",
               }}
             >
-              <ActivityIndicator size="large" color="#008069" />
-              <Text style={{ color: "white", fontSize: 20 }}>
-                {parseInt(this.props.progressData)} %
-              </Text>
+              <TouchableOpacity
+                onPress={this.crossButton}
+                disabled={this.props.mediaUploadState}
+                style={{
+                  flex: 0.5,
+                  justifyContent: "center",
+                  paddingLeft: 10,
+                }}
+              >
+                <FontAwesome name="times" size={30} color={"#fff"} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                onPress={this.editButton}
+                disabled={this.props.mediaUploadState}
+                style={{
+                  flex: 0.5,
+                  justifyContent: "center",
+                  paddingRight: 10,
+                  alignItems: "flex-end",
+                }}
+              >
+                <FontAwesome name="edit" size={25} color={"#fff"} />
+              </TouchableOpacity>
             </View>
-          ) : (
+          )}
+
+          <PagerView
+            keyboardDismissMode={"on-drag"}
+            transitionStyle={"curl"}
+            style={{ flex: 0.86 }}
+            onPageSelected={async (e) => {
+              await this.setState({ page: e.nativeEvent.position });
+            }}
+          >
+            {selectedMedia.map((media, index) => {
+              let type = media.type.split("/")[0];
+              return (
+                <View
+                  key={index}
+                  style={{
+                    flex: 1,
+                  }}
+                >
+                  {type === "image" ? (
+                    <FastImage
+                      source={{ uri: media.source ? media.source : media.uri }}
+                      style={{ height: "100%", width: "100%" }}
+                      resizeMode={"contain"}
+                    />
+                  ) : type === "video" ? (
+                    doTrimming ? (
+                      <PlayerAndTrimmer
+                        url={media.uri}
+                        tickBtn={(trimmedUrl) => {
+                          this.editButton(trimmedUrl);
+                        }}
+                        crossButton={() => {
+                          this.setState({ doTrimming: false });
+                        }}
+                      />
+                    ) : (
+                      <VideoEditorModal visible={true} video={media.uri} />
+                      // <Video
+                      //   source={{ uri: media.uri }}
+                      //   paused={playVideo}
+                      //   controls={true}
+                      //   repeat={true}
+                      //   ignoreSilentSwitch={"ignore"}
+                      //   playInBackground={false}
+                      //   resizeMode={"contain"}
+                      //   style={{
+                      //     height: "100%",
+                      //     width: "100%",
+                      //   }}
+                      // />
+                    )
+                  ) : null}
+                </View>
+              );
+            })}
+          </PagerView>
+
+          {!doTrimming && (
             <View style={{ flex: 0.07, flexDirection: "row" }}>
               <View
                 style={{
@@ -293,8 +350,9 @@ class MediaUploadPreview extends React.Component {
                 </TouchableOpacity>
               </View>
             </View>
-          ))}
-      </View>
+          )}
+        </View>
+      </>
     );
   }
 }

@@ -71,6 +71,7 @@ class MessageScreen extends Component {
       keyboardOffset: new Animated.Value(0),
       minInputToolbarHeight: 62,
       offset: 0,
+      offsetBottom: 0,
       searchOffsetTop: 0,
       searchOffsetBottom: 0,
       isInverted: true,
@@ -193,7 +194,7 @@ class MessageScreen extends Component {
   };
 
   calculateOffset = async () => {
-    let ind = 0;
+    let ind = -1;
     const { selectedUser } = this.props?.route?.params;
     positionsArray = this.props.scrollPosition;
 
@@ -210,22 +211,24 @@ class MessageScreen extends Component {
 
     let n = ind !== -1 ? positionsArray[ind].index : 0;
 
-    await this.setState({ offset: n, initialIndex: n });
+    await this.setState({ offset: n, offsetBottom: n, initialIndex: n });
     this.getAllMsgsFromDb();
   };
 
   getAllMsgsFromDb = () => {
     const { selectedUser } = this.props?.route?.params;
-    const { offset } = this.state;
+    const { offset, offsetBottom, isInverted } = this.state;
+
     let onlineUserId = this.props.user?.user.id;
     let chatUserId =
       selectedUser?.user_id === undefined
         ? selectedUser.id
         : selectedUser.user_id;
     let isroom = selectedUser.is_room == 0 ? 0 : 1;
+    let ofset = isInverted ? offsetBottom : offset;
 
     MessagesQuieries.selectDb(
-      { onlineUserId, chatUserId, isroom, offset },
+      { onlineUserId, chatUserId, isroom, offset: ofset },
       (res2) => {
         if (res2 !== null) {
           this.setMessageAsGifted(res2, true);
@@ -284,9 +287,11 @@ class MessageScreen extends Component {
     isMsgReadFirst = false,
     isSearchedData = false
   ) => {
-    // this.setState({messages:[]})
     const { selectedUser } = this.props?.route?.params;
     let dummyArray = [];
+
+    this.setState({ messages: [] });
+
     data.forEach((element) => {
       let message = regex.getMessages(
         element,
@@ -295,11 +300,13 @@ class MessageScreen extends Component {
       );
       dummyArray.push(message);
     });
+
     if (isSearchedData) {
       await this.setState({ messages: dummyArray });
     } else {
       if (this.state.isInverted) {
-        this.setState({ messages: dummyArray, isInverted: false });
+        let newState = [...dummyArray, ...this.state.messages];
+        this.setState({ messages: newState, isInverted: false });
       } else {
         this.setState({ messages: [...this.state.messages, ...dummyArray] });
       }
@@ -746,7 +753,6 @@ class MessageScreen extends Component {
           right: 0,
         }}
       >
-        {/* <ImageBackground source={require('../../../assets/chat_bg.jpg')}> */}
         <MessageInputToolBar
           {...props}
           onSendTextMessage={(data) =>
@@ -759,7 +765,6 @@ class MessageScreen extends Component {
           }}
           onSendAudioMessage={(data) => this.onSendMessage(data, 7)}
         />
-        {/* </ImageBackground> */}
       </Animated.View>
     );
   }
@@ -793,12 +798,14 @@ class MessageScreen extends Component {
 
   isCloseToBottom = ({ contentOffset }) => {
     const paddingToBottom = 20;
-    return contentOffset.y <= paddingToBottom;
+    return contentOffset.y >= 0 && contentOffset.y <= paddingToBottom;
   };
 
   onViewableItemsChanged = async ({ viewableItems, changed }) => {
     const { selectedUser } = this.props?.route?.params;
-    if (viewableItems[0].index > 0 || this.state.initialIndex > 0) {
+    const { initialIndex, msgDate, shouldSetScrollIndex } = this.state;
+
+    if (viewableItems[0].index > 0 || initialIndex > 0) {
       this.setState({ showDownBtn: true });
     } else {
       this.setState({ showDownBtn: false });
@@ -810,11 +817,11 @@ class MessageScreen extends Component {
 
     renderchangedate = Date;
 
-    if (this.state.msgDate != Date) {
+    if (msgDate != Date) {
       await this.setState({ msgDate: Date });
     }
 
-    if (this.state.shouldSetScrollIndex) {
+    if (shouldSetScrollIndex) {
       positionsArray = this.props.scrollPosition;
       if (positionsArray.length > 0) {
         let ind = positionsArray.findIndex(
@@ -822,17 +829,17 @@ class MessageScreen extends Component {
         );
 
         if (ind !== -1) {
-          positionsArray[ind].index = viewableItems[0].index;
+          positionsArray[ind].index = viewableItems[0].index + initialIndex;
         } else {
           positionsArray.push({
             selectedUser: selectedUser.user_id,
-            index: viewableItems[0].index,
+            index: viewableItems[0].index + initialIndex,
           });
         }
       } else {
         positionsArray.push({
           selectedUser: selectedUser.user_id,
-          index: viewableItems[0].index,
+          index: viewableItems[0].index + initialIndex,
         });
       }
     } else {
@@ -938,6 +945,13 @@ class MessageScreen extends Component {
                           offset: this.state.offset + 100,
                         });
                         this.getAllMsgsFromDb();
+                      } else if (this.isCloseToBottom(nativeEvent)) {
+                        await this.setState({
+                          offsetBottom: this.state.offsetBottom - 100,
+                          isInverted: true,
+                        });
+                        if (this.state.offsetBottom > -100)
+                          this.getAllMsgsFromDb();
                       }
                     }
                   },

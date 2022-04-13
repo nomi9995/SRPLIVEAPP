@@ -44,7 +44,11 @@ class MediaUpload extends Component {
       selectedMedia: [],
       messageTypeState: 0,
       saveFormData: [],
-      progress: 0,
+      progress: {
+        percentage: 0,
+        loaded: 0,
+        total: 0,
+      },
     };
   }
 
@@ -322,8 +326,13 @@ class MediaUpload extends Component {
         "Content-Type": "multipart/form-data",
       },
       onUploadProgress: (progressEvent) => {
+        console.log("progressEvent: ", progressEvent);
         let { progress } = this.state;
-        progress = (progressEvent.loaded / progressEvent.total) * 100;
+        progress = {
+          percentage: (progressEvent.loaded / progressEvent.total) * 100,
+          loaded: progressEvent.loaded / 1024 / 1024,
+          total: progressEvent.total / 1024 / 1024,
+        };
         this.setState({ progress });
       },
     };
