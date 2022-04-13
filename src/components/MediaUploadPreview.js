@@ -256,42 +256,62 @@ class MediaUploadPreview extends React.Component {
           {!doTrimming && (
             <View
               style={{
+                zIndex: 1,
+                position: "absolute",
+                top: 10,
                 flex: 0.07,
                 flexDirection: "row",
+                alignItems: "center",
               }}
             >
               <TouchableOpacity
                 onPress={this.crossButton}
                 disabled={this.props.mediaUploadState}
                 style={{
-                  flex: 0.5,
+                  flex: 1,
                   justifyContent: "center",
-                  paddingLeft: 10,
+                  paddingLeft: 5,
                 }}
               >
-                <FontAwesome name="times" size={30} color={"#fff"} />
+                <Ionicons name="close" size={30} color={"#fff"} />
               </TouchableOpacity>
+              {selectedMedia.length > 1 && (
+                <TouchableOpacity
+                  onPress={() => alert("Delete")}
+                  disabled={this.props.mediaUploadState}
+                  style={{
+                    justifyContent: "center",
+                    marginRight: 25,
+                    alignItems: "flex-end",
+                  }}
+                >
+                  <Ionicons name={"trash-outline"} size={27} color={"white"} />
+                </TouchableOpacity>
+              )}
               <TouchableOpacity
                 onPress={this.editButton}
                 disabled={this.props.mediaUploadState}
                 style={{
-                  flex: 0.5,
                   justifyContent: "center",
                   paddingRight: 10,
                   alignItems: "flex-end",
                 }}
               >
-                <FontAwesome name="edit" size={25} color={"#fff"} />
+                <Octicons name="pencil" size={25} color={"#fff"} />
               </TouchableOpacity>
             </View>
           )}
 
           <PagerView
+            ref={(viewPager) => {
+              this.pagerRef = viewPager;
+            }}
             keyboardDismissMode={"on-drag"}
             transitionStyle={"curl"}
-            style={{ flex: 0.86 }}
-            onPageSelected={async (e) => {
-              await this.setState({ page: e.nativeEvent.position });
+            style={{ flex: selectedMedia.length === 1 ? 0.89 : 0.85 }}
+            onPageSelected={(e) => {
+              this.setState({ page: e.nativeEvent.position });
+              this.setState({ selected: e.nativeEvent.position });
             }}
           >
             {selectedMedia.map((media, index) => {
@@ -310,31 +330,35 @@ class MediaUploadPreview extends React.Component {
                       resizeMode={"contain"}
                     />
                   ) : type === "video" ? (
-                    doTrimming ? (
-                      <PlayerAndTrimmer
-                        url={media.uri}
-                        tickBtn={(trimmedUrl) => {
-                          this.editButton(trimmedUrl);
-                        }}
-                        crossButton={() => {
-                          this.setState({ doTrimming: false });
+                    doTrimming === true ? (
+                      <VideoEditorModal
+                        visible={true}
+                        video={media.uri}
+                        onCancel={() => this.setState({ doTrimming: false })}
+                        onExport={(val) => {
+                          this.exportButton(val);
                         }}
                       />
                     ) : (
-                      <VideoEditorModal visible={true} video={media.uri} />
-                      // <Video
-                      //   source={{ uri: media.uri }}
-                      //   paused={playVideo}
-                      //   controls={true}
-                      //   repeat={true}
-                      //   ignoreSilentSwitch={"ignore"}
-                      //   playInBackground={false}
-                      //   resizeMode={"contain"}
-                      //   style={{
-                      //     height: "100%",
-                      //     width: "100%",
-                      //   }}
-                      // />
+                      <Video
+                        ref={(videoRef) => (this.playerRef = videoRef)}
+                        showOnStart={true}
+                        source={{ uri: media.uri }}
+                        paused={playVideo}
+                        repeat={true}
+                        ignoreSilentSwitch={"ignore"}
+                        playInBackground={false}
+                        resizeMode={"contain"}
+                        style={{
+                          height: "100%",
+                          width: "100%",
+                        }}
+                        onLoad={(e) => {
+                          console.log("ON LOAD", e);
+                          console.log("RED", this.playerRef);
+                          this.playerRef.player?.ref?.seek(0.1);
+                        }}
+                      />
                     )
                   ) : null}
                 </View>
@@ -343,7 +367,7 @@ class MediaUploadPreview extends React.Component {
           </PagerView>
 
           {!doTrimming && (
-            <View style={{ flex: 0.07, flexDirection: "row" }}>
+            <View style={{ flex: 0.15 }}>
               <View
                 style={{
                   flexDirection: "row",
