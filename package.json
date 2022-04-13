@@ -67,6 +67,7 @@
     "react-native-thumbnail-video": "^0.1.2",
     "react-native-vector-icons": "^9.0.0",
     "react-native-video": "^5.2.0",
+    "react-native-video-controls": "^2.8.1",
     "react-native-video-processing": "^2.0.0",
     "react-native-videoeditorsdk": "^2.12.0",
     "react-redux": "^7.2.6",

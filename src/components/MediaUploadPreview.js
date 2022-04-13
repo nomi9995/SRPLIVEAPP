@@ -7,13 +7,19 @@ import {
   ActivityIndicator,
   Text,
   Platform,
+  Dimensions,
 } from "react-native";
+import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { VESDK, VideoEditorModal } from "react-native-videoeditorsdk";
 import FastImage from "react-native-fast-image";
-import FontAwesome from "react-native-vector-icons/dist/FontAwesome5";
+import MaterialCommunityIcons from "react-native-vector-icons/dist/MaterialCommunityIcons";
+import FontAwesome5 from "react-native-vector-icons/dist/FontAwesome5";
+import Ionicons from "react-native-vector-icons/dist/Ionicons";
+import Octicons from "react-native-vector-icons/dist/Octicons";
 import PhotoEditor from "@baronha/react-native-photo-editor";
 import PagerView from "react-native-pager-view";
-import Video from "react-native-video";
+import Video from "react-native-video-controls";
+import { Thumbnail } from "react-native-thumbnail-video";
 import { ProcessingManager } from "react-native-video-processing";
 import { PESDK, PhotoEditorModal } from "react-native-photoeditorsdk";
 import ProgressCircle from "react-native-progress-circle";
@@ -22,6 +28,7 @@ import ProgressCircle from "react-native-progress-circle";
 import { connect } from "react-redux";
 import {
   setImagePreview,
+  setMediaOptionsOpen,
   setMediaType,
   setMediaUploadState,
   setStatusState,
@@ -30,9 +37,13 @@ import {
 // Components
 import PlayerAndTrimmer from "./PlayerAndTrimmer";
 
+const { width, height } = Dimensions.get("window");
+
 class MediaUploadPreview extends React.Component {
   constructor(props) {
     super(props);
+    this.pagerRef = React.createRef();
+    this.playerRef = React.createRef(null);
     this.state = {
       page: 0,
       selectedMedia: props?.selectedMedia,
@@ -44,12 +55,37 @@ class MediaUploadPreview extends React.Component {
       viewHeight: 0,
       playVideo: true,
       doTrimming: false,
+      loader: false,
+      galleryCallback: props?.galleryCallback,
+      selected: 0,
     };
   }
 
   sendHandler = (caption) => {
     this.props.onSetMediaUploadState(true);
     this.props.onUploadMedia(this.state.selectedMedia, caption);
+  };
+
+  exportButton = (val) => {
+    let editVideo = [...this.state.selectedMedia];
+
+    if (val.hasChanges === true) {
+      editVideo[0].name = val.video.substr(39, 30);
+      editVideo[0].source = val.video;
+      editVideo[0].type = `video/${val.video.substr(65, 4)}`;
+      editVideo[0].uri = val.video;
+
+      this.setState({ selectedMedia: editVideo });
+      this.sendHandler(""), this.crossButton();
+    } else {
+      editVideo[0].name = val.video.substr(70, 23);
+      editVideo[0].source = val.video;
+      editVideo[0].type = `video/${val.video.substr(90, 3)}`;
+      editVideo[0].uri = val.video;
+
+      this.setState({ selectedMedia: editVideo });
+      this.sendHandler(""), this.crossButton();
+    }
   };
 
   crossButton = () => {
@@ -135,6 +171,10 @@ class MediaUploadPreview extends React.Component {
       selectedMedia[page].uri = data;
       this.setState({ selectedMedia: selectedMedia });
     });
+  };
+
+  handleMediaType = (type) => {
+    this.state.galleryCallback(type);
   };
 
   render() {
@@ -306,49 +346,134 @@ class MediaUploadPreview extends React.Component {
             <View style={{ flex: 0.07, flexDirection: "row" }}>
               <View
                 style={{
-                  flex: 0.9,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  paddingHorizontal: 5,
-                  paddingVertical: 10,
+                  flexDirection: "row",
+                  height: 60,
+                  marginHorizontal: 5,
+                  // marginTop: 10,
+                  bottom: selectedMedia.length === 1 ? -20 : 0,
                 }}
               >
-                {!this.props.statusState && (
-                  <TextInput
-                    placeholder="Write a Caption!"
-                    onChangeText={(val) => (caption = val)}
-                    style={{
-                      borderRadius: 25,
-                      backgroundColor: "#fff",
-                      height: "100%",
-                      width: "100%",
-                    }}
-                  />
-                )}
-              </View>
-              <View
-                style={{
-                  flex: 0.1,
-                  alignItems: "center",
-                  justifyContent: "center",
-                  paddingHorizontal: 5,
-                  paddingVertical: 10,
-                }}
-              >
-                <TouchableOpacity
-                  onPress={() => this.sendHandler(caption)}
+                <View
                   style={{
-                    backgroundColor: "#018679",
-                    borderRadius: 50,
-                    height: "100%",
-                    width: "100%",
+                    flexDirection: "row",
+                    flex: 0.88,
                     alignItems: "center",
-                    justifyContent: "center",
+                    marginVertical: 5.5,
+                    backgroundColor: "#fff",
+                    borderRadius: 25,
+                    width: "100%",
                   }}
                 >
-                  <FontAwesome name={"paper-plane"} size={20} color="white" />
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    // activeOpacity={1}
+                    onPress={() => this.handleMediaType("gallery")}
+                  >
+                    <MaterialCommunityIcons
+                      name="image-multiple-outline"
+                      size={20}
+                      color="grey"
+                      style={{ marginLeft: 12, marginRight: 10 }}
+                    />
+                  </TouchableOpacity>
+                  {!this.props.statusState && (
+                    <TextInput
+                      placeholderTextColor={"grey"}
+                      placeholder="Write a Caption!"
+                      onChangeText={(val) => (caption = val)}
+                      style={{ flex: 1, fontSize: 16 }}
+                    />
+                  )}
+                </View>
+                <View
+                  style={{
+                    flex: 0.1,
+                    alignItems: "center",
+                    justifyContent: "center",
+                    paddingHorizontal: 5,
+                    paddingVertical: 10,
+                  }}
+                >
+                  <TouchableOpacity
+                    onPress={() => this.sendHandler(caption)}
+                    style={{
+                      backgroundColor: "#018679",
+                      borderRadius: 50 / 2,
+                      height: 50,
+                      width: 50,
+                      alignItems: "center",
+                      justifyContent: "center",
+                      marginLeft: 10,
+                    }}
+                  >
+                    <FontAwesome5
+                      name={"paper-plane"}
+                      size={20}
+                      color="white"
+                    />
+                  </TouchableOpacity>
+                </View>
               </View>
+              {selectedMedia.length > 1 && (
+                <TouchableOpacity
+                  activeOpacity={1}
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                    bottom: 4,
+                    position: "absolute",
+                  }}
+                >
+                  {selectedMedia.map((media, index) => {
+                    let type = media.type.split("/")[0];
+                    return (
+                      <TouchableOpacity
+                        activeOpacity={1}
+                        onPress={() => {
+                          this.pagerRef.setPage(index);
+                          this.setState({ selected: index });
+                        }}
+                        key={index}
+                        style={{
+                          width: 60,
+                          height: 60,
+                          borderWidth: 2,
+                          borderColor:
+                            this.state.selected === index ? "cyan" : "#000",
+                        }}
+                      >
+                        {type === "image" ? (
+                          <FastImage
+                            source={{
+                              uri: media.source ? media.source : media.uri,
+                            }}
+                            style={{ height: "100%", width: "100%" }}
+                            resizeMode={"contain"}
+                          />
+                        ) : type === "video" ? (
+                          <Video
+                            disablePlayPause={true}
+                            disableSeekbar={true}
+                            disableBack={true}
+                            disableFullscreen={true}
+                            disableVolume={true}
+                            disableTimer={true}
+                            controlTimeout={0}
+                            source={{ uri: media.uri }}
+                            paused={playVideo}
+                            ignoreSilentSwitch={"ignore"}
+                            playInBackground={false}
+                            resizeMode={"contain"}
+                            style={{
+                              height: "100%",
+                              width: "100%",
+                            }}
+                          />
+                        ) : null}
+                      </TouchableOpacity>
+                    );
+                  })}
+                </TouchableOpacity>
+              )}
             </View>
           )}
         </View>
@@ -380,6 +505,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     onSetStatus: (data) => {
       dispatch(setStatusState(data));
+    },
+    onSetMediaOptionsOpen: (data) => {
+      dispatch(setMediaOptionsOpen(data));
     },
   };
 };

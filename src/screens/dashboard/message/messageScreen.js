@@ -10,6 +10,7 @@ import {
   Animated,
   Platform,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   Alert,
 } from "react-native";
 import { GiftedChat, Day } from "react-native-gifted-chat";
@@ -18,6 +19,7 @@ import { regex } from "../../../utils/regex";
 import Toast from "react-native-simple-toast";
 import FontAwesome from "react-native-vector-icons/dist/FontAwesome5";
 import DeviceInfo from "react-native-device-info";
+import * as AudioManager from "../../../components/audioPlayerManager/AudioManager";
 
 //Components
 import HomeHeader from "../../../components/HomeHeader";
@@ -134,7 +136,7 @@ class MessageScreen extends Component {
     socket.off("message_saved");
     socket.off("users_online_status");
     socket.off("typing_on_off_user");
-
+    AudioManager.stopPlayer();
     this.subscribeToMessages?.unsubscribe?.();
     this.subscribeToMessagesUpdate?.unsubscribe?.();
 
@@ -873,76 +875,111 @@ class MessageScreen extends Component {
             }
           />
         ) : (
-          <>
-            <HomeHeader
-              screen="message"
-              navProps={this.props}
-              userData={this.props?.route?.params.selectedUser}
-              chatUserOnlineStatus={this.state.chatUserOnlineStatus}
-              loginUserOnlineStatus={null}
-              typingStatus={this.state.typingStatus}
-              selectedUser={selectedUser}
-              searchResponse={(data) => this.setSearchResponse(data)}
-              messageupdateresponse={(data) => this.messageUpdateResponse(data)}
-              filterdata={(data) => this.filterResponse(data)}
-            />
-            <ImageBackground
-              source={require("../../../assets/chat_bg.jpg")}
-              style={styles.container}
-            >
-              <Animated.View
-                style={[
-                  styles.changeDate,
-                  { opacity: this.state.fadeAnimation },
-                ]}
+          <TouchableOpacity
+            style={{ flex: 1 }}
+            activeOpacity={1}
+            onPress={() => this.props.onSetMediaOptionsOpen(false)}
+          >
+            <>
+              <HomeHeader
+                screen="message"
+                navProps={this.props}
+                userData={this.props?.route?.params.selectedUser}
+                chatUserOnlineStatus={this.state.chatUserOnlineStatus}
+                loginUserOnlineStatus={null}
+                typingStatus={this.state.typingStatus}
+                selectedUser={selectedUser}
+                searchResponse={(data) => this.setSearchResponse(data)}
+                messageupdateresponse={(data) =>
+                  this.messageUpdateResponse(data)
+                }
+                filterdata={(data) => this.filterResponse(data)}
+              />
+
+              <ImageBackground
+                source={require("../../../assets/chat_bg.jpg")}
+                style={styles.container}
               >
-                <Text
-                  style={{ color: "grey", fontWeight: "600", fontSize: 12 }}
+                <Animated.View
+                  style={[
+                    styles.changeDate,
+                    { opacity: this.state.fadeAnimation },
+                  ]}
                 >
-                  {renderchangedate}
-                </Text>
-              </Animated.View>
+                  <Text
+                    style={{ color: "grey", fontWeight: "600", fontSize: 12 }}
+                  >
+                    {renderchangedate}
+                  </Text>
+                </Animated.View>
 
-              <GiftedChat
-                ref={(ref) => (this.chatRef = ref)}
-                messages={this.state.messages}
-                renderMessage={this.renderMessage.bind(this)}
-                renderInputToolbar={this.renderToolbar.bind(this)}
-                renderMediaOptions={(data) => this.renderMediaOptions(data)}
-                selectedUser={this.props?.route?.params?.selectedUser}
-                minInputToolbarHeight={this.state.minInputToolbarHeight}
-                onSend={(type, message) => {
-                  if (type === 1) {
-                    this.onSendMessage(message, 1, this.props.messageEdit);
-                  } else if (type === 8) {
-                    this.onSendMessage(message, 1);
-                  } else if (type === 7) {
-                    this.onSendMessage(message, 7);
-                  }
-                }}
-                user={{
-                  _id: 2,
-                }}
-                listViewProps={{
-                  disableVirtualization: true,
-                  initialNumToRender: 20,
-                  removeClippedSubviews: false,
-                  maxToRenderPerBatch: 100,
+                <GiftedChat
+                  ref={(ref) => (this.chatRef = ref)}
+                  messages={this.state.messages}
+                  renderMessage={this.renderMessage.bind(this)}
+                  renderInputToolbar={this.renderToolbar.bind(this)}
+                  renderMediaOptions={(data) => this.renderMediaOptions(data)}
+                  selectedUser={this.props?.route?.params?.selectedUser}
+                  minInputToolbarHeight={this.state.minInputToolbarHeight}
+                  onSend={(type, message) => {
+                    if (type === 1) {
+                      this.onSendMessage(message, 1, this.props.messageEdit);
+                    } else if (type === 8) {
+                      this.onSendMessage(message, 1);
+                    } else if (type === 7) {
+                      this.onSendMessage(message, 7);
+                    }
+                  }}
+                  user={{
+                    _id: 2,
+                  }}
+                  listViewProps={{
+                    disableVirtualization: true,
+                    initialNumToRender: 20,
+                    removeClippedSubviews: false,
+                    maxToRenderPerBatch: 100,
 
-                  onScroll: async ({ nativeEvent }) => {
-                    if (this.props.route.params.screen !== undefined) {
-                      if (this.isCloseToTop(nativeEvent)) {
-                        await this.setState({
-                          searchOffsetTop: this.state.searchOffsetTop + 40,
-                        });
-                        this.getSearchedMessages(
-                          this.props.route.params.selectedUser
-                        );
+                    onScroll: async ({ nativeEvent }) => {
+                      if (this.props.route.params.screen !== undefined) {
+                        if (this.isCloseToTop(nativeEvent)) {
+                          await this.setState({
+                            searchOffsetTop: this.state.searchOffsetTop + 40,
+                          });
+                          this.getSearchedMessages(
+                            this.props.route.params.selectedUser
+                          );
+                        }
+                      } else {
+                        if (this.isCloseToTop(nativeEvent)) {
+                          await this.setState({
+                            offset: this.state.offset + 100,
+                          });
+                          this.getAllMsgsFromDb();
+                        }
                       }
-                    } else {
-                      if (this.isCloseToTop(nativeEvent)) {
+                    },
+
+                    onScrollToIndexFailed: (info) => {
+                      console.log("failed: ", info);
+                    },
+
+                    onViewableItemsChanged: this.onViewableItemsChanged,
+                    onMomentumScrollBegin: this.scrollStart,
+                    onMomentumScrollEnd: this.scrollEnd,
+                    onScrollBeginDrag: this.scrollStart,
+                    onScrollEndDrag: this.scrollEnd,
+                  }}
+                />
+
+                {this.state.showDownBtn && (
+                  <TouchableOpacity
+                    style={styles.scrollDownBtn}
+                    onPress={async () => {
+                      if (this.state.initialIndex > 0) {
                         await this.setState({
-                          offset: this.state.offset + 100,
+                          offset: 0,
+                          initialIndex: 0,
+                          isInverted: true,
                         });
                         this.getAllMsgsFromDb();
                       } else if (this.isCloseToBottom(nativeEvent)) {
@@ -953,52 +990,18 @@ class MessageScreen extends Component {
                         if (this.state.offsetBottom > -100)
                           this.getAllMsgsFromDb();
                       }
-                    }
-                  },
-
-                  onScrollToIndexFailed: (info) => {
-                    console.log("failed: ", info);
-                  },
-
-                  onViewableItemsChanged: this.onViewableItemsChanged,
-                  onMomentumScrollBegin: this.scrollStart,
-                  onMomentumScrollEnd: this.scrollEnd,
-                  onScrollBeginDrag: this.scrollStart,
-                  onScrollEndDrag: this.scrollEnd,
-                }}
-              />
-
-              {this.state.showDownBtn && (
-                <TouchableOpacity
-                  style={styles.scrollDownBtn}
-                  onPress={async () => {
-                    if (this.state.initialIndex > 0) {
-                      await this.setState({
-                        offset: 0,
-                        initialIndex: 0,
-                        isInverted: true,
-                      });
-                      this.getAllMsgsFromDb();
-                    } else {
-                      this.chatRef?._messageContainerRef?.current?.scrollToIndex(
-                        {
-                          index: 0,
-                          animated: true,
-                          viewPosition: 0,
-                        }
-                      );
-                    }
-                  }}
-                >
-                  <FontAwesome
-                    name={"angle-double-down"}
-                    size={20}
-                    color={"#000"}
-                  />
-                </TouchableOpacity>
-              )}
-            </ImageBackground>
-          </>
+                    }}
+                  >
+                    <FontAwesome
+                      name={"angle-double-down"}
+                      size={20}
+                      color={"#000"}
+                    />
+                  </TouchableOpacity>
+                )}
+              </ImageBackground>
+            </>
+          </TouchableOpacity>
         )}
         <SafeAreaView style={{ backgroundColor: "#f9f9f9" }} />
       </View>

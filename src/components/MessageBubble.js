@@ -90,19 +90,44 @@ class MessageBubble extends React.Component {
 
   setMessagesVideo = (showVideo) => {
     let temp = [];
-    showVideo.forEach((video) => {
-      onDownload.checkExistingMedia(video.name, "Videos").then(async (res) => {
-        video.name =
-          res && this.props.position === "left"
-            ? Platform.OS === "ios"
-              ? `${fs.dirs.DocumentDir}/srp_live/Videos/${video.name}`
-              : appConfig.localPath + "Videos/" + video.name
-            : video.name;
-        video.isDownloaded = res;
-        temp.push(video);
-        this.setState({ videosArray: temp });
+    if (this.props.position === "left") {
+      showVideo.forEach((video) => {
+        onDownload
+          .checkExistingMedia(video.name, "Videos")
+          .then(async (res) => {
+            video.name =
+              res && Platform.OS === "ios"
+                ? `${fs.dirs.DocumentDir}/srp_live/Videos/${video.name}`
+                : appConfig.localPath + "Videos/" + video.name;
+            video.isDownloaded = res;
+            temp.push(video);
+            this.setState({ videosArray: temp });
+          });
       });
-    });
+    } else {
+      showVideo.forEach((video) => {
+        onDownload
+          .checkExistingMediaSend(video.name, "Videos")
+          .then(async (res) => {
+            console.log("video reds", res);
+            if (res) {
+              video.name =
+                res && Platform.OS === "ios"
+                  ? `${fs.dirs.DocumentDir}/srp_live/Videos/Sent/${video.name}`
+                  : appConfig.localPath + "Videos/Sent/" + video.name;
+
+              console.log("fdgdfdfdg", video);
+              video.isDownloaded = res;
+              temp.push(video);
+              this.setState({ videosArray: temp });
+            } else {
+              video.name = appConfig.videoImagePath + video?.name;
+              temp.push(video);
+              this.setState({ videosArray: temp });
+            }
+          });
+      });
+    }
   };
 
   setMessagesFile = (showFile) => {
@@ -928,9 +953,9 @@ class MessageBubble extends React.Component {
   }
 
   changeTime = async (seconds) => {
-    console.log("seconds", seconds);
+    console.log("seconds", this.state.currentPositionSec);
     // 50 / duration
-    let seektime = (seconds / 100) * this.state.audioDuration;
+    let seektime = (seconds / 100) * this.state.currentPositionSec;
     console.log("seektime", seektime);
     // this.audioRecorderPlayer.seekToPlayer(seektime);
   };
@@ -985,6 +1010,11 @@ class MessageBubble extends React.Component {
         }
         case AudioManager.AUDIO_STATUS.stop: {
           console.log("STOP AUDIO");
+          this.setState({
+            currentPositionSec: 0,
+            currentDurationSec: 0,
+            audio_playTime: 0,
+          });
           this.setState({ pause_audio_played: false, audio_played: false });
           break;
         }
@@ -1452,13 +1482,13 @@ class MessageBubble extends React.Component {
                   uri={`https://www.srplivehelp.com/media/chats/videos/${videoImageName}.png`}
                 />
                 {video.isDownloading ? (
-                  <View style={styles.videoPlayIcon}>
+                  <View style={styles.videoDownloadIcon}>
                     <ActivityIndicator size={"large"} color={"#fff"} />
                   </View>
                 ) : !video?.isDownloaded && this.props.position === "left" ? (
                   <>
                     <TouchableOpacity
-                      style={styles.videoPlayIcon}
+                      style={styles.videoDownloadIcon}
                       onPress={() => this.downloadMedia("Videos", ind)}
                     >
                       <FontAwesome5
@@ -1593,13 +1623,13 @@ class MessageBubble extends React.Component {
                 // style={styles.videoImageMessageFlex}
               /> */}
               {video.isDownloading ? (
-                <View style={styles.videoPlayIcon}>
+                <View style={styles.videoDownloadIcon}>
                   <ActivityIndicator size={"large"} color={"#fff"} />
                 </View>
               ) : !video?.isDownloaded && this.props.position === "left" ? (
                 <>
                   <TouchableOpacity
-                    style={styles.videoPlayIcon}
+                    style={styles.videoDownloadIcon}
                     onPress={() => this.downloadMedia("Videos", ind)}
                   >
                     <FontAwesome5
@@ -1625,10 +1655,7 @@ class MessageBubble extends React.Component {
                 <>
                   <TouchableOpacity
                     onPress={() => {
-                      let path =
-                        this.props.position === "left"
-                          ? video?.name
-                          : appConfig.videoImagePath + video?.name;
+                      let path = video?.name;
                       this.props.navProps.navigate("MessagePreview", {
                         messageType: "Video",
                         videoPath: path,
@@ -1741,13 +1768,13 @@ class MessageBubble extends React.Component {
                   style={styles.videoImageMessageFlex}
                 /> */}
                 {video.isDownloading ? (
-                  <View style={styles.videoPlayIcon}>
+                  <View style={styles.videoDownloadIcon}>
                     <ActivityIndicator size={"large"} color={"#fff"} />
                   </View>
                 ) : !video?.isDownloaded && this.props.position === "left" ? (
                   <>
                     <TouchableOpacity
-                      style={styles.videoPlayIcon}
+                      style={styles.videoDownloadIcon}
                       onPress={() => this.downloadMedia("Videos", ind)}
                     >
                       <FontAwesome5
@@ -2283,6 +2310,14 @@ const styles = {
     height: "100%",
     alignItems: "center",
     justifyContent: "center",
+  },
+  videoDownloadIcon: {
+    position: "absolute",
+    width: "100%",
+    height: "100%",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "rgba(52, 52, 52, 0.8)",
   },
   messageSendReplyImage: {
     marginHorizontal: 20,
