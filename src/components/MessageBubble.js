@@ -109,14 +109,12 @@ class MessageBubble extends React.Component {
         onDownload
           .checkExistingMediaSend(video.name, "Videos")
           .then(async (res) => {
-            console.log("video reds", res);
+            // console.log("video reds", res);
             if (res) {
               video.name =
                 res && Platform.OS === "ios"
                   ? `${fs.dirs.DocumentDir}/srp_live/Videos/Sent/${video.name}`
                   : appConfig.localPath + "Videos/Sent/" + video.name;
-
-              console.log("fdgdfdfdg", video);
               video.isDownloaded = res;
               temp.push(video);
               this.setState({ videosArray: temp });
@@ -1697,7 +1695,7 @@ class MessageBubble extends React.Component {
       if (showReply?.reply_message?.reply_type === 11) {
         let showVideoReply = JSON.parse(showReply?.reply_message?.reply_content)
           .content[0];
-        console.log("videoreply", showVideoReply.thumbnail);
+        // console.log("videoreply", showVideoReply.thumbnail);
         let videoImageName = showVideoReply.thumbnail;
         // showVideoReply?.extenstion == "MOV"
         //   ? showVideoReply?.name.split(".MOV")[0]
@@ -1743,7 +1741,7 @@ class MessageBubble extends React.Component {
         let showVideoMsg = JSON.parse(showVideo.message).content;
         return this.state?.videosArray ? (
           this.state?.videosArray.map((video, ind) => {
-            console.log("showVideoMsg", showVideoMsg);
+            // console.log("showVideoMsg", showVideoMsg);
             let videoImageName = showVideoMsg?.[ind]?.thumbnail;
             // showVideoMsg?.[ind]?.extenstion == "MOV"
             //   ? showVideoMsg?.[ind]?.name.split(".MOV")[0]
