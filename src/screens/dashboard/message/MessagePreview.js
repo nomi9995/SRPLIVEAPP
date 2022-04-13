@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from "react";
 import {
   StyleSheet,
   TouchableOpacity,
@@ -6,14 +6,14 @@ import {
   SafeAreaView,
   ActivityIndicator,
   BackHandler,
-} from 'react-native';
-import {SliderBox} from 'react-native-image-slider-box';
-import FontAwesome from 'react-native-vector-icons/dist/FontAwesome5';
-import Video from 'react-native-video';
-import ImageViewer from 'react-native-image-zoom-viewer';
+} from "react-native";
+import { SliderBox } from "react-native-image-slider-box";
+import FontAwesome from "react-native-vector-icons/dist/FontAwesome5";
+import Video from "react-native-video";
+import ImageViewer from "react-native-image-zoom-viewer";
 
 //redux
-import {connect} from 'react-redux';
+import { connect } from "react-redux";
 
 class MessagePreview extends Component {
   constructor(props) {
@@ -24,11 +24,11 @@ class MessagePreview extends Component {
   }
 
   componentDidMount = () => {
-    BackHandler.addEventListener('hardwareBackPress', this.hardwareBack);
+    BackHandler.addEventListener("hardwareBackPress", this.hardwareBack);
   };
 
   componentWillUnmount = () => {
-    BackHandler.removeEventListener('hardwareBackPress', this.hardwareBack);
+    BackHandler.removeEventListener("hardwareBackPress", this.hardwareBack);
   };
 
   hardwareBack = () => {
@@ -36,32 +36,32 @@ class MessagePreview extends Component {
     return true;
   };
   onLoadStart = () => {
-    this.setState({opacity: 1});
+    this.setState({ opacity: 1 });
   };
 
   onLoad = () => {
-    this.setState({opacity: 0});
+    this.setState({ opacity: 0 });
   };
 
-  onBuffer = ({isBuffering}) => {
-    this.setState({opacity: isBuffering ? 1 : 0});
+  onBuffer = ({ isBuffering }) => {
+    this.setState({ opacity: isBuffering ? 1 : 0 });
   };
 
   render() {
     return (
       <>
-        <SafeAreaView style={{backgroundColor: '#000'}}></SafeAreaView>
-        {this.props?.route.params.messageType === 'Video' ? (
+        <SafeAreaView style={{ backgroundColor: "#000" }}></SafeAreaView>
+        {this.props?.route.params.messageType === "Video" ? (
           <View style={styles.videoWrapper}>
             <Video
               source={{
-                uri: this.props?.route.params.videoPath.replace(/ /g, '%20'),
+                uri: this.props?.route.params.videoPath.replace(/ /g, "%20"),
               }}
               resizeMode="contain"
               paused={false}
               controls={true}
               repeat={true}
-              style={{height: '100%', width: '100%'}}
+              style={{ height: "100%", width: "100%" }}
               onBuffer={this.onBuffer}
               onLoadStart={this.onLoadStart}
               onLoad={this.onLoad}
@@ -70,28 +70,30 @@ class MessagePreview extends Component {
               <ActivityIndicator
                 animating
                 size="large"
-                color={'green'}
-                style={{opacity: this.state.opacity}}
+                color={"green"}
+                style={{ opacity: this.state.opacity }}
               />
             </View>
             <TouchableOpacity
               onPress={() => this.props.navigation.goBack()}
-              style={styles.crossIconPosition}>
-              <FontAwesome name={'times-circle'} size={40} color="white" />
+              style={styles.crossIconPosition}
+            >
+              <FontAwesome name={"times-circle"} size={32} color="white" />
             </TouchableOpacity>
           </View>
         ) : (
           <View style={styles.container}>
             <TouchableOpacity
               onPress={() => this.props.navigation.goBack()}
-              style={styles.crossIconPosition}>
-              <FontAwesome name={'times-circle'} size={40} color="white" />
+              style={styles.crossIconPosition}
+            >
+              <FontAwesome name={"times-circle"} size={32} color="white" />
             </TouchableOpacity>
             <ImageViewer
               // sliderBoxHeight={'100%'}
               // resizeMode="contain"
               // images={this.props?.route.params.sliderState}
-              imageUrls={this.props?.route.params.sliderState?.map(url => ({
+              imageUrls={this.props?.route.params.sliderState?.map((url) => ({
                 url,
               }))}
               index={0}
@@ -108,14 +110,14 @@ class MessagePreview extends Component {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     theme: state.theme.theme,
     user: state.auth.user,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {};
 };
 
@@ -124,25 +126,25 @@ export default connect(mapStateToProps, mapDispatchToProps)(MessagePreview);
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: "#000",
   },
   crossIconPosition: {
-    position: 'absolute',
+    position: "absolute",
     right: 10,
     top: 10,
     zIndex: 1,
   },
   videoWrapper: {
     flex: 1,
-    backgroundColor: '#000',
+    backgroundColor: "#000",
   },
   activityIndicator: {
-    position: 'absolute',
-    top: '50%',
+    position: "absolute",
+    top: "50%",
     left: 0,
     right: 0,
     zIndex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
 });
