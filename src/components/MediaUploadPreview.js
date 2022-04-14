@@ -19,6 +19,7 @@ import Octicons from "react-native-vector-icons/dist/Octicons";
 import PhotoEditor from "@baronha/react-native-photo-editor";
 import PagerView from "react-native-pager-view";
 import Video from "react-native-video-controls";
+import SmallVideo from "react-native-video";
 import { Thumbnail } from "react-native-thumbnail-video";
 import { ProcessingManager } from "react-native-video-processing";
 import { PESDK, PhotoEditorModal } from "react-native-photoeditorsdk";
@@ -76,7 +77,7 @@ class MediaUploadPreview extends React.Component {
       editVideo[0].uri = val.video;
 
       this.setState({ selectedMedia: editVideo });
-      this.sendHandler(""), this.crossButton();
+      // this.sendHandler(""), this.crossButton();
     } else {
       editVideo[0].name = val.video.substr(70, 23);
       editVideo[0].source = val.video;
@@ -84,7 +85,7 @@ class MediaUploadPreview extends React.Component {
       editVideo[0].uri = val.video;
 
       this.setState({ selectedMedia: editVideo });
-      this.sendHandler(""), this.crossButton();
+      // this.sendHandler(""), this.crossButton();
     }
   };
 
@@ -121,16 +122,13 @@ class MediaUploadPreview extends React.Component {
       else selectedMedia[page].uri = result;
       this.setState({ selectedMedia: selectedMedia });
     } else {
-      // this.trimVideo();
-      if (typeof trimmedUrl === "string") {
-        selectedMedia[page].source = trimmedUrl;
-        this.setState({ selectedMedia: selectedMedia, doTrimming: false });
-      } else {
-        this.setState({
-          doTrimming: true,
-          playVideo: true,
-        });
-      }
+      let path = selectedMedia[page].uri;
+      const result = await VESDK.openEditor(path);
+
+      if (selectedMedia[page].source) selectedMedia[page].source = result.video;
+      else selectedMedia[page].uri = result.video;
+      // this.setState({ selectedMedia: selectedMedia });
+      this.exportButton(result);
     }
   };
 
@@ -342,7 +340,11 @@ class MediaUploadPreview extends React.Component {
                     ) : (
                       <Video
                         ref={(videoRef) => (this.playerRef = videoRef)}
+                        poster={media.uri}
                         showOnStart={true}
+                        disableFullscreen={true}
+                        disableVolume={true}
+                        disableBack={true}
                         source={{ uri: media.uri }}
                         paused={playVideo}
                         repeat={true}
@@ -352,11 +354,6 @@ class MediaUploadPreview extends React.Component {
                         style={{
                           height: "100%",
                           width: "100%",
-                        }}
-                        onLoad={(e) => {
-                          console.log("ON LOAD", e);
-                          console.log("RED", this.playerRef);
-                          this.playerRef.player?.ref?.seek(0.1);
                         }}
                       />
                     )
@@ -474,16 +471,11 @@ class MediaUploadPreview extends React.Component {
                             resizeMode={"contain"}
                           />
                         ) : type === "video" ? (
-                          <Video
-                            disablePlayPause={true}
-                            disableSeekbar={true}
-                            disableBack={true}
-                            disableFullscreen={true}
-                            disableVolume={true}
-                            disableTimer={true}
-                            controlTimeout={0}
+                          <SmallVideo
                             source={{ uri: media.uri }}
+                            poster={media.uri}
                             paused={playVideo}
+                            controls={false}
                             ignoreSilentSwitch={"ignore"}
                             playInBackground={false}
                             resizeMode={"contain"}
