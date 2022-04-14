@@ -109,7 +109,6 @@ class MessageBubble extends React.Component {
         onDownload
           .checkExistingMediaSend(video.name, "Videos")
           .then(async (res) => {
-            // console.log("video reds", res);
             if (res) {
               video.name =
                 res && Platform.OS === "ios"

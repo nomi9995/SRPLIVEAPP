@@ -26,7 +26,6 @@ import MediaautoDownloadAndCompression from "../../../components/Modal/Mediaauto
 
 class DataandStorage extends Component {
   constructor(props) {
-    console.log("PROPS", props);
     super(props);
     this.state = {
       mediaAndCompression: false,
@@ -46,23 +45,19 @@ class DataandStorage extends Component {
       this.setState({
         totalsize: this.state.totalsize + res.recieve + res.send,
       });
-      console.log(res);
     });
     getFolderSize("Videos").then((res) => {
       this.setState({ VideoSize: res });
       this.setState({
         totalsize: this.state.totalsize + res.recieve + res.send,
       });
-      console.log(res);
     });
     getFolderSize("Files").then((res) => {
       this.setState({ FileSize: res });
       this.setState({
         totalsize: this.state.totalsize + res.recieve + res.send,
       });
-      console.log(res);
     });
-    console.log("totalsize", this.state.totalsize);
   };
   CloseMediaOption = () => {
     this.setState({
@@ -73,22 +68,18 @@ class DataandStorage extends Component {
     this.setState({ compression: false });
   };
   setvideo = (data) => {
-    console.log("video", data);
     this.props.onSetAutoVideoDownload(data);
     this.CloseMediaOption();
   };
   setaudio = (data) => {
-    console.log("audio", data);
     this.props.onSetAutoPhotoDownload(data);
     this.CloseMediaOption();
   };
   setdoc = (data) => {
-    console.log("docs", data);
     this.props.onSetAutoDocDownload(data);
     this.CloseMediaOption();
   };
   setimageComp = (data) => {
-    console.log("compress", data);
     this.props.user.user.user_image_compression = data;
     this.props.onSetAuthUser(this.props.user);
     this.CloseMediaOption();
@@ -296,7 +287,6 @@ class DataandStorage extends Component {
 }
 
 const mapStateToProps = (state) => {
-  console.log("state", state);
   return {
     theme: state.theme.theme,
     user: state.auth.user,

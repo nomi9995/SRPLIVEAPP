@@ -146,7 +146,6 @@ class EditProfile extends Component {
   };
 
   onChangeData = (selectedDate) => {
-    console.log("Selected Date", selectedDate);
     this.setState({ showCalender: false });
     this.setState({ EventDate: selectedDate });
   };

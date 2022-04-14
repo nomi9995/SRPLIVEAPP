@@ -491,11 +491,6 @@ class LastMessageType extends React.PureComponent {
               </View>
             ) : lastMessage.last_message_type === 10 ? (
               <View>
-                {console.log(
-                  "lastMessage",
-                  JSON.parse(lastMessage.last_message)
-                )}
-                {/* <Text>dsdsds</Text> */}
                 {JSON.parse(lastMessage.last_message).call_type == 1 ? (
                   <View style={styles.callinnerview}>
                     <Icon name={"phone-callback"} size={15} color={"#878787"} />

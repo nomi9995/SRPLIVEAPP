@@ -133,7 +133,6 @@ class MediaUpload extends Component {
         type: [DocumentPicker.types.allFiles],
         copyTo: "cachesDirectory",
       });
-      console.log("doucomet", res);
       if (Platform.OS == "ios") {
         await FileViewer.open(res.uri, {
           onDismiss: () => {
@@ -326,7 +325,6 @@ class MediaUpload extends Component {
         "Content-Type": "multipart/form-data",
       },
       onUploadProgress: (progressEvent) => {
-        console.log("progressEvent: ", progressEvent);
         let { progress } = this.state;
         progress = {
           percentage: (progressEvent.loaded / progressEvent.total) * 100,
