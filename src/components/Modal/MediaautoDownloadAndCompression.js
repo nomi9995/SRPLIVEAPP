@@ -31,7 +31,6 @@ class MediaautoDownloadAndCompression extends Component {
       compression: data,
     };
     UserService.compressionImage(payload, token).then((res) => {
-      console.log("Compression data", res);
       this.props.CompressionData(data);
     });
   };

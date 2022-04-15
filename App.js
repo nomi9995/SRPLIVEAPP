@@ -33,7 +33,6 @@ export default class App extends React.Component {
   componentDidMount = () => {
     this.requestUserPermission();
     this.notificationListener();
-    console.log("sdklicense", sdklicense);
     if (Platform.OS == "android") {
       PESDK.unlockWithLicense(sdklicense);
       VESDK.unlockWithLicense(VESDKandroidlicense);

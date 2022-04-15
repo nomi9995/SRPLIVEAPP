@@ -98,7 +98,6 @@ export default class ImageThumbnail extends Component {
     } else {
       imgArray.map((img) => {
         onDownload.checkExistingMediaSend(img.uri, "Images").then((res) => {
-          // console.log("res,", res);
           if (Platform.OS == "android") {
             let ind = this.state.imagesArray.indexOf(img);
             imgArray[ind].uri = res
@@ -124,7 +123,6 @@ export default class ImageThumbnail extends Component {
         img.uri.lastIndexOf("_") + 1,
         img.uri.lastIndexOf(".")
       );
-      // console.log('img', heightWidth.slice(0, heightWidth.indexOf('x')));
       return parseInt(
         heightWidth.slice(heightWidth.indexOf("x") + 1, heightWidth.length)
       );
@@ -254,8 +252,6 @@ export default class ImageThumbnail extends Component {
                 : styles.imageMessageSingleFlex
             }
           >
-            {/* {this.ImageCalculate(img)} */}
-            {console.log("img.uri", img.isDownloaded, img.uri)}
             <FastImage
               source={{
                 uri: img.isDownloaded ? img.uri : appConfig.imagePath + img.uri,

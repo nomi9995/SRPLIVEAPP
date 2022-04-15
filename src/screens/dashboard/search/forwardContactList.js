@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,95 +7,96 @@ import {
   Platform,
   TextInput,
   ScrollView,
-  ActivityIndicator
-} from 'react-native';
+  ActivityIndicator,
+} from "react-native";
 
 //Redux
 import {
   setSearchQuery,
   setSearchState,
   setSearchShow,
-} from '../../../store/actions';
-import {connect} from 'react-redux';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import FontAwesome from 'react-native-vector-icons/dist/FontAwesome5';
-import {MessagesQuieries} from '../../../database/services/Services';
-import FastImage from 'react-native-fast-image';
-import appConfig from '../../../utils/appConfig';
-import ChatServices from '../../../services/ChatServices';
+} from "../../../store/actions";
+import { connect } from "react-redux";
+import { SafeAreaView } from "react-native-safe-area-context";
+import FontAwesome from "react-native-vector-icons/dist/FontAwesome5";
+import { MessagesQuieries } from "../../../database/services/Services";
+import FastImage from "react-native-fast-image";
+import appConfig from "../../../utils/appConfig";
+import ChatServices from "../../../services/ChatServices";
 
 let keywordsWithoutSpace = [];
 class ForwardContactListSearch extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      searchQueryUSerList: '',
+      searchQueryUSerList: "",
       searchUserList: [],
       forwardingMessage: false,
     };
   }
   onSearchClick = (res, data) => {
-    this.props.navigation.navigate('MessageScreen', {
+    this.props.navigation.navigate("MessageScreen", {
       selectedUser: res,
       keywords: keywordsWithoutSpace,
     });
   };
 
-  SearchUserAndMessage = async text => {
-    await this.setState({searchQueryUSerList: text});
+  SearchUserAndMessage = async (text) => {
+    await this.setState({ searchQueryUSerList: text });
 
     let q = text;
-    if (q === '') {
-      this.setState({searchUserList: []});
+    if (q === "") {
+      this.setState({ searchUserList: [] });
     } else if (q.length >= 4) {
       let text = q;
       let onlineUser = this.props.user.user.id;
-      let keywords = text.split(' ');
-      let subQuery = '';
-      keywords.forEach(word => {
-        if (word !== '') {
+      let keywords = text.split(" ");
+      let subQuery = "";
+      keywords.forEach((word) => {
+        if (word !== "") {
           subQuery += `message LIKE '%${word}%' OR `;
           keywordsWithoutSpace.push(word);
         }
       });
       subQuery += `message LIKE '%${text}%'`;
-      MessagesQuieries.searchMsgAndUserListDb({onlineUser, text}, async res => {
-        await this.setState({searchUserList: res});
-        if (res.length === 0) {
-          await this.setState({showSearchUser: 'Nothing Found'});
-        } else {
-          await this.setState({showSearchUser: null});
+      MessagesQuieries.searchMsgAndUserListDb(
+        { onlineUser, text },
+        async (res) => {
+          await this.setState({ searchUserList: res });
+          if (res.length === 0) {
+            await this.setState({ showSearchUser: "Nothing Found" });
+          } else {
+            await this.setState({ showSearchUser: null });
+          }
         }
-      });
+      );
     } else if (q.length < 4) {
-      this.setState({searchUserList: []});
-      await this.setState({showSearchUser: null});
+      this.setState({ searchUserList: [] });
+      await this.setState({ showSearchUser: null });
     }
   };
 
-  onSelectForward = item => {
-    console.log('item', item);
-    this.setState({forwardingMessage: true});
+  onSelectForward = (item) => {
+    this.setState({ forwardingMessage: true });
     let formdata = new FormData();
     for (let i = 0; i < this.props.longPress.length; i++) {
       formdata.append(`forward_message[${i}]`, this.props.longPress[i]._id);
       formdata.append(
-        'is_room',
-        this.props.longPress[i].chat_type === 'group' ? true : false,
+        "is_room",
+        this.props.longPress[i].chat_type === "group" ? true : false
       );
     }
     formdata.append(
-      'selected_chat_rooms[]',
-      item.is_room === 1 ? item.user_id : 0,
+      "selected_chat_rooms[]",
+      item.is_room === 1 ? item.user_id : 0
     );
     formdata.append(
-      'selected_chat_users[]',
-      item.is_room === 0 ? item.user_id : 0,
+      "selected_chat_users[]",
+      item.is_room === 0 ? item.user_id : 0
     );
 
     let token = this.props.user.token;
-    ChatServices.forwardMessage(formdata, token).then(res => {
-        console.log("forwardMessage",res)
+    ChatServices.forwardMessage(formdata, token).then((res) => {
       this.getAllUpdatedMessages();
     });
   };
@@ -105,43 +106,40 @@ class ForwardContactListSearch extends Component {
       after: this.props.appCloseTime,
     };
     let token = this.props.user?.token;
-    ChatServices.updatedMessages(payload, token).then(res => {
-        console.log('updatedMessages',res)
-      let tableName = 'messages_list_table';
+    ChatServices.updatedMessages(payload, token).then((res) => {
+      let tableName = "messages_list_table";
       let resp = res;
       let onlineUserId = this.props.user?.user.id;
       MessagesQuieries.insertAndUpdateMessageList(
-        {tableName, resp, onlineUserId},
-        res3 => {
-            console.log('updatemessage',res3)
-          const {selectedUser} = this.props?.route?.params;
-          this.setState({forwardingMessage: false});
-        //   this.props.onSetOnLongPress([]);mahm
-          console.log('forwarded')
-          this.props.navigation.navigate('MessageScreen', {
+        { tableName, resp, onlineUserId },
+        (res3) => {
+          const { selectedUser } = this.props?.route?.params;
+          this.setState({ forwardingMessage: false });
+          this.props.navigation.navigate("MessageScreen", {
             selectedUser: selectedUser,
           });
-          this.setState({searchQueryUSerList:'',searchUserList:[]})
-        },
+          this.setState({ searchQueryUSerList: "", searchUserList: [] });
+        }
       );
     });
   };
 
   render() {
-      console.log('this.props',this.props)
     return (
       <>
-        <SafeAreaView style={{backgroundColor: '#008069'}}>
+        <SafeAreaView style={{ backgroundColor: "#008069" }}>
           <View
             style={{
-              flexDirection: 'row',
-              alignItems: 'center',
+              flexDirection: "row",
+              alignItems: "center",
               paddingVertical: 5,
-            }}>
+            }}
+          >
             <TouchableOpacity
               onPress={() => this.props.navigation.goBack()}
-              style={{paddingHorizontal: '2%'}}>
-              <FontAwesome name={'arrow-left'} size={20} color={'white'} />
+              style={{ paddingHorizontal: "2%" }}
+            >
+              <FontAwesome name={"arrow-left"} size={20} color={"white"} />
             </TouchableOpacity>
             <TextInput
               autoFocus={true}
@@ -150,13 +148,13 @@ class ForwardContactListSearch extends Component {
               placeholderTextColor="white"
               value={this.state.searchQueryUSerList}
               selectionColor="white"
-              onChangeText={text => this.SearchUserAndMessage(text)}
+              onChangeText={(text) => this.SearchUserAndMessage(text)}
             />
           </View>
         </SafeAreaView>
         {this.state.forwardingMessage ? (
           <View style={styles.Loader_container}>
-            <ActivityIndicator size={'small'} color={'#00897B'} />
+            <ActivityIndicator size={"small"} color={"#00897B"} />
             <Text>Forwarding Message</Text>
           </View>
         ) : (
@@ -165,26 +163,28 @@ class ForwardContactListSearch extends Component {
               <View
                 style={{
                   flex: 1,
-                  justifyContent: 'center',
-                  alignItems: 'center',
-                }}>
-                <Text style={{fontSize: 20}}>Nothing Found</Text>
+                  justifyContent: "center",
+                  alignItems: "center",
+                }}
+              >
+                <Text style={{ fontSize: 20 }}>Nothing Found</Text>
               </View>
             ) : (
               <>
-                <ScrollView style={{flexGrow: 1, backgroundColor: 'white'}}>
+                <ScrollView style={{ flexGrow: 1, backgroundColor: "white" }}>
                   {this.state.searchUserList.length > 0 && (
                     <View>
                       <Text style={styles.UserText}>Users</Text>
-                      {this.state?.searchUserList?.map(res => {
+                      {this.state?.searchUserList?.map((res) => {
                         return (
                           <>
                             <TouchableOpacity
                               style={styles.userInnerView}
-                              onPress={() => this.onSelectForward(res)}>
+                              onPress={() => this.onSelectForward(res)}
+                            >
                               {res.avatar === null ? (
                                 <FastImage
-                                  source={require('../../../assets/deafultimage.png')}
+                                  source={require("../../../assets/deafultimage.png")}
                                   style={styles.profileImage}
                                 />
                               ) : (
@@ -220,7 +220,7 @@ class ForwardContactListSearch extends Component {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     theme: state.theme.theme,
     user: state.auth.user,
@@ -230,15 +230,15 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    onSetSearchQuery: data => {
+    onSetSearchQuery: (data) => {
       dispatch(setSearchQuery(data));
     },
-    onSetSearchState: data => {
+    onSetSearchState: (data) => {
       dispatch(setSearchState(data));
     },
-    onSetSearchShow: data => {
+    onSetSearchShow: (data) => {
       dispatch(setSearchShow(data));
     },
   };
@@ -246,14 +246,14 @@ const mapDispatchToProps = dispatch => {
 
 export default connect(
   mapStateToProps,
-  mapDispatchToProps,
+  mapDispatchToProps
 )(ForwardContactListSearch);
 
 const styles = StyleSheet.create({
   searchTextInput: {
-    width: '80%',
+    width: "80%",
     // height: Platform.OS == 'android' ? '1%' : '100%',s
-    color: 'white',
+    color: "white",
   },
   profileImage: {
     height: 50,
@@ -262,43 +262,43 @@ const styles = StyleSheet.create({
   },
   UserText: {
     fontSize: 17,
-    backgroundColor: '#E5E5E5',
-    paddingLeft: '5%',
-    padding: '1.3%',
-    fontFamily: 'Roboto-Bold',
-    marginBottom: '1%',
+    backgroundColor: "#E5E5E5",
+    paddingLeft: "5%",
+    padding: "1.3%",
+    fontFamily: "Roboto-Bold",
+    marginBottom: "1%",
   },
   userInnerView: {
-    flexDirection: 'row',
-    paddingLeft: '5%',
-    marginBottom: '1%',
+    flexDirection: "row",
+    paddingLeft: "5%",
+    marginBottom: "1%",
   },
   userNameandCompanyView: {
-    marginLeft: '2%',
-    marginTop: '1%',
+    marginLeft: "2%",
+    marginTop: "1%",
   },
   UserNameText: {
     fontSize: 17,
-    fontFamily: 'Roboto-Regular',
-    marginBottom: '3%',
+    fontFamily: "Roboto-Regular",
+    marginBottom: "3%",
   },
   CompanyText: {
     fontSize: 12,
-    color: '#878787',
-    width: '80%',
+    color: "#878787",
+    width: "80%",
   },
   borderLine: {
-    borderWidth: Platform.OS == 'android' ? 0.2 : 0.7,
-    borderColor: '#ebebeb',
-    width: '100%',
-    marginLeft: '5%',
-    marginVertical: '2%',
+    borderWidth: Platform.OS == "android" ? 0.2 : 0.7,
+    borderColor: "#ebebeb",
+    width: "100%",
+    marginLeft: "5%",
+    marginVertical: "2%",
   },
   Loader_container: {
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: "100%",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
     height: 700,
   },
 });

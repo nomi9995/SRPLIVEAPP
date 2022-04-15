@@ -214,7 +214,7 @@ class HomeHeader extends React.PureComponent {
 
       Share.open(shareOptions)
         .then((res) => {
-          console.log(res);
+          // console.log(res);
         })
         .catch((err) => {
           err && console.log(err);
@@ -223,7 +223,6 @@ class HomeHeader extends React.PureComponent {
   };
 
   deleteMessage = () => {
-    console.log("1");
     const { longPress } = this.props;
     let token = this.props.user?.token;
     longPress.map((message) => {
@@ -235,7 +234,6 @@ class HomeHeader extends React.PureComponent {
       let Userid = this.props.user.user.id;
 
       ChatServices.deleteMessage(payload, token).then((res) => {
-        console.log("2", res);
         var deleteMeassgeId = message._id;
         var onlineUserId = Userid;
         var chatUserId = Chatuser;

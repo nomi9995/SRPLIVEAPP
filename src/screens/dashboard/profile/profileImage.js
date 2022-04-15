@@ -28,7 +28,6 @@ class MessagePreview extends Component {
   }
 
   componentDidMount = () => {
-    console.log("props", this.props.route.params.url);
     this.state.images.push({ url: this.props.route.params.url });
     this.setState({ images: this.state.images });
     BackHandler.addEventListener("hardwareBackPress", this.hardwareBack);

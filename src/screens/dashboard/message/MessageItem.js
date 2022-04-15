@@ -24,7 +24,6 @@ class MessageItem extends React.PureComponent {
         .subtract("days")
         .calendar()
         .split(" at ")[0];
-      // console.log('today date',yesterday)
       return (
         <>
           <View
@@ -50,8 +49,9 @@ class MessageItem extends React.PureComponent {
   }
 
   handleScroll = (event) => {
-    console.log(event);
+    // console.log(event);
   };
+
   render() {
     const {
       currentMessage,

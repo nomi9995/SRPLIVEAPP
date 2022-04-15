@@ -45,7 +45,6 @@ class Searhlist extends Component {
 
   SearchUserAndMessage = async (text) => {
     await this.setState({ searchQueryUSerList: text });
-    console.log("searchQueryUSerList.length", this.state.searchQueryUSerList);
 
     let q = text;
     if (q === "") {
