@@ -1,5 +1,5 @@
 import React from "react";
-import { StyleSheet, Text, View, Dimensions } from "react-native";
+import { StyleSheet, Text, View, Dimensions, Platform } from "react-native";
 import Ionicons from "react-native-vector-icons/dist/Ionicons";
 import FontAwesome5 from "react-native-vector-icons/dist/FontAwesome5";
 
@@ -37,9 +37,9 @@ const styles = StyleSheet.create({
   iconContainer: {
     justifyContent: "center",
     alignItems: "center",
-    width: width * 0.37,
-    height: height * 0.21,
-    borderRadius: width / 2,
+    width: 160,
+    height: 160,
+    borderRadius: 160 / 2,
     backgroundColor: "#008069",
     marginBottom: "10%",
   },

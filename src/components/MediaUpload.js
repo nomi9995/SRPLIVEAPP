@@ -277,11 +277,23 @@ class MediaUpload extends Component {
           check = element?.duration;
         });
         this.props.onSetImagePreview(true);
-        this.setState({
-          selectedMedia: selectMessageArray,
-          messageTypeState: check ? 11 : 2,
-          saveFormData: formdata,
+        let found = false;
+
+        this.state.selectedMedia.filter((item) => {
+          for (var i = 0; i < selectMessageArray.length; i++) {
+            if (selectMessageArray[i].source === item.source) {
+              found = true;
+              break;
+            }
+          }
         });
+        if (!found) {
+          this.setState({
+            selectedMedia: this.state.selectedMedia.concat(selectMessageArray),
+            messageTypeState: check ? 11 : 2,
+            saveFormData: formdata,
+          });
+        }
       })
       .catch((e) => {
         Toast.show("User cancelled media selection", Toast.SHORT);

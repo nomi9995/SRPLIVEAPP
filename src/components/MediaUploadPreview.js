@@ -62,6 +62,12 @@ class MediaUploadPreview extends React.Component {
     };
   }
 
+  componentDidUpdate(prevProps, prevState) {
+    if (prevProps.selectedMedia.length !== this.props.selectedMedia.length) {
+      this.setState({ selectedMedia: this.props.selectedMedia });
+    }
+  }
+
   sendHandler = (caption) => {
     this.props.onSetMediaUploadState(true);
     this.props.onUploadMedia(this.state.selectedMedia, caption);
@@ -71,17 +77,21 @@ class MediaUploadPreview extends React.Component {
     let editVideo = [...this.state.selectedMedia];
 
     if (val.hasChanges === true) {
-      editVideo[0].name = val.video.substr(39, 30);
+      editVideo[0].name = val.video.split("/")[val.video.split("/").length - 1];
       editVideo[0].source = val.video;
-      editVideo[0].type = `video/${val.video.substr(65, 4)}`;
+      editVideo[0].type = `video/${
+        val.video.split("/")[val.video.split("/").length - 1].split(".")[1]
+      }`;
       editVideo[0].uri = val.video;
 
       this.setState({ selectedMedia: editVideo });
       // this.sendHandler(""), this.crossButton();
     } else {
-      editVideo[0].name = val.video.substr(70, 23);
+      editVideo[0].name = val.video.split("/")[val.video.split("/").length - 1];
       editVideo[0].source = val.video;
-      editVideo[0].type = `video/${val.video.substr(90, 3)}`;
+      editVideo[0].type = `video/${
+        val.video.split("/")[val.video.split("/").length - 1].split(".")[1]
+      }`;
       editVideo[0].uri = val.video;
 
       this.setState({ selectedMedia: editVideo });
@@ -323,40 +333,31 @@ class MediaUploadPreview extends React.Component {
                 >
                   {type === "image" ? (
                     <FastImage
-                      source={{ uri: media.source ? media.source : media.uri }}
+                      source={{
+                        uri: media.source ? media.source : media.uri,
+                      }}
                       style={{ height: "100%", width: "100%" }}
                       resizeMode={"contain"}
                     />
                   ) : type === "video" ? (
-                    doTrimming === true ? (
-                      <VideoEditorModal
-                        visible={true}
-                        video={media.uri}
-                        onCancel={() => this.setState({ doTrimming: false })}
-                        onExport={(val) => {
-                          this.exportButton(val);
-                        }}
-                      />
-                    ) : (
-                      <Video
-                        ref={(videoRef) => (this.playerRef = videoRef)}
-                        poster={media.uri}
-                        showOnStart={true}
-                        disableFullscreen={true}
-                        disableVolume={true}
-                        disableBack={true}
-                        source={{ uri: media.uri }}
-                        paused={playVideo}
-                        repeat={true}
-                        ignoreSilentSwitch={"ignore"}
-                        playInBackground={false}
-                        resizeMode={"contain"}
-                        style={{
-                          height: "100%",
-                          width: "100%",
-                        }}
-                      />
-                    )
+                    <Video
+                      ref={(videoRef) => (this.playerRef = videoRef)}
+                      poster={media.uri}
+                      showOnStart={true}
+                      disableFullscreen={true}
+                      disableVolume={true}
+                      disableBack={true}
+                      source={{ uri: media.uri }}
+                      paused={playVideo}
+                      repeat={true}
+                      ignoreSilentSwitch={"ignore"}
+                      playInBackground={false}
+                      resizeMode={"contain"}
+                      style={{
+                        height: "100%",
+                        width: "100%",
+                      }}
+                    />
                   ) : null}
                 </View>
               );
@@ -440,8 +441,7 @@ class MediaUploadPreview extends React.Component {
                   style={{
                     flexDirection: "row",
                     alignItems: "center",
-                    bottom: 4,
-                    position: "absolute",
+                    flex: 0,
                   }}
                 >
                   {selectedMedia.map((media, index) => {
@@ -459,7 +459,9 @@ class MediaUploadPreview extends React.Component {
                           height: 60,
                           borderWidth: 2,
                           borderColor:
-                            this.state.selected === index ? "cyan" : "#000",
+                            this.state.selected === index
+                              ? "cyan"
+                              : "transparent",
                         }}
                       >
                         {type === "image" ? (
