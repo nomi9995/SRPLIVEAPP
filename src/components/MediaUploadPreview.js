@@ -332,12 +332,11 @@ class MediaUploadPreview extends React.Component {
                   }}
                 >
                   {type === "image" ? (
-                    <FastImage
-                      source={{
-                        uri: media.source ? media.source : media.uri,
-                      }}
-                      style={{ height: "100%", width: "100%" }}
-                      resizeMode={"contain"}
+                    <PhotoEditorModal
+                      image={media.source ? media.source : media.uri}
+                      visible={true}
+                      // style={{ height: "100%", width: "100%" }}
+                      // resizeMode={"contain"}
                     />
                   ) : type === "video" ? (
                     <Video
