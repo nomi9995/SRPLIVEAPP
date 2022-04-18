@@ -6,10 +6,11 @@ import {
   SafeAreaView,
   ActivityIndicator,
   BackHandler,
+  Dimensions,
 } from "react-native";
 import { SliderBox } from "react-native-image-slider-box";
-import FontAwesome from "react-native-vector-icons/dist/FontAwesome5";
-import Video from "react-native-video";
+import Ionicons from "react-native-vector-icons/dist/Ionicons";
+import Video from "react-native-video-controls";
 import ImageViewer from "react-native-image-zoom-viewer";
 
 //redux
@@ -58,27 +59,30 @@ class MessagePreview extends Component {
                 uri: this.props?.route.params.videoPath.replace(/ /g, "%20"),
               }}
               resizeMode="contain"
+              showOnStart={true}
+              disableFullscreen={true}
+              disableVolume={true}
+              disableBack={true}
               paused={false}
-              controls={true}
               repeat={true}
               style={{ height: "100%", width: "100%" }}
               onBuffer={this.onBuffer}
               onLoadStart={this.onLoadStart}
               onLoad={this.onLoad}
             />
-            <View style={styles.activityIndicator}>
+            {/* <View style={styles.activityIndicator}>
               <ActivityIndicator
                 animating
                 size="large"
                 color={"green"}
                 style={{ opacity: this.state.opacity }}
               />
-            </View>
+            </View> */}
             <TouchableOpacity
               onPress={() => this.props.navigation.goBack()}
               style={styles.crossIconPosition}
             >
-              <FontAwesome name={"times-circle"} size={32} color="white" />
+              <Ionicons name="close" size={30} color={"#fff"} />
             </TouchableOpacity>
           </View>
         ) : (
@@ -87,7 +91,7 @@ class MessagePreview extends Component {
               onPress={() => this.props.navigation.goBack()}
               style={styles.crossIconPosition}
             >
-              <FontAwesome name={"times-circle"} size={32} color="white" />
+              <Ionicons name="close" size={30} color={"#fff"} />
             </TouchableOpacity>
             <ImageViewer
               // sliderBoxHeight={'100%'}

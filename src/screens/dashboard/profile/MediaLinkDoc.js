@@ -16,6 +16,7 @@ import FastImage from "react-native-fast-image";
 import appConfig from "../../../utils/appConfig";
 // import ScrollableTabView from 'react-native-scrollable-tab-view';
 import FontAwesome5 from "react-native-vector-icons/dist/FontAwesome5";
+import Ionicons from "react-native-vector-icons/dist/Ionicons";
 import FontAwesome from "react-native-vector-icons/dist/FontAwesome";
 import { SliderBox } from "react-native-image-slider-box";
 import { onDownload } from "../../../utils/regex";
@@ -403,7 +404,7 @@ class MediaLinkDoc extends Component {
             onPress={() => this.setState({ imageView: false })}
             style={styles.crossIconPosition}
           >
-            <FontAwesome name={"times-circle"} size={40} color="white" />
+            <Ionicons name="close" size={30} color={"#fff"} />
           </TouchableOpacity>
           <SliderBox
             firstItem={this.state.firstItem}
@@ -483,7 +484,7 @@ const styles = StyleSheet.create({
   mediaImages: {
     width: width * 0.2178,
     height: height * 0.1,
-    borderRadius: 5,
+    borderRadius: 10,
     marginTop: 10,
     marginLeft: 10,
   },

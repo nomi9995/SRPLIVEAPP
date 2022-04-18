@@ -150,7 +150,7 @@ class ChatUserProfile extends Component {
                     }
                   >
                     <Text style={styles.mediaLinkText}>
-                      Media,Links and docs
+                      Media, links and docs
                     </Text>
                   </TouchableOpacity>
                   <TouchableOpacity
@@ -165,9 +165,9 @@ class ChatUserProfile extends Component {
                   >
                     <FontAwesome
                       name={"chevron-right"}
-                      size={20}
+                      size={16}
                       color={"grey"}
-                      style={{ marginHorizontal: "2%" }}
+                      style={{ marginHorizontal: "1.5%" }}
                     />
                   </TouchableOpacity>
                 </View>
@@ -484,7 +484,7 @@ const styles = StyleSheet.create({
   },
   mediaLinkText: {
     marginLeft: 10,
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: "Roboto-Medium",
     color: "grey",
   },
@@ -497,7 +497,7 @@ const styles = StyleSheet.create({
     width: 80,
     height: 80,
     marginRight: 5,
-    borderRadius: 2,
+    borderRadius: 8,
   },
   profileDetailView: {
     backgroundColor: "#FAFAFA",

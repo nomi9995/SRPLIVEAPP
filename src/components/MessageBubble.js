@@ -1715,11 +1715,12 @@ class MessageBubble extends React.Component {
                 >
                   <FontAwesome
                     name={"video"}
-                    style={
-                      styles[this.props.position].replyImageStickerLinkIcon
-                    }
+                    style={[
+                      styles[this.props.position].replyImageStickerLinkIcon,
+                      { color: "#000" },
+                    ]}
                   />
-                  <Text>Video</Text>
+                  <Text style={{ color: "#000" }}>Video</Text>
                 </View>
               </View>
             </View>
@@ -2189,7 +2190,7 @@ class MessageBubble extends React.Component {
                   }
                   color="grey"
                   size={25}
-                  style={{ marginLeft: 10 }}
+                  style={{ marginLeft: 10, marginRight: 5 }}
                 />
               )}
 
