@@ -19,7 +19,8 @@ class LastMessageType extends React.PureComponent {
       } else if (replyFile.new_type == 2) {
         var lastmessage = JSON.parse(replyFile.new_content).content[0];
       } else if (replyFile.new_type == 7) {
-        let message = JSON.parse(lastMessage.last_message).message;
+        let message = JSON.parse(lastMessage.last_message).new_message
+          .new_content;
         var lastmessage = JSON.parse(message).name;
       } else if (replyFile.new_type == 4) {
         var lastmessage = "sticker";
