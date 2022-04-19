@@ -340,24 +340,48 @@ class MediaUploadPreview extends React.Component {
                       resizeMode={"contain"}
                     />
                   ) : type === "video" ? (
-                    <Video
-                      ref={(videoRef) => (this.playerRef = videoRef)}
-                      poster={media.uri}
-                      showOnStart={true}
-                      disableFullscreen={true}
-                      disableVolume={true}
-                      disableBack={true}
-                      source={{ uri: media.uri }}
-                      paused={playVideo}
-                      repeat={true}
-                      ignoreSilentSwitch={"ignore"}
-                      playInBackground={false}
-                      resizeMode={"contain"}
-                      style={{
-                        height: "100%",
-                        width: "100%",
-                      }}
-                    />
+                    <>
+                      {Platform.OS === "ios" ? (
+                        <SmallVideo
+                          ref={(videoRef) => (this.playerRef = videoRef)}
+                          controls={true}
+                          poster={media.uri}
+                          showOnStart={true}
+                          disableFullscreen={true}
+                          disableVolume={true}
+                          disableBack={true}
+                          source={{ uri: media.uri }}
+                          paused={playVideo}
+                          repeat={true}
+                          ignoreSilentSwitch={"ignore"}
+                          playInBackground={false}
+                          resizeMode={"contain"}
+                          style={{
+                            height: "100%",
+                            width: "100%",
+                          }}
+                        />
+                      ) : (
+                        <Video
+                          ref={(videoRef) => (this.playerRef = videoRef)}
+                          poster={media.uri}
+                          showOnStart={true}
+                          disableFullscreen={true}
+                          disableVolume={true}
+                          disableBack={true}
+                          source={{ uri: media.uri }}
+                          paused={playVideo}
+                          repeat={true}
+                          ignoreSilentSwitch={"ignore"}
+                          playInBackground={false}
+                          resizeMode={"contain"}
+                          style={{
+                            height: "100%",
+                            width: "100%",
+                          }}
+                        />
+                      )}
+                    </>
                   ) : null}
                 </View>
               );
@@ -474,6 +498,10 @@ class MediaUploadPreview extends React.Component {
                           />
                         ) : type === "video" ? (
                           <SmallVideo
+                            ref={(ref) => (this.smallVidRef = ref)}
+                            onLoad={(e) => {
+                              this.smallVidRef.seek(0.5);
+                            }}
                             source={{ uri: media.uri }}
                             poster={media.uri}
                             paused={playVideo}
