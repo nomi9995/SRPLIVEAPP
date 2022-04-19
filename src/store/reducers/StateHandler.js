@@ -1,56 +1,59 @@
-import * as ACTION_TYPES from '../types';
-import {StateHandler} from '../models';
+import * as ACTION_TYPES from "../types";
+import { StateHandler } from "../models";
 
 export default (state = StateHandler, action) => {
-  const {type, payload, error} = action;
+  const { type, payload, error } = action;
   switch (type) {
     case ACTION_TYPES.MEDIA_OPTIONS_OPEN:
-      return {...state, mediaOptionsOpen: payload};
+      return { ...state, mediaOptionsOpen: payload };
 
     case ACTION_TYPES.STICKERS_OPEN:
-      return {...state, stickerOpen: payload};
+      return { ...state, stickerOpen: payload };
 
     case ACTION_TYPES.MEDIA_TYPE:
-      return {...state, mediaType: payload};
+      return { ...state, mediaType: payload };
 
     case ACTION_TYPES.IMAGE_PREVIEW:
-      return {...state, imagePreview: payload};
-  
+      return { ...state, imagePreview: payload };
+
     case ACTION_TYPES.REPLY_STATE:
-      return {...state, replyState: payload};
-      
+      return { ...state, replyState: payload };
+
     case ACTION_TYPES.MEDIA_UPLOAD_STATE:
-      return {...state, mediaUploadState: payload};
-    
+      return { ...state, mediaUploadState: payload };
+
     case ACTION_TYPES.SCROLL_STATE:
-      return {...state, scrollState: payload};
-    
+      return { ...state, scrollState: payload };
+
     case ACTION_TYPES.SEARCH_QUERY:
-      return {...state, searchQuery: payload};
-    
+      return { ...state, searchQuery: payload };
+
     case ACTION_TYPES.SEARCH_STATE:
-      return {...state, searchState: payload};
+      return { ...state, searchState: payload };
 
     case ACTION_TYPES.SEARCH_SHOW:
-      return {...state, searchShow: payload};
+      return { ...state, searchShow: payload };
 
     case ACTION_TYPES.STATUS_STATE:
-      return {...state, statusState: payload};
-      
+      return { ...state, statusState: payload };
+
     case ACTION_TYPES.SET_RELOADER:
-      return {...state, setreloader: payload};
-    
+      return { ...state, setreloader: payload };
+
     case ACTION_TYPES.PREVIEW_TYPE:
-      return {...state, previewType: payload};
+      return { ...state, previewType: payload };
 
     case ACTION_TYPES.RENDER_STATE:
-      return {...state, renderstate: payload};
-      
+      return { ...state, renderstate: payload };
+
     case ACTION_TYPES.MESSAGE_EDIT:
-      return {...state, messageEdit: payload};
+      return { ...state, messageEdit: payload };
 
     case ACTION_TYPES.MESSAGE_TEXT:
-      return {...state, messageText: payload};
+      return { ...state, messageText: payload };
+
+    case ACTION_TYPES.AUDIO_PLAY_STATE:
+      return { ...state, audioPlayState: payload };
 
     default:
       return state;

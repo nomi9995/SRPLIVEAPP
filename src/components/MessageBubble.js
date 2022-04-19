@@ -12,6 +12,7 @@ import {
 } from "react-native";
 
 import moment from "moment-timezone";
+import Video from "react-native-video";
 import RNFetchBlob from "rn-fetch-blob";
 import Slider from "react-native-slider";
 import FastImage from "react-native-fast-image";
@@ -19,7 +20,6 @@ import FileViewer from "react-native-file-viewer";
 import LocalTimeZone from "react-native-localize";
 import Color from "react-native-gifted-chat/lib/Color";
 import HighlightText from "@sanar/react-native-highlight-text";
-// import AudioRecorderPlayer from "react-native-audio-recorder-player";
 
 // Icons
 import Octicons from "react-native-vector-icons/dist/Octicons";
@@ -30,12 +30,13 @@ import FontAwesome5 from "react-native-vector-icons/dist/FontAwesome";
 import MaterialIcons from "react-native-vector-icons/dist/MaterialIcons";
 import SimpleLineIcons from "react-native-vector-icons/dist/SimpleLineIcons";
 
-//audio manager
-import * as AudioManager from "../components/audioPlayerManager/AudioManager";
-
 //Redux
 import { connect } from "react-redux";
-import { setOnLongPress, setReplyNavigate } from "../store/actions";
+import {
+  setOnLongPress,
+  setReplyNavigate,
+  setAudioPlayState,
+} from "../store/actions";
 
 // Components
 import PdfThumail from "./pdfThumnail";
@@ -68,8 +69,6 @@ class MessageBubble extends React.Component {
       isDownloading: false,
       audio_playTime: "00:00",
     };
-    // this.audioRecorderPlayer = new AudioRecorderPlayer();
-    // this.audioRecorderPlayer.setSubscriptionDuration(0.1); // optional. Default is 0.1
     this.setMessagesInState();
   }
 
@@ -357,14 +356,6 @@ class MessageBubble extends React.Component {
               message={this.props.currentMessage.message}
               style={styles.messageText}
             />
-            // <Text
-            //   style={styles.messageText}
-            //   onLayout={e => {
-            //     const {height} = e.nativeEvent.layout;
-            //     console.log('height', height);
-            //   }}>
-            //   {this.props.currentMessage.message}
-            // </Text>
           )}
         </View>
       );
@@ -373,7 +364,6 @@ class MessageBubble extends React.Component {
       if (showForward.type === 1) {
         return (
           <View style={styles.messageTextFlex}>
-            {/* <Text style={styles.messageText}>{showForward.message}</Text> */}
             <CalculatedTextViewer
               message={showForward.message}
               style={styles.messageText}
@@ -405,9 +395,6 @@ class MessageBubble extends React.Component {
                   { maxWidth: windowWidth * 0.74 },
                 ]}
               >
-                {/* <Text style={styles.replyFormUsername}>
-              {replyMsg?.reply_message?.reply_from}
-            </Text> */}
                 <Text style={styles[this.props.position].replyFormUsername}>
                   {replyMsg?.reply_message?.reply_from}
                 </Text>
@@ -949,85 +936,57 @@ class MessageBubble extends React.Component {
     return null;
   }
 
-  changeTime = async (seconds) => {
-    console.log("seconds", this.state.currentPositionSec);
-    // 50 / duration
-    let seektime = (seconds / 100) * this.state.currentPositionSec;
-    console.log("seektime", seektime);
-    // this.audioRecorderPlayer.seekToPlayer(seektime);
-  };
-
-  componentWillUnmount = async () => {
-    // await this.audioRecorderPlayer.stopPlayer();
-    // this.audioRecorderPlayer.removePlayBackListener();
-  };
-
-  onPausePlay = async () => {
-    this.setState({ audio_played: false });
-    this.setState({ pause_audio_played: true });
-    console.log("pause button calleddss");
-    await AudioManager.pausePlayer();
-  };
-
-  onStartPlay = async (audio) => {
-    this.setState({ audio_played: true });
-    let localFile =
-      this.props.position === "left"
-        ? Platform.OS == "android"
-          ? audio
-          : "file://" + audio
-        : appConfig.adiouPath + audio;
-    await AudioManager.startPlayer(localFile, (res) => {
-      const { status } = res;
-      switch (status) {
-        case AudioManager.AUDIO_STATUS.begin: {
-          console.log("begain");
-          this.setState({ audio_played: true });
-          break;
-        }
-        case AudioManager.AUDIO_STATUS.play: {
-          console.log("play", res);
-          let e = res.data;
-          this.setState({
-            currentPositionSec: e.currentPosition,
-            currentDurationSec: e.duration,
-            audio_playTime: res.audio_playTime,
-          });
-          break;
-        }
-        case AudioManager.AUDIO_STATUS.pause: {
-          console.log("PAUSE AUDIO");
-          this.setState({ pause_audio_played: true });
-          break;
-        }
-        case AudioManager.AUDIO_STATUS.resume: {
-          console.log("resume");
-          this.setState({ pause_audio_played: false });
-          break;
-        }
-        case AudioManager.AUDIO_STATUS.stop: {
-          console.log("STOP AUDIO");
-          this.setState({
-            currentPositionSec: 0,
-            currentDurationSec: 0,
-            audio_playTime: 0,
-          });
-          this.setState({ pause_audio_played: false, audio_played: false });
-          break;
-        }
+  componentDidUpdate = (prevProps) => {
+    if (prevProps.audioState != this.props.audioState) {
+      if (this.props.audioState != this.state?.audiosArray[0]?.name) {
+        this.setState({ audio_played: false });
       }
+    }
+  };
+
+  onProgress = async (ev) => {
+    let minutes = Math.floor(ev.currentTime / 60);
+    let seconds = Math.floor(ev.currentTime - minutes * 60);
+    let time = `${minutes} : ${seconds}`;
+    await this.setState({
+      currentDurationSec: ev.playableDuration,
+      currentPositionSec: ev.currentTime,
+      audio_playTime: time,
     });
   };
 
+  onEnd = async () => {
+    await this.setState({
+      currentDurationSec: 0,
+      currentPositionSec: 0,
+      audio_played: false,
+    });
+  };
+
+  playPauseAction = async () => {
+    await this.setState({
+      audio_played: !this.state.audio_played,
+    });
+    this.props.onSetAudioPlayState(this.state?.audiosArray[0]?.name);
+  };
+
+  onSlidingComplete = (ev) => {
+    let time = (ev / 100) * this.state.currentDurationSec;
+    this.audioPlayerRef.seek(time);
+  };
+
   renderMessageAudio() {
-    // console.log(
-    //   'msg type',
-    //   this.props?.currentMessage?.type === 9 && this.props?.currentMessage,
-    // );
     if (this.props?.currentMessage?.type === 7) {
       let showAudio = JSON.parse(this.props.currentMessage.message);
       let playWidth =
         (this.state.currentPositionSec / this.state.currentDurationSec) * 100;
+
+      let localFile =
+        this.props.position === "left"
+          ? Platform.OS == "android"
+            ? this.state?.audiosArray[0]?.name
+            : "file://" + this.state?.audiosArray[0]?.name
+          : appConfig.adiouPath + this.state?.audiosArray[0]?.name;
 
       if (!playWidth) {
         playWidth = 0;
@@ -1035,88 +994,79 @@ class MessageBubble extends React.Component {
 
       return (
         <View style={styles.audioMessageView}>
-          <View
-            style={{
-              flex: 1,
-              flexDirection: "row",
-              alignItems: "center",
-              // backgroundColor: 'red',
-            }}
-          >
-            <View style={{ flex: 0.1 }}>
-              {this.state.isDownloading ? (
-                <View>
-                  <ActivityIndicator style={styles.audioMessageButton} />
-                </View>
-              ) : !this.state?.audiosArray[0]?.isDownloaded &&
-                this.props.position === "left" ? (
-                <TouchableOpacity onPress={() => this.downloadMedia("Audios")}>
-                  <Octicons
-                    style={styles.audioMessageButton}
-                    name={"download"}
-                    // size={33}
-                    color={"grey"}
-                  />
-                </TouchableOpacity>
-              ) : (
-                <TouchableOpacity
-                  onPress={() =>
-                    this.state.audio_played
-                      ? this.onPausePlay()
-                      : this.onStartPlay(this.state?.audiosArray[0]?.name)
-                  }
-                >
-                  <FontAwesome
-                    name={this.state.audio_played ? "pause" : "play"}
-                    style={styles.audioMessageButton}
-                  />
-                </TouchableOpacity>
-              )}
-            </View>
-            {/* <View> */}
-            <View style={{ flex: 0.7 }}>
-              <View style={styles.audioMessagemainView}>
-                <View style={styles.audioMessageSliderAndIconView}>
-                  <View style={styles.audioMessageSlider}>
-                    <Slider
-                      value={playWidth}
-                      minimumValue={0}
-                      maximumValue={100}
-                      trackStyle={styles.slidertrack}
-                      thumbStyle={styles.sliderThumbStyle}
-                      onValueChange={(seconds) => this.changeTime(seconds)}
-                    />
-                  </View>
-                </View>
-                <View style={styles.audioMessagedetailView}>
-                  <Text style={[styles.audioMessageDetailText]}>
-                    {this.state.audio_played
-                      ? this.state.audio_playTime
-                      : this.state.pause_audio_played
-                      ? this.state.audio_playTime
-                      : showAudio.duration}
-                  </Text>
-                </View>
+          <Video
+            ref={(videoRef) => (this.audioPlayerRef = videoRef)}
+            source={{ uri: localFile }}
+            style={styles.playerStyle}
+            audioOnly={true}
+            resizeMode={"contain"}
+            controls={false}
+            paused={
+              this.state.audio_played == true &&
+              this.props.audioState == this.state?.audiosArray[0]?.name
+                ? false
+                : true
+            }
+            repeat={false}
+            ignoreSilentSwitch={"ignore"}
+            playInBackground={false}
+            onProgress={(ev) => this.onProgress(ev)}
+            onEnd={this.onEnd}
+          />
+
+          <View style={styles.playerContentStyle}>
+            {this.state.isDownloading ? (
+              <View style={styles.audioPlayPauseBtnStyle}>
+                <ActivityIndicator style={styles.audioMessageButton} />
               </View>
-            </View>
-            <View style={{ flex: 0.2 }}>
-              <View
-                style={{
-                  backgroundColor: "green",
-                  alignSelf: "center",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  width: windowWidth * 0.1,
-                  height: windowWidth * 0.1,
-                  borderRadius: 100 / 2,
-                }}
+            ) : !this.state?.audiosArray[0]?.isDownloaded &&
+              this.props.position === "left" ? (
+              <TouchableOpacity
+                style={styles.audioPlayPauseBtnStyle}
+                onPress={() => this.downloadMedia("Audios")}
               >
-                <FontAwesome name={"microphone"} style={styles.micIcon} />
+                <Octicons name={"download"} size={20} color={"#000"} />
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={styles.audioPlayPauseBtnStyle}
+                onPress={this.playPauseAction}
+              >
+                <FontAwesome
+                  name={this.state.audio_played ? "pause" : "play"}
+                  size={20}
+                  color={"#000"}
+                />
+              </TouchableOpacity>
+            )}
+
+            <View style={styles.seekSliderContainerStyle}>
+              <Slider
+                value={playWidth}
+                minimumValue={0}
+                maximumValue={100}
+                style={styles.seekSliderStyle}
+                trackStyle={styles.slidertrack}
+                thumbStyle={styles.sliderThumbStyle}
+                onSlidingComplete={(ev) => this.onSlidingComplete(ev)}
+              />
+
+              <View style={styles.durationTextContainerStyle}>
+                <Text style={styles.audioMessageDetailText}>
+                  {this.state.audio_played
+                    ? this.state.audio_playTime
+                    : this.state.pause_audio_played
+                    ? this.state.audio_playTime
+                    : showAudio.duration}
+                </Text>
               </View>
+            </View>
+
+            <View style={styles.micContainerStyle}>
+              <FontAwesome name={"microphone"} style={styles.micIcon} />
             </View>
           </View>
         </View>
-        // </View>
       );
     } else if (this.props?.currentMessage?.type === 8) {
       let showReply = JSON.parse(this.props.currentMessage.message);
@@ -1163,88 +1113,89 @@ class MessageBubble extends React.Component {
         let playWidth =
           (this.state.currentPositionSec / this.state.currentDurationSec) * 100;
 
+        let localFile =
+          this.props.position === "left"
+            ? Platform.OS == "android"
+              ? this.state?.audiosArray[0]?.name
+              : "file://" + this.state?.audiosArray[0]?.name
+            : appConfig.adiouPath + this.state?.audiosArray[0]?.name;
+
         if (!playWidth) {
           playWidth = 0;
         }
 
         return (
           <View style={styles.audioMessageView}>
-            <View
-              style={{
-                flex: 1,
-                flexDirection: "row",
-                alignItems: "center",
-                // backgroundColor: 'red',
-              }}
-            >
-              <View style={{ flex: 0.1 }}>
-                {this.state.isDownloading ? (
-                  <View>
-                    <ActivityIndicator style={styles.audioMessageButton} />
-                  </View>
-                ) : !this.state?.audiosArray[0]?.isDownloaded &&
-                  this.props.position === "left" ? (
-                  <TouchableOpacity
-                    onPress={() => this.downloadMedia("Audios")}
-                  >
-                    <Octicons
-                      style={styles.audioMessageButton}
-                      name={"download"}
-                      // size={33}
-                      color={"grey"}
-                    />
-                  </TouchableOpacity>
-                ) : (
-                  <TouchableOpacity
-                    onPress={() =>
-                      this.onStartPlay(this.state?.audiosArray[0]?.name)
-                    }
-                  >
-                    <FontAwesome
-                      name={!this.state.audio_played ? "play" : "pause"}
-                      style={styles.audioMessageButton}
-                    />
-                  </TouchableOpacity>
-                )}
-              </View>
-              {/* <View> */}
-              <View style={{ flex: 0.7 }}>
-                <View style={styles.audioMessagemainView}>
-                  <View style={styles.audioMessageSliderAndIconView}>
-                    <View style={styles.audioMessageSlider}>
-                      <Slider
-                        value={this.state.audio_played ? playWidth : 0}
-                        minimumValue={0}
-                        maximumValue={100}
-                        trackStyle={styles.slidertrack}
-                        thumbStyle={styles.sliderThumbStyle}
-                        onValueChange={(seconds) => this.changeTime(seconds)}
-                      />
-                    </View>
-                  </View>
-                  <View style={styles.audioMessagedetailView}>
-                    <Text style={[styles.audioMessageDetailText]}>
-                      {!this.state.audio_played
-                        ? showAudio.duration
-                        : this.state.audio_playTime}
-                    </Text>
-                  </View>
+            <Video
+              ref={(videoRef) => (this.audioPlayerRef = videoRef)}
+              source={{ uri: localFile }}
+              style={styles.playerStyle}
+              audioOnly={true}
+              resizeMode={"contain"}
+              controls={false}
+              paused={
+                this.state.audio_played == true &&
+                this.props.audioState == this.state?.audiosArray[0]?.name
+                  ? false
+                  : true
+              }
+              repeat={false}
+              ignoreSilentSwitch={"ignore"}
+              playInBackground={false}
+              onProgress={(ev) => this.onProgress(ev)}
+              onEnd={this.onEnd}
+            />
+
+            <View style={styles.playerContentStyle}>
+              {this.state.isDownloading ? (
+                <View style={styles.audioPlayPauseBtnStyle}>
+                  <ActivityIndicator style={styles.audioMessageButton} />
                 </View>
-              </View>
-              <View style={{ flex: 0.2 }}>
-                <View
-                  style={{
-                    backgroundColor: "green",
-                    alignSelf: "center",
-                    justifyContent: "center",
-                    alignItems: "center",
-                    width: windowWidth * 0.1,
-                    height: windowWidth * 0.1,
-                    borderRadius: 100 / 2,
-                  }}
+              ) : !this.state?.audiosArray[0]?.isDownloaded &&
+                this.props.position === "left" ? (
+                <TouchableOpacity
+                  style={styles.audioPlayPauseBtnStyle}
+                  onPress={() => this.downloadMedia("Audios")}
                 >
-                  <FontAwesome name={"microphone"} style={styles.micIcon} />
+                  <Octicons name={"download"} size={20} color={"#000"} />
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={styles.audioPlayPauseBtnStyle}
+                  onPress={this.playPauseAction}
+                >
+                  <FontAwesome
+                    name={this.state.audio_played ? "pause" : "play"}
+                    size={20}
+                    color={"#000"}
+                  />
+                </TouchableOpacity>
+              )}
+
+              <View style={styles.seekSliderContainerStyle}>
+                <Slider
+                  value={playWidth}
+                  minimumValue={0}
+                  maximumValue={100}
+                  style={styles.seekSliderStyle}
+                  trackStyle={styles.slidertrack}
+                  thumbStyle={styles.sliderThumbStyle}
+                  onSlidingComplete={(ev) => this.onSlidingComplete(ev)}
+                />
+
+                <View style={styles.durationTextContainerStyle}>
+                  <Text style={styles.audioMessageDetailText}>
+                    {this.state.audio_played
+                      ? this.state.audio_playTime
+                      : this.state.pause_audio_played
+                      ? this.state.audio_playTime
+                      : showAudio.duration}
+                  </Text>
                 </View>
+              </View>
+
+              <View style={styles.micContainerStyle}>
+                <FontAwesome name={"microphone"} style={styles.micIcon} />
               </View>
             </View>
           </View>
@@ -1318,10 +1269,6 @@ class MessageBubble extends React.Component {
             <Text numberOfLines={1} style={{ color: "green" }}>
               {replyMsg?.new_message.new_content.url}
             </Text>
-            {/* <FastImage
-              source={{uri: replyMsg?.new_message.new_content.image}}
-              style={styles[this.props.position].messageLink}
-            /> */}
             <Text numberOfLines={3}>
               {replyMsg?.new_message.new_content.title}
             </Text>
@@ -1385,65 +1332,89 @@ class MessageBubble extends React.Component {
         let replyAudioMsg = JSON.parse(replyMsg?.new_message.new_content);
         let playWidth =
           (this.state.currentPositionSec / this.state.currentDurationSec) * 100;
+
+        let localFile =
+          this.props.position === "left"
+            ? Platform.OS == "android"
+              ? this.state?.audiosArray[0]?.name
+              : "file://" + this.state?.audiosArray[0]?.name
+            : appConfig.adiouPath + this.state?.audiosArray[0]?.name;
+
         if (!playWidth) {
           playWidth = 0;
         }
         return (
           <View style={styles.audioMessageView}>
-            {this.state.isDownloading ? (
-              <View>
-                <ActivityIndicator style={styles.audioMessageButton} />
+            <Video
+              ref={(videoRef) => (this.audioPlayerRef = videoRef)}
+              source={{ uri: localFile }}
+              style={styles.playerStyle}
+              audioOnly={true}
+              resizeMode={"contain"}
+              controls={false}
+              paused={
+                this.state.audio_played == true &&
+                this.props.audioState == this.state?.audiosArray[0]?.name
+                  ? false
+                  : true
+              }
+              repeat={false}
+              ignoreSilentSwitch={"ignore"}
+              playInBackground={false}
+              onProgress={(ev) => this.onProgress(ev)}
+              onEnd={this.onEnd}
+            />
+
+            <View style={styles.playerContentStyle}>
+              {this.state.isDownloading ? (
+                <View style={styles.audioPlayPauseBtnStyle}>
+                  <ActivityIndicator style={styles.audioMessageButton} />
+                </View>
+              ) : !this.state?.audiosArray[0]?.isDownloaded &&
+                this.props.position === "left" ? (
+                <TouchableOpacity
+                  style={styles.audioPlayPauseBtnStyle}
+                  onPress={() => this.downloadMedia("Audios")}
+                >
+                  <Octicons name={"download"} size={20} color={"#000"} />
+                </TouchableOpacity>
+              ) : (
+                <TouchableOpacity
+                  style={styles.audioPlayPauseBtnStyle}
+                  onPress={this.playPauseAction}
+                >
+                  <FontAwesome
+                    name={this.state.audio_played ? "pause" : "play"}
+                    size={20}
+                    color={"#000"}
+                  />
+                </TouchableOpacity>
+              )}
+
+              <View style={styles.seekSliderContainerStyle}>
+                <Slider
+                  value={playWidth}
+                  minimumValue={0}
+                  maximumValue={100}
+                  style={styles.seekSliderStyle}
+                  trackStyle={styles.slidertrack}
+                  thumbStyle={styles.sliderThumbStyle}
+                  onSlidingComplete={(ev) => this.onSlidingComplete(ev)}
+                />
+
+                <View style={styles.durationTextContainerStyle}>
+                  <Text style={styles.audioMessageDetailText}>
+                    {this.state.audio_played
+                      ? this.state.audio_playTime
+                      : this.state.pause_audio_played
+                      ? this.state.audio_playTime
+                      : replyAudioMsg.duration}
+                  </Text>
+                </View>
               </View>
-            ) : !this.state?.audiosArray[0]?.isDownloaded &&
-              this.props.position === "left" ? (
-              <TouchableOpacity onPress={() => this.downloadMedia("Audios")}>
-                <FontAwesome5
-                  name={"arrow-circle-o-down"}
-                  style={styles.audioMessageButton}
-                />
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                onPress={() =>
-                  this.onStartPlay(this.state?.audiosArray[0]?.name)
-                }
-              >
-                <FontAwesome
-                  name={!this.state.audio_played ? "play" : "pause"}
-                  style={styles.audioMessageButton}
-                />
-              </TouchableOpacity>
-            )}
-            <View>
-              <View style={styles.audioMessagemainView}>
-                <View style={styles.audioMessageSliderAndIconView}>
-                  <View style={styles.audioMessageSlider}>
-                    <Slider
-                      value={this.state.audio_played ? playWidth : 0}
-                      minimumValue={0}
-                      maximumValue={100}
-                      trackStyle={styles.slidertrack}
-                      thumbStyle={styles.sliderThumbStyle}
-                      onValueChange={(seconds) => this.changeTime(seconds)}
-                    />
-                  </View>
-                  <FontAwesome name={"microphone"} style={styles.micIcon} />
-                </View>
-                <View style={styles.audioMessagedetailView}>
-                  <Text
-                    style={[styles.audioMessageDetailText, { marginTop: -20 }]}
-                  >
-                    {replyAudioMsg.size}
-                  </Text>
-                  <Text
-                    style={[
-                      styles.audioMessageDetailText,
-                      { marginLeft: 135, marginTop: -15 },
-                    ]}
-                  >
-                    {replyAudioMsg.duration}
-                  </Text>
-                </View>
+
+              <View style={styles.micContainerStyle}>
+                <FontAwesome name={"microphone"} style={styles.micIcon} />
               </View>
             </View>
           </View>
@@ -1462,19 +1433,12 @@ class MessageBubble extends React.Component {
               <View
                 key={ind}
                 style={{
-                  // overflow: 'hidden',
                   marginRight: 1,
                   borderRadius: 10,
                   marginTop: 5,
                   overflow: "hidden",
                 }}
               >
-                {/* <FastImage
-                  source={{
-                    uri: `https://www.srplivehelp.com/media/chats/videos/${videoImageName}.png`,
-                  }}
-                  style={styles.videoImageMessageFlex}
-                /> */}
                 <CalculatedImageViewer
                   uri={`https://www.srplivehelp.com/media/chats/videos/${videoImageName}.png`}
                 />
@@ -1588,18 +1552,13 @@ class MessageBubble extends React.Component {
     }
     return null;
   }
-  getVideoName = (video) => {
-    console.log("video0-0-0-0-", video);
-  };
+
   renderMessageVideo() {
     if (this.props?.currentMessage?.type === 11) {
       let showVideo = JSON.parse(this.props.currentMessage.message).content;
       return this.state?.videosArray ? (
         this.state?.videosArray.map((video, ind) => {
           let videoImageName = showVideo[ind].thumbnail;
-          // showVideo[ind]?.extenstion == "MOV"
-          //   ? showVideo[ind]?.name.split(".MOV")[0]
-          //   : showVideo[ind]?.name.split(".mp4")[0];
           return (
             <View
               key={ind}
@@ -1613,12 +1572,6 @@ class MessageBubble extends React.Component {
               <CalculatedImageViewer
                 uri={`https://www.srplivehelp.com/media/chats/videos/${videoImageName}`}
               />
-              {/* <FastImage
-                source={{
-                  uri: `https://www.srplivehelp.com/media/chats/videos/${videoImageName}.png`,
-                }}
-                // style={styles.videoImageMessageFlex}
-              /> */}
               {video.isDownloading ? (
                 <View style={styles.videoDownloadIcon}>
                   <ActivityIndicator size={"large"} color={"#fff"} />
@@ -1694,11 +1647,7 @@ class MessageBubble extends React.Component {
       if (showReply?.reply_message?.reply_type === 11) {
         let showVideoReply = JSON.parse(showReply?.reply_message?.reply_content)
           .content[0];
-        // console.log("videoreply", showVideoReply.thumbnail);
         let videoImageName = showVideoReply.thumbnail;
-        // showVideoReply?.extenstion == "MOV"
-        //   ? showVideoReply?.name.split(".MOV")[0]
-        //   : showVideoReply?.name.split(".mp4")[0];
         return (
           <View style={styles[this.props.position].replyImageLinkStickerView}>
             <View style={{ marginRight: "40%" }}>
@@ -1715,12 +1664,11 @@ class MessageBubble extends React.Component {
                 >
                   <FontAwesome
                     name={"video"}
-                    style={[
-                      styles[this.props.position].replyImageStickerLinkIcon,
-                      { color: "#000" },
-                    ]}
+                    style={
+                      styles[this.props.position].replyImageStickerLinkIcon
+                    }
                   />
-                  <Text style={{ color: "#000" }}>Video</Text>
+                  <Text>Video</Text>
                 </View>
               </View>
             </View>
@@ -1741,11 +1689,7 @@ class MessageBubble extends React.Component {
         let showVideoMsg = JSON.parse(showVideo.message).content;
         return this.state?.videosArray ? (
           this.state?.videosArray.map((video, ind) => {
-            // console.log("showVideoMsg", showVideoMsg);
             let videoImageName = showVideoMsg?.[ind]?.thumbnail;
-            // showVideoMsg?.[ind]?.extenstion == "MOV"
-            //   ? showVideoMsg?.[ind]?.name.split(".MOV")[0]
-            //   : showVideoMsg?.[ind]?.name.split(".mp4")[0];
             return (
               <View
                 key={ind}
@@ -1759,12 +1703,6 @@ class MessageBubble extends React.Component {
                 <CalculatedImageViewer
                   uri={`https://www.srplivehelp.com/media/chats/videos/${videoImageName}`}
                 />
-                {/* <FastImage
-                  source={{
-                    uri: `https://www.srplivehelp.com/media/chats/videos/${videoImageName}.png`,
-                  }}
-                  style={styles.videoImageMessageFlex}
-                /> */}
                 {video.isDownloading ? (
                   <View style={styles.videoDownloadIcon}>
                     <ActivityIndicator size={"large"} color={"#fff"} />
@@ -1844,10 +1782,6 @@ class MessageBubble extends React.Component {
 
   renderCall() {
     if (this.props?.currentMessage?.type === 10) {
-      // console.log(
-      //   'this.props?.currentMessage?.message',
-      //   this.props?.currentMessage.message,
-      // );
       let iconsize = 22;
       return (
         <View style={styles.callView}>
@@ -2040,38 +1974,16 @@ class MessageBubble extends React.Component {
 
   renderTicks() {
     if (this.props.currentMessage.status === 0) {
-      return (
-        <Icon
-          name="check"
-          size={15}
-          color="#979797"
-          // style={{marginRight: '2%', marginTop: '1.5%'}}
-        />
-      );
+      return <Icon name="check" size={15} color="#979797" />;
     } else if (this.props.currentMessage.status === 1) {
-      return (
-        <Icon
-          name="done-all"
-          size={15}
-          color="#979797"
-          // style={{marginRight: '2%', marginTop: '1.5%'}}
-        />
-      );
+      return <Icon name="done-all" size={15} color="#979797" />;
     } else if (this.props.currentMessage.status === 2) {
-      return (
-        <Icon
-          name="done-all"
-          size={15}
-          color="#547fff"
-          // style={{marginRight: '2%', marginTop: '1.5%'}}
-        />
-      );
+      return <Icon name="done-all" size={15} color="#547fff" />;
     }
   }
 
-  renderTime(type) {
+  renderTime() {
     if (this.props.currentMessage) {
-      // let date = moment(this.props?.currentMessage?.time).format('LT');
       var m = moment.tz(this.props?.currentMessage?.time, "UTC").format();
       let f = moment.tz(m, LocalTimeZone.getTimeZone()).format("LT");
       return (
@@ -2190,7 +2102,7 @@ class MessageBubble extends React.Component {
                   }
                   color="grey"
                   size={25}
-                  style={{ marginLeft: 10, marginRight: 5 }}
+                  style={{ marginLeft: 10 }}
                 />
               )}
 
@@ -2259,6 +2171,7 @@ const mapStateToProps = (state) => {
     theme: state.theme.theme,
     userData: state.auth.user,
     longPress: state.messages.longPress,
+    audioState: state.stateHandler.audioPlayState,
   };
 };
 
@@ -2269,6 +2182,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     onSetReplyNavigate: (images) => {
       dispatch(setReplyNavigate(images));
+    },
+    onSetAudioPlayState: (url) => {
+      dispatch(setAudioPlayState(url));
     },
   };
 };
@@ -2284,7 +2200,6 @@ const styles = {
   callIcon: {
     marginHorizontal: windowWidth * 0.003,
     marginVertical: windowWidth * 0.003,
-    // backgroundColor: 'red',
     padding: 10,
   },
   callIconViewInner: {
@@ -2293,13 +2208,9 @@ const styles = {
     marginRight: windowWidth * 0.02,
   },
   videoImageMessageFlex: {
-    // maxWidth: 300,
     maxWidth: windowWidth * 0.8,
-
     minWidth: 290,
-    // maxHeight: 300,
     maxWidth: windowHeight * 0.6,
-
     minHeight: 290,
   },
   videoPlayIcon: {
@@ -2346,7 +2257,6 @@ const styles = {
     width: windowWidth * 0.7,
   },
   messageSendReplyView: {
-    // paddingBottom: 20,
     padding: 5,
   },
   messageFileFlex: {
@@ -2355,8 +2265,6 @@ const styles = {
     backgroundColor: "#d3eebe",
     padding: 5,
     borderRadius: 5,
-    // marginRight: 5,
-    // justifyContent: 'space-between',
   },
   imageMessageFlex: {
     maxWidth: 300,
@@ -2381,58 +2289,90 @@ const styles = {
     fontFamily: "Roboto-Regular",
     color: "black",
   },
+
   audioMessageView: {
-    // flexDirection: 'row',
-    // alignItems: 'center',
-    // padding: 5,
-    // paddingHorizontal: '4%',
     width: windowWidth * 0.8,
-    // backgroundColor: 'grey',
   },
-  audioMessageButton: {
-    color: "gray",
-    fontSize: 25,
-    padding: 5,
-    alignSelf: "center",
-    // marginBottom: 10,
-    // padding: '2%',
+
+  playerStyle: {
+    width: "98%",
+    height: 45,
+    marginBottom: 2,
   },
-  audioMessagemainView: {
-    borderRadius: 3,
-    marginLeft: "1%",
-  },
-  audioMessageSliderAndIconView: {
+
+  playerContentStyle: {
+    position: "absolute",
+    width: "98%",
+    height: "100%",
     flexDirection: "row",
+  },
+
+  audioPlayPauseBtnStyle: {
+    height: "100%",
+    width: "10%",
     alignItems: "center",
+    justifyContent: "center",
   },
-  audioMessageSlider: {
-    // width: 200,
-    width: "100%",
-    height: 25,
-    // backgroundColor: 'red',
-  },
-  slidertrack: {
-    backgroundColor: "#E6E6E6",
-  },
+
+  seekSliderContainerStyle: { width: "76%" },
+  seekSliderStyle: { height: "100%" },
+  slidertrack: { backgroundColor: "#E6E6E6" },
+
   sliderThumbStyle: {
     backgroundColor: "#30B6F6",
     width: 12,
     height: 12,
   },
+
+  durationTextContainerStyle: { marginTop: -15 },
+
+  audioMessageDetailText: {
+    fontSize: 10,
+    fontFamily: "Roboto-Regular",
+  },
+
+  micContainerStyle: {
+    backgroundColor: "green",
+    alignSelf: "center",
+    justifyContent: "center",
+    alignItems: "center",
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    marginLeft: 3,
+  },
+
   micIcon: {
-    // marginLeft: '3%',
     color: "white",
     fontSize: 20,
   },
+
+  audioMessageButton: {
+    color: "gray",
+    fontSize: 25,
+    padding: 5,
+    alignSelf: "center",
+  },
+
+  audioMessagemainView: {
+    borderRadius: 3,
+    marginLeft: "1%",
+  },
+
+  audioMessageSliderAndIconView: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+
+  audioMessageSlider: {
+    width: "100%",
+    height: 25,
+  },
+
   audioMessagedetailView: {
     paddingRight: 20,
     flexDirection: "row",
     justifyContent: "space-between",
-  },
-  audioMessageDetailText: {
-    fontSize: 10,
-    marginTop: "2%",
-    fontFamily: "Roboto-Regular",
   },
 
   gridImageStyle: {
@@ -2443,12 +2383,14 @@ const styles = {
     paddingHorizontal: 10,
     paddingVertical: 3,
   },
+
   replyVideoImage: {
     borderRadius: 10,
     width: 60,
     height: 60,
     overflow: "hidden",
   },
+
   downloadText: {
     color: "#fff",
     fontSize: 15,
