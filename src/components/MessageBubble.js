@@ -91,13 +91,16 @@ class MessageBubble extends React.Component {
     let temp = [];
     if (this.props.position === "left") {
       showVideo.forEach((video) => {
+        console.log("video: ", video);
         onDownload
           .checkExistingMedia(video.name, "Videos")
           .then(async (res) => {
-            video.name =
-              res && Platform.OS === "ios"
+            console.log("res: ", res);
+            video.name = res
+              ? Platform.OS === "ios"
                 ? `${fs.dirs.DocumentDir}/srp_live/Videos/${video.name}`
-                : appConfig.localPath + "Videos/" + video.name;
+                : appConfig.localPath + "Videos/" + video.name
+              : video.name;
             video.isDownloaded = res;
             temp.push(video);
             this.setState({ videosArray: temp });
@@ -109,10 +112,11 @@ class MessageBubble extends React.Component {
           .checkExistingMediaSend(video.name, "Videos")
           .then(async (res) => {
             if (res) {
-              video.name =
-                res && Platform.OS === "ios"
+              video.name = res
+                ? Platform.OS === "ios"
                   ? `${fs.dirs.DocumentDir}/srp_live/Videos/Sent/${video.name}`
-                  : appConfig.localPath + "Videos/Sent/" + video.name;
+                  : appConfig.localPath + "Videos/Sent/" + video.name
+                : video.name;
               video.isDownloaded = res;
               temp.push(video);
               this.setState({ videosArray: temp });
