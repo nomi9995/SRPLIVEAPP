@@ -190,6 +190,7 @@ class RecentList extends Component {
           }
         }}
         scrollEventThrottle={400}
+        showsVerticalScrollIndicator={false}
       >
         <View style={styles.container}>
           {userList.map((res, index) => {

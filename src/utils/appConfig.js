@@ -1,6 +1,6 @@
 const appConfig = {
   server_url: "https://www.srplivehelp.com/api/",
-  imagePath: "https://www.srplivehelp.com/media/chats/images/large/",
+  imagePath: "https://www.srplivehelp.com/media/chats/images/thumb/",
   imageLargePath: "https://www.srplivehelp.com/media/chats/images/large/",
   filePath: "https://www.srplivehelp.com/media/chats/files/",
   avatarPath: "https://www.srplivehelp.com/media/avatars/",

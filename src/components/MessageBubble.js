@@ -91,11 +91,9 @@ class MessageBubble extends React.Component {
     let temp = [];
     if (this.props.position === "left") {
       showVideo.forEach((video) => {
-        console.log("video: ", video);
         onDownload
           .checkExistingMedia(video.name, "Videos")
           .then(async (res) => {
-            console.log("res: ", res);
             video.name = res
               ? Platform.OS === "ios"
                 ? `${fs.dirs.DocumentDir}/srp_live/Videos/${video.name}`
@@ -172,7 +170,7 @@ class MessageBubble extends React.Component {
         files.forEach((file) => {
           showFile.push(
             Object.assign(
-              file,
+              { name: file },
               { isDownloaded: false },
               { isDownloading: false }
             )
@@ -800,7 +798,7 @@ class MessageBubble extends React.Component {
               onPress={() => this.openFile(res)}
               onLongPress={this.longPressAction}
             >
-              {showFile[ind].name.includes(".pdf") ? (
+              {res?.name.toString().includes(".pdf") ? (
                 <>
                   <PdfThumail data={res} />
                 </>

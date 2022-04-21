@@ -4,25 +4,19 @@ import {
   View,
   TouchableOpacity,
   TextInput,
-  ActivityIndicator,
   Text,
-  Platform,
-  Dimensions,
 } from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { VESDK, VideoEditorModal } from "react-native-videoeditorsdk";
+
+import { VESDK } from "react-native-videoeditorsdk";
 import FastImage from "react-native-fast-image";
 import MaterialCommunityIcons from "react-native-vector-icons/dist/MaterialCommunityIcons";
 import FontAwesome5 from "react-native-vector-icons/dist/FontAwesome5";
 import Ionicons from "react-native-vector-icons/dist/Ionicons";
 import Octicons from "react-native-vector-icons/dist/Octicons";
-import PhotoEditor from "@baronha/react-native-photo-editor";
 import PagerView from "react-native-pager-view";
 import Video from "react-native-video-controls";
 import SmallVideo from "react-native-video";
-import { Thumbnail } from "react-native-thumbnail-video";
-import { ProcessingManager } from "react-native-video-processing";
-import { PESDK, PhotoEditorModal } from "react-native-photoeditorsdk";
+import { PESDK } from "react-native-photoeditorsdk";
 import ProgressCircle from "react-native-progress-circle";
 
 //Redux
@@ -34,11 +28,6 @@ import {
   setMediaUploadState,
   setStatusState,
 } from "../store/actions";
-
-// Components
-import PlayerAndTrimmer from "./PlayerAndTrimmer";
-
-const { width, height } = Dimensions.get("window");
 
 class MediaUploadPreview extends React.Component {
   constructor(props) {
@@ -55,7 +44,6 @@ class MediaUploadPreview extends React.Component {
       endTime: 0,
       viewHeight: 0,
       playVideo: true,
-      doTrimming: false,
       loader: false,
       galleryCallback: props?.galleryCallback,
       selected: 0,
@@ -107,8 +95,6 @@ class MediaUploadPreview extends React.Component {
       this.props.onSetMediaUploadState(false);
     } else if (this.props.mediaType === "document") {
       this.props.onSetMediaType(null);
-    } else if (this.state.doTrimming) {
-      this.setState({ doTrimming: false });
     } else {
       this.setState({ playVideo: true });
       this.props.onSetImagePreview(false);
@@ -121,15 +107,13 @@ class MediaUploadPreview extends React.Component {
     const { page, selectedMedia } = this.state;
     let type = selectedMedia[page].type.split("/")[0];
     if (type === "image") {
-      const options = {
-        path: selectedMedia[page].source
-          ? selectedMedia[page].source
-          : selectedMedia[page].uri,
-      };
+      let path = selectedMedia[page].source
+        ? selectedMedia[page].source
+        : selectedMedia[page].uri;
+      const result = await PESDK.openEditor(path);
 
-      const result = await PhotoEditor.open(options);
-      if (selectedMedia[page].source) selectedMedia[page].source = result;
-      else selectedMedia[page].uri = result;
+      if (selectedMedia[page].source) selectedMedia[page].source = result.image;
+      else selectedMedia[page].uri = result.image;
       this.setState({ selectedMedia: selectedMedia });
     } else {
       let path = selectedMedia[page].uri;
@@ -142,45 +126,6 @@ class MediaUploadPreview extends React.Component {
     }
   };
 
-  getVideoInfo = () => {
-    this.videoPlayerRef
-      .getVideoInfo()
-      .then((info) => this.setState({ endTime: info.duration }))
-      .catch(console.warn);
-  };
-
-  getPreviewImageForSecond = (second) => {
-    const maximumSize = { width: 640, height: 1024 }; // default is { width: 1080, height: 1080 } iOS only
-    this.videoPlayerRef
-      .getPreviewForSecond(second, maximumSize) // maximumSize is iOS only
-      .then((base64String) =>
-        console.log("This is BASE64 of image", base64String)
-      )
-      .catch(console.warn);
-  };
-
-  trimVideo = () => {
-    const { page, selectedMedia } = this.state;
-    const options = {
-      startTime: 15,
-      endTime: 35,
-      quality:
-        Platform.OS == "ios"
-          ? VideoPlayer.Constants.quality.QUALITY_1280x720
-          : "",
-      saveToCameraRoll: true,
-      saveWithCurrentDate: false,
-    };
-
-    console.log("options: ", selectedMedia[page].uri);
-
-    ProcessingManager.trim(selectedMedia[page].uri, options).then((data) => {
-      console.log("data: ", data);
-      selectedMedia[page].uri = data;
-      this.setState({ selectedMedia: selectedMedia });
-    });
-  };
-
   handleMediaType = (type) => {
     this.state.galleryCallback(type);
   };
@@ -188,35 +133,12 @@ class MediaUploadPreview extends React.Component {
   render() {
     let caption = "";
     const { progressData } = this.props;
-    const { page, selectedMedia, playVideo, doTrimming } = this.state;
+    const { page, selectedMedia, playVideo } = this.state;
     return (
       <>
         {this.props.mediaUploadState && (
-          <View
-            style={{
-              position: "absolute",
-              top: "43%",
-              bottom: "43%",
-              right: "10%",
-              left: "10%",
-              backgroundColor: "#fff",
-              zIndex: 1,
-              borderRadius: 10,
-              padding: 5,
-            }}
-          >
-            <View
-              style={{
-                height: "100%",
-                width: "100%",
-                flexDirection: "row",
-                // backgroundColor: "grey",
-                borderRadius: 5,
-                alignItems: "center",
-                // justifyContent: "center",
-                paddingHorizontal: 10,
-              }}
-            >
+          <View style={styles.mediaUploadModelContainer}>
+            <View style={styles.progressCircleContainer}>
               <ProgressCircle
                 percent={parseInt(progressData.percentage)}
                 radius={40}
@@ -231,22 +153,8 @@ class MediaUploadPreview extends React.Component {
               </ProgressCircle>
 
               <View style={{ marginLeft: 25 }}>
-                <Text
-                  style={{
-                    fontSize: 18,
-                    lineHeight: 32,
-                    fontWeight: "bold",
-                    letterSpacing: 1,
-                  }}
-                >
-                  Sending...
-                </Text>
-                <Text
-                  style={{
-                    fontSize: 15,
-                    lineHeight: 32,
-                  }}
-                >
+                <Text style={styles.sendingText}>Sending...</Text>
+                <Text style={styles.sendingProgressText}>
                   {progressData.loaded.toFixed(2)} /{" "}
                   {progressData.total.toFixed(2)} MB
                 </Text>
@@ -254,68 +162,47 @@ class MediaUploadPreview extends React.Component {
             </View>
           </View>
         )}
+
         <View
-          style={{
-            flex: 1,
-            backgroundColor: "#000",
-            opacity: this.props.mediaUploadState ? 0.8 : 1,
-          }}
+          style={[
+            styles.contentContainer,
+            {
+              opacity: this.props.mediaUploadState ? 0.8 : 1,
+            },
+          ]}
         >
-          {!doTrimming && (
-            <View
-              style={{
-                zIndex: 1,
-                position: "absolute",
-                top: 10,
-                flex: 0.07,
-                flexDirection: "row",
-                alignItems: "center",
-              }}
+          <View style={styles.headerContentContainer}>
+            <TouchableOpacity
+              onPress={this.crossButton}
+              disabled={this.props.mediaUploadState}
+              style={styles.crossBtn}
             >
+              <Ionicons name="close" size={30} color={"#fff"} />
+            </TouchableOpacity>
+            {selectedMedia.length > 1 && (
               <TouchableOpacity
-                onPress={this.crossButton}
+                onPress={() => alert("Delete")}
                 disabled={this.props.mediaUploadState}
-                style={{
-                  flex: 1,
-                  justifyContent: "center",
-                  paddingLeft: 5,
-                }}
+                style={styles.trashBtn}
               >
-                <Ionicons name="close" size={30} color={"#fff"} />
+                <Ionicons name={"trash-outline"} size={27} color={"white"} />
               </TouchableOpacity>
-              {selectedMedia.length > 1 && (
-                <TouchableOpacity
-                  onPress={() => alert("Delete")}
-                  disabled={this.props.mediaUploadState}
-                  style={{
-                    justifyContent: "center",
-                    marginRight: 25,
-                    alignItems: "flex-end",
-                  }}
-                >
-                  <Ionicons name={"trash-outline"} size={27} color={"white"} />
-                </TouchableOpacity>
-              )}
-              <TouchableOpacity
-                onPress={this.editButton}
-                disabled={this.props.mediaUploadState}
-                style={{
-                  justifyContent: "center",
-                  paddingRight: 10,
-                  alignItems: "flex-end",
-                }}
-              >
-                <Octicons name="pencil" size={25} color={"#fff"} />
-              </TouchableOpacity>
-            </View>
-          )}
+            )}
+            <TouchableOpacity
+              onPress={this.editButton}
+              disabled={this.props.mediaUploadState}
+              style={styles.pencilBtn}
+            >
+              <Octicons name="pencil" size={25} color={"#fff"} />
+            </TouchableOpacity>
+          </View>
 
           <PagerView
             ref={(viewPager) => {
               this.pagerRef = viewPager;
             }}
             keyboardDismissMode={"on-drag"}
-            transitionStyle={"curl"}
+            transitionStyle={"scroll"}
             style={{ flex: selectedMedia.length === 1 ? 0.89 : 0.85 }}
             onPageSelected={(e) => {
               this.setState({ page: e.nativeEvent.position });
@@ -325,203 +212,129 @@ class MediaUploadPreview extends React.Component {
             {selectedMedia.map((media, index) => {
               let type = media.type.split("/")[0];
               return (
-                <View
-                  key={index}
-                  style={{
-                    flex: 1,
-                  }}
-                >
+                <View key={index} style={{ flex: 1 }}>
                   {type === "image" ? (
                     <FastImage
                       source={{
                         uri: media.source ? media.source : media.uri,
                       }}
-                      style={{ height: "100%", width: "100%" }}
+                      style={styles.imageAndVideoStyle}
                       resizeMode={"contain"}
                     />
                   ) : type === "video" ? (
-                    <>
-                      {Platform.OS === "ios" ? (
-                        <SmallVideo
-                          ref={(videoRef) => (this.playerRef = videoRef)}
-                          controls={true}
-                          poster={media.uri}
-                          showOnStart={true}
-                          disableFullscreen={true}
-                          disableVolume={true}
-                          disableBack={true}
-                          source={{ uri: media.uri }}
-                          paused={playVideo}
-                          repeat={true}
-                          ignoreSilentSwitch={"ignore"}
-                          playInBackground={false}
-                          resizeMode={"contain"}
-                          style={{
-                            height: "100%",
-                            width: "100%",
-                          }}
-                        />
-                      ) : (
-                        <Video
-                          ref={(videoRef) => (this.playerRef = videoRef)}
-                          poster={media.uri}
-                          showOnStart={true}
-                          disableFullscreen={true}
-                          disableVolume={true}
-                          disableBack={true}
-                          source={{ uri: media.uri }}
-                          paused={playVideo}
-                          repeat={true}
-                          ignoreSilentSwitch={"ignore"}
-                          playInBackground={false}
-                          resizeMode={"contain"}
-                          style={{
-                            height: "100%",
-                            width: "100%",
-                          }}
-                        />
-                      )}
-                    </>
+                    <Video
+                      ref={(videoRef) => (this.playerRef = videoRef)}
+                      poster={media.uri}
+                      showOnStart={true}
+                      disableFullscreen={true}
+                      disableVolume={true}
+                      disableBack={true}
+                      source={{ uri: media.uri }}
+                      paused={playVideo}
+                      repeat={true}
+                      ignoreSilentSwitch={"ignore"}
+                      playInBackground={false}
+                      resizeMode={"contain"}
+                      style={styles.imageAndVideoStyle}
+                    />
                   ) : null}
                 </View>
               );
             })}
           </PagerView>
 
-          {!doTrimming && (
-            <View style={{ flex: 0.15 }}>
-              <View
-                style={{
-                  flexDirection: "row",
-                  height: 60,
-                  marginHorizontal: 5,
-                  // marginTop: 10,
-                  bottom: selectedMedia.length === 1 ? -20 : 0,
-                }}
-              >
-                <View
-                  style={{
-                    flexDirection: "row",
-                    flex: 0.88,
-                    alignItems: "center",
-                    marginVertical: 5.5,
-                    backgroundColor: "#fff",
-                    borderRadius: 25,
-                    width: "100%",
-                  }}
-                >
-                  <TouchableOpacity
-                    // activeOpacity={1}
-                    onPress={() => this.handleMediaType("gallery")}
-                  >
-                    <MaterialCommunityIcons
-                      name="image-multiple-outline"
-                      size={20}
-                      color="grey"
-                      style={{ marginLeft: 12, marginRight: 10 }}
-                    />
-                  </TouchableOpacity>
-                  {!this.props.statusState && (
-                    <TextInput
-                      placeholderTextColor={"grey"}
-                      placeholder="Write a Caption!"
-                      onChangeText={(val) => (caption = val)}
-                      style={{ flex: 1, fontSize: 16 }}
-                    />
-                  )}
-                </View>
-                <View
-                  style={{
-                    flex: 0.1,
-                    alignItems: "center",
-                    justifyContent: "center",
-                    paddingHorizontal: 5,
-                    paddingVertical: 10,
-                  }}
-                >
-                  <TouchableOpacity
-                    onPress={() => this.sendHandler(caption)}
-                    style={{
-                      backgroundColor: "#018679",
-                      borderRadius: 50 / 2,
-                      height: 50,
-                      width: 50,
-                      alignItems: "center",
-                      justifyContent: "center",
-                      marginLeft: 10,
-                    }}
-                  >
-                    <FontAwesome5
-                      name={"paper-plane"}
-                      size={20}
-                      color="white"
-                    />
-                  </TouchableOpacity>
-                </View>
-              </View>
-              {selectedMedia.length > 1 && (
+          <View style={{ flex: 0.15 }}>
+            <View
+              style={[
+                styles.footerContentContainer,
+                { bottom: selectedMedia.length === 1 ? -20 : 0 },
+              ]}
+            >
+              <View style={styles.captionInputContainer}>
                 <TouchableOpacity
-                  activeOpacity={1}
-                  style={{
-                    flexDirection: "row",
-                    alignItems: "center",
-                    flex: 0,
-                  }}
+                  onPress={() => this.handleMediaType("gallery")}
                 >
-                  {selectedMedia.map((media, index) => {
-                    let type = media.type.split("/")[0];
-                    return (
-                      <TouchableOpacity
-                        activeOpacity={1}
-                        onPress={() => {
-                          this.pagerRef.setPage(index);
-                          this.setState({ selected: index });
-                        }}
-                        key={index}
-                        style={{
-                          width: 60,
-                          height: 60,
-                          borderWidth: 2,
+                  <MaterialCommunityIcons
+                    name="image-multiple-outline"
+                    size={20}
+                    color="grey"
+                    style={styles.addMoreBtn}
+                  />
+                </TouchableOpacity>
+                {!this.props.statusState && (
+                  <TextInput
+                    placeholderTextColor={"grey"}
+                    placeholder="Write a Caption!"
+                    onChangeText={(val) => (caption = val)}
+                    style={styles.captionInputStyle}
+                  />
+                )}
+              </View>
+              <View style={styles.sendBtnContainer}>
+                <TouchableOpacity
+                  onPress={() => this.sendHandler(caption)}
+                  style={styles.sendBtn}
+                >
+                  <FontAwesome5 name={"paper-plane"} size={20} color="white" />
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {selectedMedia.length > 1 && (
+              <TouchableOpacity
+                activeOpacity={1}
+                style={styles.footerThumbnailContainer}
+              >
+                {selectedMedia.map((media, index) => {
+                  let type = media.type.split("/")[0];
+                  return (
+                    <TouchableOpacity
+                      activeOpacity={1}
+                      onPress={() => {
+                        this.pagerRef.setPage(index);
+                        this.setState({ selected: index });
+                      }}
+                      key={index}
+                      style={[
+                        styles.footerThumbnail,
+                        {
                           borderColor:
                             this.state.selected === index
                               ? "cyan"
                               : "transparent",
-                        }}
-                      >
-                        {type === "image" ? (
-                          <FastImage
-                            source={{
-                              uri: media.source ? media.source : media.uri,
-                            }}
-                            style={{ height: "100%", width: "100%" }}
-                            resizeMode={"contain"}
-                          />
-                        ) : type === "video" ? (
-                          <SmallVideo
-                            ref={(ref) => (this.smallVidRef = ref)}
-                            onLoad={(e) => {
-                              this.smallVidRef.seek(0.5);
-                            }}
-                            source={{ uri: media.uri }}
-                            poster={media.uri}
-                            paused={playVideo}
-                            controls={false}
-                            ignoreSilentSwitch={"ignore"}
-                            playInBackground={false}
-                            resizeMode={"contain"}
-                            style={{
-                              height: "100%",
-                              width: "100%",
-                            }}
-                          />
-                        ) : null}
-                      </TouchableOpacity>
-                    );
-                  })}
-                </TouchableOpacity>
-              )}
-            </View>
-          )}
+                        },
+                      ]}
+                    >
+                      {type === "image" ? (
+                        <FastImage
+                          source={{
+                            uri: media.source ? media.source : media.uri,
+                          }}
+                          style={styles.imageAndVideoStyle}
+                          resizeMode={"contain"}
+                        />
+                      ) : type === "video" ? (
+                        <SmallVideo
+                          ref={(ref) => (this.smallVidRef = ref)}
+                          onLoad={(e) => {
+                            this.smallVidRef.seek(0.5);
+                          }}
+                          source={{ uri: media.uri }}
+                          poster={media.uri}
+                          paused={playVideo}
+                          controls={false}
+                          ignoreSilentSwitch={"ignore"}
+                          playInBackground={false}
+                          resizeMode={"contain"}
+                          style={styles.imageAndVideoStyle}
+                        />
+                      ) : null}
+                    </TouchableOpacity>
+                  );
+                })}
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
       </>
     );
@@ -561,101 +374,119 @@ const mapDispatchToProps = (dispatch) => {
 export default connect(mapStateToProps, mapDispatchToProps)(MediaUploadPreview);
 
 const styles = StyleSheet.create({
-  bgView: {
-    flex: 1,
-    // backgroundColor: 'black',
-  },
-  crossIcon: {
-    color: "white",
-    fontSize: 30,
-    alignSelf: "flex-end",
-    paddingHorizontal: "5%",
-    paddingTop: "5%",
-  },
-  footerFlex: {
-    flexDirection: "row",
-    alignItems: "center",
-    marginBottom: 20,
-    justifyContent: "flex-end",
-  },
-  footerLoader: {
+  mediaUploadModelContainer: {
     position: "absolute",
-    bottom: 20,
-    left: 0,
-    right: 0,
-    alignItems: "center",
-    justifyContent: "center",
+    top: "43%",
+    bottom: "43%",
+    right: "10%",
+    left: "10%",
+    backgroundColor: "#fff",
+    zIndex: 1,
+    borderRadius: 10,
+    padding: 5,
   },
-  textInput: {
-    height: 45,
-    width: "83%",
-    backgroundColor: "white",
-    marginHorizontal: "2%",
-    borderRadius: 30,
+
+  progressCircleContainer: {
+    height: "100%",
+    width: "100%",
+    flexDirection: "row",
+    borderRadius: 5,
+    alignItems: "center",
     paddingHorizontal: 10,
   },
 
-  micIcon: {
-    backgroundColor: "#018679",
-    height: 45,
-    width: 45,
-    borderRadius: 50 / 2,
+  sendingText: {
+    fontSize: 18,
+    lineHeight: 32,
+    fontWeight: "bold",
+    letterSpacing: 1,
+  },
+
+  sendingProgressText: {
+    fontSize: 15,
+    lineHeight: 32,
+  },
+
+  contentContainer: {
+    flex: 1,
+    backgroundColor: "#000",
+  },
+
+  headerContentContainer: {
+    zIndex: 1,
+    position: "absolute",
+    top: 10,
+    flex: 0.07,
+    flexDirection: "row",
     alignItems: "center",
+  },
+
+  crossBtn: {
+    flex: 1,
     justifyContent: "center",
+    paddingLeft: 5,
   },
-  keyboardContainer: {
-    flex: 1,
-    marginTop: "10%",
-  },
-  inner: {
-    flex: 1,
-    // justifyContent: 'space-around',
-  },
-  fileUploadContainer: {
-    flex: 1,
-    // alignItems: 'center',
-    // flexDirection: 'row',
-    // flexWrap: 'wrap',
-  },
-  fileUploadView: {
-    // alignItems: 'center',
-    // height: '30%',
-    // margin: '2%',
-    // width: '46%',
-  },
-  fileUpload: {
-    backgroundColor: "white",
-    borderRadius: 5,
-    width: "70%",
-    height: "70%",
-  },
-  fileUploadIcon: {
-    color: "#06A88E",
-    fontSize: 40,
-    padding: "3%",
-    alignSelf: "center",
-    marginTop: "30%",
-    fontFamily: "Roboto-Regular",
-  },
-  fileUploadText: {
-    color: "white",
-    fontSize: 12,
-    textAlign: "center",
-    fontFamily: "Roboto-Regular",
-    width: 100,
-  },
-  bottomFooter: {
-    overflow: "hidden",
-    marginRight: 10,
-  },
-  moreContainer: {
+
+  trashBtn: {
     justifyContent: "center",
+    marginRight: 25,
+    alignItems: "flex-end",
+  },
+
+  pencilBtn: {
+    justifyContent: "center",
+    paddingRight: 10,
+    alignItems: "flex-end",
+  },
+
+  imageAndVideoStyle: { height: "100%", width: "100%" },
+
+  footerContentContainer: {
+    flexDirection: "row",
+    height: 60,
+    marginHorizontal: 5,
+  },
+
+  captionInputContainer: {
+    flexDirection: "row",
+    flex: 0.88,
     alignItems: "center",
-    height: "100%",
+    marginVertical: 5.5,
+    backgroundColor: "#fff",
+    borderRadius: 25,
     width: "100%",
   },
-  moreText: {
-    color: "#fff",
-    fontSize: 30,
+
+  addMoreBtn: { marginLeft: 12, marginRight: 10 },
+  captionInputStyle: { flex: 1, fontSize: 16 },
+
+  sendBtnContainer: {
+    flex: 0.1,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: 5,
+    paddingVertical: 10,
+  },
+
+  sendBtn: {
+    backgroundColor: "#018679",
+    borderRadius: 50 / 2,
+    height: 50,
+    width: 50,
+    alignItems: "center",
+    justifyContent: "center",
+    marginLeft: 10,
+  },
+
+  footerThumbnailContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    flex: 0,
+  },
+
+  footerThumbnail: {
+    width: 60,
+    height: 60,
+    borderWidth: 2,
   },
 });
