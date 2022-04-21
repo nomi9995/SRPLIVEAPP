@@ -389,17 +389,19 @@ class HomeHeader extends React.PureComponent {
                   >
                     <FontAwesome name={"trash"} size={20} color={"white"} />
                   </TouchableOpacity>
-                  <TouchableOpacity
-                    onPress={() => {
-                      this.props.onSetReplyState(true);
-                    }}
-                    style={[
-                      styles.iconDesign,
-                      { alignItems: "center", marginRight: 12 },
-                    ]}
-                  >
-                    <FontAwesome name={"reply"} size={20} color={"white"} />
-                  </TouchableOpacity>
+                  {this.props.longPress.length == 1 ? (
+                    <TouchableOpacity
+                      onPress={() => {
+                        this.props.onSetReplyState(true);
+                      }}
+                      style={[
+                        styles.iconDesign,
+                        { alignItems: "center", marginRight: 12 },
+                      ]}
+                    >
+                      <FontAwesome name={"reply"} size={20} color={"white"} />
+                    </TouchableOpacity>
+                  ) : null}
                   <TouchableOpacity
                     onPress={() =>
                       navProps.navigation.replace("ForwardContactList", {
@@ -547,13 +549,16 @@ class HomeHeader extends React.PureComponent {
                                         userData?.cover_image,
                                 }
                           }
-                          style={styles.profileImage}
+                          style={[styles.profileImage, { marginRight: 12 }]}
                         />
                       )}
 
-                      <View>
+                      <View
+                        style={{
+                          width: "59%",
+                        }}
+                      >
                         <TouchableOpacity
-                          style={styles.rowDirectionFlex}
                           onPress={() => this.ProfileChange(userData)}
                         >
                           <Text style={styles.usernameText}>
@@ -698,7 +703,7 @@ const styles = StyleSheet.create({
     width: 45,
     height: 45,
     borderRadius: 45 / 2,
-    marginHorizontal: "5%",
+    marginHorizontal: 5,
   },
   usernameText: {
     marginLeft: 0,
@@ -716,7 +721,8 @@ const styles = StyleSheet.create({
   iconsFlex: {
     flexDirection: "row",
     alignItems: "center",
-    marginHorizontal: "5%",
+    // marginHorizontal: "5%",
+    marginRight: "2%",
   },
   iconDesign: {
     marginLeft: 5,

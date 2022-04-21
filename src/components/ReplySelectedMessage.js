@@ -46,6 +46,28 @@ class ReplySelectedMessage extends React.PureComponent {
 
   render() {
     const { longPress } = this.props;
+    let parsed, nestedParsed, IS_JSON;
+    if (typeof longPress[0]?.message == "string") {
+      // parsed = JSON.parse(longPress[0]?.message);
+      IS_JSON = true;
+      try {
+        parsed = JSON.parse(longPress[0]?.message);
+      } catch (err) {
+        IS_JSON = false;
+      }
+    }
+
+    // if (typeof parsed.message == "string") {
+    //   IS_JSON = true;
+    //   try {
+    //     nestedParsed = JSON.parse(parsed.message);
+    //   } catch (err) {
+    //     IS_JSON = false;
+    //   }
+    // }
+    console.log("Actual data", longPress[0]);
+    console.log("Prased", parsed);
+
     return (
       <View style={styles.container}>
         <View style={styles.mainWrapper}>
@@ -54,57 +76,118 @@ class ReplySelectedMessage extends React.PureComponent {
               {longPress[0]?.user._id === 2 ? "You" : longPress[0]?.first_name}
             </Text>
 
-            {longPress[0]?.type === 1 && (
+            {longPress[0]?.type === 1 ? (
               <Text style={styles.plainMsgText} numberOfLines={1}>
                 {longPress[0]?.message}
               </Text>
+            ) : (
+              parsed?.type === 1 && (
+                <Text style={styles.plainMsgText} numberOfLines={1}>
+                  {parsed.message}
+                </Text>
+              )
             )}
 
-            {longPress[0]?.type === 2 && (
+            {(longPress[0]?.type === 2 || parsed?.type === 2) && (
               <View style={styles.mediaMsgWrapper}>
                 <FontAwesome name={"image"} size={20} color={"gray"} />
                 <Text style={styles.mediaMsgText}>Photo</Text>
               </View>
             )}
 
-            {longPress[0]?.type === 3 && (
+            {(longPress[0]?.type === 3 || parsed?.type === 3) && (
               <View style={styles.mediaMsgWrapper}>
                 <FontAwesome name={"image"} size={20} color={"gray"} />
                 <Text style={styles.mediaMsgText}>GIF</Text>
               </View>
             )}
 
-            {longPress[0]?.type === 4 && (
+            {longPress[0]?.type === 4 ? (
               <FastImage
                 source={{
                   uri: `https://www.srplivehelp.com/media/stickers/${longPress[0]?.message}`,
                 }}
                 style={{ paddingVertical: 5, height: 40, width: 40 }}
               />
+            ) : (
+              parsed?.type === 4 && (
+                <FastImage
+                  source={{
+                    uri: `https://www.srplivehelp.com/media/stickers/${parsed?.message}`,
+                  }}
+                  style={{ paddingVertical: 5, height: 40, width: 40 }}
+                />
+              )
             )}
 
-            {longPress[0]?.type === 5 && (
+            {(longPress[0]?.type === 5 || parsed?.type === 5) && (
               <View style={styles.mediaMsgWrapper}>
                 <FontAwesome name={"link"} size={20} color={"gray"} />
                 <Text style={styles.mediaMsgText}>Link</Text>
               </View>
             )}
 
-            {longPress[0]?.type === 6 && (
+            {(longPress[0]?.type === 6 || parsed?.type === 6) && (
               <View style={styles.mediaMsgWrapper}>
                 <FontAwesome name={"file"} size={20} color={"gray"} />
                 <Text style={styles.mediaMsgText}>File</Text>
               </View>
             )}
 
-            {longPress[0]?.type === 7 && (
+            {(longPress[0]?.type === 7 || parsed?.type === 7) && (
               <View style={styles.mediaMsgWrapper}>
                 <FontAwesome name={"headphones"} size={20} color={"gray"} />
                 <Text style={styles.mediaMsgText}>Audio</Text>
               </View>
             )}
 
-            {longPress[0]?.type === 11 && (
+            {longPress[0]?.type === 8 && (
+              <>
+                {parsed?.new_message?.new_type === 1 && (
+                  <Text style={styles.plainMsgText} numberOfLines={1}>
+                    {parsed.new_message.new_content}
+                  </Text>
+                )}
+                {parsed?.new_message?.new_type === 2 && (
+                  <View style={styles.mediaMsgWrapper}>
+                    <FontAwesome name={"image"} size={20} color={"gray"} />
+                    <Text style={styles.mediaMsgText}>Photo</Text>
+                  </View>
+                )}
+                {parsed?.new_message?.new_type === 3 && (
+                  <View style={styles.mediaMsgWrapper}>
+                    <FontAwesome name={"image"} size={20} color={"gray"} />
+                    <Text style={styles.mediaMsgText}>GIF</Text>
+                  </View>
+                )}
+                {parsed?.new_message?.new_type === 5 && (
+                  <View style={styles.mediaMsgWrapper}>
+                    <FontAwesome name={"link"} size={20} color={"gray"} />
+                    <Text style={styles.mediaMsgText}>Link</Text>
+                  </View>
+                )}
+                {parsed?.new_message?.new_type === 6 && (
+                  <View style={styles.mediaMsgWrapper}>
+                    <FontAwesome name={"file"} size={20} color={"gray"} />
+                    <Text style={styles.mediaMsgText}>File</Text>
+                  </View>
+                )}
+                {parsed?.new_message?.new_type === 7 && (
+                  <View style={styles.mediaMsgWrapper}>
+                    <FontAwesome name={"headphones"} size={20} color={"gray"} />
+                    <Text style={styles.mediaMsgText}>Audio</Text>
+                  </View>
+                )}
+                {parsed?.new_message?.new_type === 11 && (
+                  <View style={styles.mediaMsgWrapper}>
+                    <FontAwesome name={"video"} size={20} color={"gray"} />
+                    <Text style={styles.mediaMsgText}>Video</Text>
+                  </View>
+                )}
+              </>
+            )}
+
+            {(longPress[0]?.type === 11 || parsed?.type === 11) && (
               <View style={styles.mediaMsgWrapper}>
                 <FontAwesome name={"video"} size={20} color={"gray"} />
                 <Text style={styles.mediaMsgText}>Video</Text>
