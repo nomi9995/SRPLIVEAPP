@@ -963,6 +963,7 @@ class MessageBubble extends React.Component {
       currentPositionSec: 0,
       audio_played: false,
     });
+    this.audioPlayerRef.seek(0);
   };
 
   playPauseAction = async () => {

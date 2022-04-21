@@ -184,7 +184,8 @@ class DataandStorage extends Component {
                 </Text>
               </View>
               <Text style={[styles.neverText, { marginLeft: "12%" }]}>
-                {this.props.user.user?.user_image_compression}
+                {/* {this.props.user.user?.user_image_compression} */}
+                {this.props.compressionQuality}
               </Text>
             </TouchableOpacity>
           </View>
@@ -293,6 +294,7 @@ const mapStateToProps = (state) => {
     audioDownload: state.autoDownload.photo,
     videoDownload: state.autoDownload.video,
     docsDownload: state.autoDownload.docs,
+    compressionQuality: state.autoDownload.compressionQuality,
   };
 };
 

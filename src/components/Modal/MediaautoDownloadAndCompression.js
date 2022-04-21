@@ -4,17 +4,15 @@ import {
   Modal,
   StyleSheet,
   Text,
-  Pressable,
   View,
   TouchableOpacity,
   SafeAreaView,
 } from "react-native";
-import FontAwesome5 from "react-native-vector-icons/dist/FontAwesome5";
 import UserService from "../../services/UserService";
 
 //redux
 import { connect } from "react-redux";
-import { setAuthUser } from "../../store/actions";
+import { setCompressionQuality } from "../../store/actions";
 
 class MediaautoDownloadAndCompression extends Component {
   state = {
@@ -26,13 +24,14 @@ class MediaautoDownloadAndCompression extends Component {
   };
 
   CompressionData = (data) => {
-    let token = this.props.authToken;
-    let payload = {
-      compression: data,
-    };
-    UserService.compressionImage(payload, token).then((res) => {
-      this.props.CompressionData(data);
-    });
+    this.props.onSetCompressionQuality(data);
+    // let token = this.props.authToken;
+    // let payload = {
+    //   compression: data,
+    // };
+    // UserService.compressionImage(payload, token).then((res) => {
+    //   this.props.CompressionData(data);
+    // });
   };
 
   render() {
@@ -123,7 +122,22 @@ class MediaautoDownloadAndCompression extends Component {
   }
 }
 
-export default MediaautoDownloadAndCompression;
+const mapStateToProps = (state) => {
+  return {};
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onSetCompressionQuality: (quality) => {
+      dispatch(setCompressionQuality(quality));
+    },
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(MediaautoDownloadAndCompression);
 
 const styles = StyleSheet.create({
   mainContainer: {

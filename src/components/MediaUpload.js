@@ -17,7 +17,9 @@ import axios from "axios";
 import Toast from "react-native-simple-toast";
 import FileViewer from "react-native-file-viewer";
 import ImagePicker from "react-native-image-crop-picker";
-import { launchCamera, launchImageLibrary } from "react-native-image-picker";
+import { launchCamera } from "react-native-image-picker";
+import { Image, Video } from "react-native-compressor";
+import { ProcessingManager } from "react-native-video-processing";
 
 //Redux
 import { connect } from "react-redux";
@@ -50,6 +52,7 @@ class MediaUpload extends Component {
         total: 0,
       },
       galleryState: false,
+      isCompressing: false,
     };
   }
 
@@ -317,6 +320,63 @@ class MediaUpload extends Component {
     this.props.onSetMediaUploadState(false);
   };
 
+  compressMedia = async (media, caption = "") => {
+    this.setState({ isCompressing: true });
+    let compressedMedia = [];
+    let type = "";
+    let path = "";
+    let imgQual = 0.7;
+    let vidQual = 3;
+
+    console.log("compressionQuality: ", this.props.compressionQuality);
+
+    if (this.props.compressionQuality == "low") {
+      imgQual = 0.9;
+      vidQual = 3;
+    } else if (this.props.compressionQuality == "medium") {
+      imgQual = 0.7;
+      vidQual = 5;
+    } else if (this.props.compressionQuality == "high") {
+      imgQual = 0.5;
+      vidQual = 7;
+    }
+
+    for (let index = 0; index < media.length; index++) {
+      const element = media[index];
+      path = element.source ? element.source : element.uri;
+      type = element.type.split("/")[0];
+
+      if (type == "image") {
+        const options = {
+          quality: imgQual,
+        };
+        const result = await Image.compress(path, options);
+
+        let obj = {
+          uri: result,
+          name: element.name,
+          type: element.type,
+        };
+        compressedMedia.push(obj);
+      } else if (type == "video") {
+        const options = {
+          bitrateMultiplier: vidQual,
+        };
+
+        const data = await ProcessingManager.compress(path, options);
+        console.log(data);
+        let obj = {
+          uri: Platform.OS == "ios" ? data : data.source,
+          name: element.name,
+          type: element.type,
+        };
+        compressedMedia.push(obj);
+      }
+    }
+    this.setState({ isCompressing: false });
+    this.uploadMedia(compressedMedia, caption);
+  };
+
   uploadMedia = async (imgs, caption = "") => {
     let token = this.props.user?.token;
     let url = "https://www.srplivehelp.com/api/send-files-2";
@@ -324,7 +384,7 @@ class MediaUpload extends Component {
     let formdata = new FormData();
     imgs?.forEach((element, index) => {
       formdata.append("files[]", {
-        uri: element.source ? element.source : element.uri,
+        uri: element.uri,
         name: element.name,
         type: element.type,
       });
@@ -505,6 +565,7 @@ class MediaUpload extends Component {
 
         {this.state.selectedMedia.length > 0 && (
           <MediaUploadPreview
+            isCompressing={this.state.isCompressing}
             galleryCallback={this.galleryCallback}
             progressData={this.state.progress}
             selectedMedia={this.state.selectedMedia}
@@ -512,7 +573,7 @@ class MediaUpload extends Component {
             messageTypeState={this.state.messageTypeState}
             onUploadMedia={(imgs, caption) => {
               if (!this.props.statusState) {
-                this.uploadMedia(imgs, caption);
+                this.compressMedia(imgs, caption);
               } else {
                 this.uploadStatus();
               }
@@ -530,6 +591,7 @@ const mapStateToProps = (state) => {
     imagePreview: state.stateHandler.imagePreview,
     user: state.auth.user,
     statusState: state.stateHandler.statusState,
+    compressionQuality: state.autoDownload.compressionQuality,
   };
 };
 

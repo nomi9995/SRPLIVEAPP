@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   TextInput,
   Text,
+  ActivityIndicator,
 } from "react-native";
 
 import { VESDK } from "react-native-videoeditorsdk";
@@ -132,32 +133,44 @@ class MediaUploadPreview extends React.Component {
 
   render() {
     let caption = "";
-    const { progressData } = this.props;
+    const { progressData, isCompressing } = this.props;
     const { page, selectedMedia, playVideo } = this.state;
     return (
       <>
         {this.props.mediaUploadState && (
           <View style={styles.mediaUploadModelContainer}>
             <View style={styles.progressCircleContainer}>
-              <ProgressCircle
-                percent={parseInt(progressData.percentage)}
-                radius={40}
-                borderWidth={4}
-                color="#42ba96"
-                shadowColor="#ddd"
-                bgColor="#fff"
-              >
-                <Text style={{ fontSize: 18 }}>
-                  {parseInt(progressData.percentage)} %
-                </Text>
-              </ProgressCircle>
+              {isCompressing ? (
+                <ActivityIndicator size={"large"} color={"#42ba96"} />
+              ) : parseInt(progressData.percentage) == 100 ? (
+                <ActivityIndicator size={"large"} color={"#42ba96"} />
+              ) : (
+                <ProgressCircle
+                  percent={parseInt(progressData.percentage)}
+                  radius={40}
+                  borderWidth={4}
+                  color="#42ba96"
+                  shadowColor="#ddd"
+                  bgColor="#fff"
+                >
+                  <Text style={{ fontSize: 18 }}>
+                    {parseInt(progressData.percentage)} %
+                  </Text>
+                </ProgressCircle>
+              )}
 
               <View style={{ marginLeft: 25 }}>
-                <Text style={styles.sendingText}>Sending...</Text>
-                <Text style={styles.sendingProgressText}>
-                  {progressData.loaded.toFixed(2)} /{" "}
-                  {progressData.total.toFixed(2)} MB
-                </Text>
+                {isCompressing ? (
+                  <Text style={styles.sendingText}>Compressing...</Text>
+                ) : (
+                  <Text style={styles.sendingText}>Sending...</Text>
+                )}
+                {!isCompressing && (
+                  <Text style={styles.sendingProgressText}>
+                    {progressData.loaded.toFixed(2)} /{" "}
+                    {progressData.total.toFixed(2)} MB
+                  </Text>
+                )}
               </View>
             </View>
           </View>
