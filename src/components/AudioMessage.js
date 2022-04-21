@@ -8,9 +8,14 @@ import {
   Platform,
   Dimensions,
   ActivityIndicator,
+  Easing,
+  Animated,
 } from "react-native";
 import FontAwesome from "react-native-vector-icons/dist/FontAwesome5";
+import Feather from "react-native-vector-icons/dist/Feather";
+import MaterialCommunityIcons from "react-native-vector-icons/dist/MaterialCommunityIcons";
 import AudioRecorderPlayer from "react-native-audio-recorder-player";
+import Slider from "react-native-slider-custom";
 
 //Redux
 import {
@@ -34,11 +39,23 @@ class AudioMessage extends React.PureComponent {
       audioRecod: false,
       audioPath: `${appConfig.localPath}Audios/Sent`,
       isSending: false,
+      recordSlidingValue: 0,
     };
+    this.animatedValue = new Animated.Value(0);
     this.audioRecorderPlayer = new AudioRecorderPlayer();
   }
 
+  animate(easing) {
+    this.animatedValue.setValue(0);
+    Animated.timing(this.animatedValue, {
+      toValue: 1,
+      duration: 1000,
+      easing,
+    }).start();
+  }
+
   componentDidMount = () => {
+    this.animate(Easing.bounce);
     if (Platform.OS == "ios") {
       this.onStartRecord();
     }
@@ -108,6 +125,7 @@ class AudioMessage extends React.PureComponent {
     this.setState({
       recordSecs: 0,
     });
+    this.setState({ recordSlidingValue: 0 });
     this.props.onCancelAudio();
   };
 
@@ -208,6 +226,11 @@ class AudioMessage extends React.PureComponent {
 
   render() {
     let type = "simple";
+    console.log("change", this.state.recordSlidingValue);
+    const marginL = this.animatedValue.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0, 260],
+    });
     return (
       // <View style={styles[type].container}>
       //   <View>
@@ -224,35 +247,86 @@ class AudioMessage extends React.PureComponent {
       //     <FontAwesome name={'paper-plane'} size={20} color="white" />
       //   </TouchableOpacity>
       // </View>
-      <View style={styles.mainWrapper}>
-        <View style={styles.textInputWrapper}>
-          <TextInput
-            editable={false}
-            value={this.state.recordTime}
-            style={styles.inputField}
+      // <View style={styles.mainWrapper}>
+      //   <View style={styles.textInputWrapper}>
+      //     <TextInput
+      //       editable={false}
+      //       value={this.state.recordTime}
+      //       style={styles.inputField}
+      //     />
+      //   </View>
+
+      //   <TouchableOpacity
+      //     disabled={this.state.isSending}
+      //     style={styles.buttonWrapper}
+      //     onPress={() => this.onStopRecord()}
+      //   >
+      //     <FontAwesome name={"times"} size={25} color="red" />
+      //   </TouchableOpacity>
+
+      //   {this.state.isSending ? (
+      //     <View style={styles.buttonWrapper}>
+      //       <ActivityIndicator size={"small"} color={"blue"} />
+      //     </View>
+      //   ) : (
+      //     <TouchableOpacity
+      //       style={styles.buttonWrapper}
+      //       onPress={() => this.onSendAudio()}
+      //     >
+      //       <FontAwesome name={"paper-plane"} size={25} color="#6B93F9" />
+      //     </TouchableOpacity>
+      //   )}
+      // </View>
+      <View style={styles.sliderContainer}>
+        <View style={{ width: "75%" }}>
+          <Slider
+            minimumValue={0}
+            maximumValue={100}
+            minimumTrackTintColor="transparent"
+            maximumTrackTintColor="transparent"
+            onValueChange={(e) => this.setState({ recordSlidingValue: e })}
+            onSlidingStart={(e) => console.log("START", e)}
+            onSlidingComplete={(e) => console.log("END", e)}
+            trackStyle={styles.slidertrack}
+            customThumb={
+              <View
+                style={[
+                  styles.customThumbBg,
+                  {
+                    backgroundColor:
+                      this.state.recordSlidingValue < 50
+                        ? "#DFB499"
+                        : "#D82926",
+                  },
+                ]}
+              >
+                {this.state.recordSlidingValue < 50 ? (
+                  <Animated.View
+                    style={{
+                      width: 40,
+                      height: 40,
+                      backgroundColor: "red",
+                      marginLeft: marginL,
+                    }}
+                  >
+                    <Feather name="mic" size={22} color={"white"} />
+                  </Animated.View>
+                ) : (
+                  <Feather name="trash" size={22} color={"white"} />
+                )}
+              </View>
+            }
           />
         </View>
-
-        <TouchableOpacity
-          disabled={this.state.isSending}
-          style={styles.buttonWrapper}
-          onPress={() => this.onStopRecord()}
-        >
-          <FontAwesome name={"times"} size={25} color="red" />
-        </TouchableOpacity>
-
-        {this.state.isSending ? (
-          <View style={styles.buttonWrapper}>
-            <ActivityIndicator size={"small"} color={"blue"} />
-          </View>
-        ) : (
-          <TouchableOpacity
-            style={styles.buttonWrapper}
-            onPress={() => this.onSendAudio()}
-          >
-            <FontAwesome name={"paper-plane"} size={25} color="#6B93F9" />
-          </TouchableOpacity>
-        )}
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
+          <Text style={{ marginRight: 5 }}>{this.state.recordTime}</Text>
+          <MaterialCommunityIcons
+            name="circle-double"
+            size={30}
+            color="red"
+            onPress={this.onStopRecord}
+          />
+        </View>
       </View>
     );
   }
@@ -288,6 +362,25 @@ const styles = {
     flex: 0.1,
     alignItems: "center",
     justifyContent: "center",
+  },
+  // SLIDER
+  sliderContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    backgroundColor: "white",
+  },
+  slidertrack: {
+    backgroundColor: "transparent",
+  },
+  customThumbBg: {
+    width: 35,
+    height: 35,
+    borderRadius: 8,
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   simple: StyleSheet.create({
