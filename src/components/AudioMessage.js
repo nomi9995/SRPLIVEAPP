@@ -40,22 +40,13 @@ class AudioMessage extends React.PureComponent {
       audioPath: `${appConfig.localPath}Audios/Sent`,
       isSending: false,
       recordSlidingValue: 0,
+      sliderVal: 0.8,
     };
     this.animatedValue = new Animated.Value(0);
     this.audioRecorderPlayer = new AudioRecorderPlayer();
   }
 
-  animate(easing) {
-    this.animatedValue.setValue(0);
-    Animated.timing(this.animatedValue, {
-      toValue: 1,
-      duration: 1000,
-      easing,
-    }).start();
-  }
-
   componentDidMount = () => {
-    this.animate(Easing.bounce);
     if (Platform.OS == "ios") {
       this.onStartRecord();
     }
@@ -224,13 +215,20 @@ class AudioMessage extends React.PureComponent {
       });
   };
 
+  onAnimateOpacity = (e) => {
+    if (e) {
+      this.setState({ recordSlidingValue: e });
+    }
+  };
+
+  onComplete = (e) => {
+    if (e >= 0.5 && e <= 1) {
+      this.onStopRecord();
+    }
+  };
+
   render() {
     let type = "simple";
-    console.log("change", this.state.recordSlidingValue);
-    const marginL = this.animatedValue.interpolate({
-      inputRange: [0, 1],
-      outputRange: [0, 260],
-    });
     return (
       // <View style={styles[type].container}>
       //   <View>
@@ -281,12 +279,13 @@ class AudioMessage extends React.PureComponent {
         <View style={{ width: "75%" }}>
           <Slider
             minimumValue={0}
-            maximumValue={100}
+            maximumValue={1}
             minimumTrackTintColor="transparent"
             maximumTrackTintColor="transparent"
-            onValueChange={(e) => this.setState({ recordSlidingValue: e })}
-            onSlidingStart={(e) => console.log("START", e)}
-            onSlidingComplete={(e) => console.log("END", e)}
+            onValueChange={(e) => {
+              this.onAnimateOpacity(e);
+            }}
+            onSlidingComplete={(e) => this.onComplete(e)}
             trackStyle={styles.slidertrack}
             customThumb={
               <View
@@ -294,25 +293,31 @@ class AudioMessage extends React.PureComponent {
                   styles.customThumbBg,
                   {
                     backgroundColor:
-                      this.state.recordSlidingValue < 50
+                      this.state.recordSlidingValue <= 0.5
                         ? "#DFB499"
                         : "#D82926",
+                    opacity:
+                      this.state.recordSlidingValue <= 0.5
+                        ? 1 - this.state.recordSlidingValue
+                        : 1 + this.state.recordSlidingValue,
                   },
                 ]}
               >
-                {this.state.recordSlidingValue < 50 ? (
-                  <Animated.View
+                {this.state.recordSlidingValue <= 0.5 ? (
+                  <View style={{ opacity: 1 - this.state.recordSlidingValue }}>
+                    <Feather name="mic" size={22} color={"white"} />
+                  </View>
+                ) : (
+                  <View
                     style={{
-                      width: 40,
-                      height: 40,
-                      backgroundColor: "red",
-                      marginLeft: marginL,
+                      opacity:
+                        this.state.recordSlidingValue > this.state.sliderVal
+                          ? 1
+                          : this.state.recordSlidingValue,
                     }}
                   >
-                    <Feather name="mic" size={22} color={"white"} />
-                  </Animated.View>
-                ) : (
-                  <Feather name="trash" size={22} color={"white"} />
+                    <Feather name="trash" size={22} color={"white"} />
+                  </View>
                 )}
               </View>
             }
@@ -324,7 +329,7 @@ class AudioMessage extends React.PureComponent {
             name="circle-double"
             size={30}
             color="red"
-            onPress={this.onStopRecord}
+            onPress={this.onSendAudio}
           />
         </View>
       </View>
