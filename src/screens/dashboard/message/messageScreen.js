@@ -80,8 +80,6 @@ class MessageScreen extends Component {
       msgDate: "",
       showStickDate: false,
       fadeAnimation: new Animated.Value(0),
-      unreadMessages: [],
-      isFirstLoading: true,
       showDownBtn: false,
       shouldSetScrollIndex: false,
       initialIndex: 0,
@@ -321,57 +319,59 @@ class MessageScreen extends Component {
   socketRun() {
     // New Message Recieved
     this.subscribeToMessages = WebSockits.subscribeToMessages((msg) => {
-      let onlineUserId = this.props.user.user.id;
-      let isRoom = msg.chat.room_id == undefined ? 0 : 1;
-      let chatUserId =
-        msg.chat.room_id == undefined ? msg.chat.user_1 : msg.chat.room_id;
-      let msgId = msg.chat.id;
-      MessagesQuieries.checkMessageExsistMessageScreen(
-        { onlineUserId, isRoom, chatUserId, msgId },
-        (res3) => {
-          if (msg !== undefined && res3 == false) {
-            if (msg !== undefined) {
-              if (
-                msg.chat.sender_id ===
-                  this.props?.route?.params.selectedUser?.user_id &&
-                msg.chat.chat_type === "private" &&
-                this.props?.route?.params.selectedUser.is_room == 0
-              ) {
-                let message = regex.getMessages(
-                  msg.chat,
-                  this.props?.route?.params.selectedUser,
-                  this.props.user?.user
-                );
-                this.setState((previousState) => ({
-                  messages: GiftedChat.append(previousState.messages, [
-                    message,
-                  ]),
-                }));
-                this.markMessagesAsRead([message]);
-                this.UpdateMessageRuntime(msg, message);
-              } else if (
-                msg.chat?.room_id ===
-                  this.props?.route?.params.selectedUser?.user_id &&
-                msg.chat?.chat_type === "group" &&
-                this.props?.route?.params.selectedUser.is_room == 1
-              ) {
-                let message = regex.getMessages(
-                  msg.chat,
-                  this.props?.route?.params.selectedUser,
-                  this.props.user?.user
-                );
-                this.setState((previousState) => ({
-                  messages: GiftedChat.append(previousState.messages, [
-                    message,
-                  ]),
-                }));
+      if (msg.chat) {
+        let onlineUserId = this.props.user.user.id;
+        let isRoom = msg.chat.room_id == undefined ? 0 : 1;
+        let chatUserId =
+          msg.chat.room_id == undefined ? msg.chat.user_1 : msg.chat.room_id;
+        let msgId = msg.chat.id;
+        MessagesQuieries.checkMessageExsistMessageScreen(
+          { onlineUserId, isRoom, chatUserId, msgId },
+          (res3) => {
+            if (msg !== undefined && res3 == false) {
+              if (msg !== undefined) {
+                if (
+                  msg.chat.sender_id ===
+                    this.props?.route?.params.selectedUser?.user_id &&
+                  msg.chat.chat_type === "private" &&
+                  this.props?.route?.params.selectedUser.is_room == 0
+                ) {
+                  let message = regex.getMessages(
+                    msg.chat,
+                    this.props?.route?.params.selectedUser,
+                    this.props.user?.user
+                  );
+                  this.setState((previousState) => ({
+                    messages: GiftedChat.append(previousState.messages, [
+                      message,
+                    ]),
+                  }));
+                  this.markMessagesAsRead([message]);
+                  this.UpdateMessageRuntime(msg, message);
+                } else if (
+                  msg.chat?.room_id ===
+                    this.props?.route?.params.selectedUser?.user_id &&
+                  msg.chat?.chat_type === "group" &&
+                  this.props?.route?.params.selectedUser.is_room == 1
+                ) {
+                  let message = regex.getMessages(
+                    msg.chat,
+                    this.props?.route?.params.selectedUser,
+                    this.props.user?.user
+                  );
+                  this.setState((previousState) => ({
+                    messages: GiftedChat.append(previousState.messages, [
+                      message,
+                    ]),
+                  }));
 
-                this.UpdateMessageRuntime(msg, message);
+                  this.UpdateMessageRuntime(msg, message);
+                }
               }
             }
           }
-        }
-      );
+        );
+      }
     });
 
     // New Message Send
@@ -565,128 +565,135 @@ class MessageScreen extends Component {
         current_user: this.props.user?.user.id,
       };
       socket.emit("message_read", JSON.stringify(payload));
-      this.setState({ unreadMessages: [] });
     }
   };
 
   onSendMessage = (messages, messageType, isEdit = false) => {
-    const { selectedUser } = this.props?.route?.params;
-    let sendMessage =
-      this.props.replyState && !isEdit
-        ? regex.sendReplyMessage(this.props.longPress[0], messages, messageType)
-        : messages;
-    let idx =
-      this.state.messages[0]?.idx == undefined
-        ? 0
-        : this.state.messages[0]?.idx + 1;
-    let randomId = !isEdit
-      ? Math.random() + "random"
-      : this.props.longPress[0].id;
-    let message = regex.sendMessage(
-      selectedUser,
-      randomId,
-      this.props.replyState && !isEdit ? 8 : messageType,
-      idx,
-      this.props.user?.user,
-      sendMessage
-    );
-    this.props.onSetMediaOptionsOpen(false);
-    this.props.onSetSickerOpen(false);
-    if (!isEdit) {
-      let socketMessage = {
-        current_user: this.props.user?.user.id,
-        active_user:
-          selectedUser.is_room == 0 || selectedUser.is_room === undefined
-            ? selectedUser.user_id === undefined
-              ? selectedUser.id
-              : selectedUser.user_id
-            : null,
-        active_room:
-          selectedUser.is_room == 1
-            ? selectedUser.user_id === undefined
-              ? selectedUser.id
-              : selectedUser.user_id
-            : null,
-        chat_meta_id: selectedUser.chat_meta_id,
-        message_content: sendMessage,
-        message_type: this.props.replyState ? 8 : messageType,
-        random_id: randomId,
-      };
-      // Save To Db
-      let newMessageArray = {
-        data: {
-          data: [
-            {
-              chats: [message],
-              is_room: message.is_room === undefined ? 0 : message.is_room,
-              room_id: message.is_room === 1 ? message.chatUser : null,
-              user_id:
-                message.is_room === 0 || message.is_room === undefined
-                  ? message.chatUser
-                  : null,
-            },
-          ],
-        },
-      };
-      let tableName = "messages_list_table";
-      let resp = newMessageArray;
-      let onlineUserId = this.props.user?.user.id;
-
-      // Save in state
-      this.setState((previousState) => ({
-        messages: GiftedChat.append(previousState.messages, [message]),
-      }));
-      // Send to db
-      MessagesQuieries.insertAndUpdateMessageList(
-        { tableName, resp, onlineUserId },
-        (res3) => {
-          // save to server
-          socket.emit("save_message", socketMessage);
-          var data = {};
-          data["user_list_sec"] = "recent";
-          data["current_user"] = this.props.user?.user.id;
-          socket.emit("user_list", JSON.stringify(data));
-
-          socket.on("user_list_change", (res) => {
-            ChatUsersQuieries.insertAndUpdateUserList(
-              "users_list_table",
-              res?.chat_list,
-              this.props?.user?.user.id
-            );
-            socket.off("user_list");
-            socket.off("user_list_change");
-          });
-        }
+    if (messages != 0) {
+      const { selectedUser } = this.props?.route?.params;
+      let sendMessage =
+        this.props.replyState && !isEdit
+          ? regex.sendReplyMessage(
+              this.props.longPress[0],
+              messages,
+              messageType
+            )
+          : messages;
+      let idx =
+        this.state.messages[0]?.idx == undefined
+          ? 0
+          : this.state.messages[0]?.idx + 1;
+      let randomId = !isEdit
+        ? Math.random() + "random"
+        : this.props.longPress[0].id;
+      let message = regex.sendMessage(
+        selectedUser,
+        randomId,
+        this.props.replyState && !isEdit ? 8 : messageType,
+        idx,
+        this.props.user?.user,
+        sendMessage
       );
+      this.props.onSetMediaOptionsOpen(false);
+      this.props.onSetSickerOpen(false);
+      if (!isEdit) {
+        let socketMessage = {
+          current_user: this.props.user?.user.id,
+          active_user:
+            selectedUser.is_room == 0 || selectedUser.is_room === undefined
+              ? selectedUser.user_id === undefined
+                ? selectedUser.id
+                : selectedUser.user_id
+              : null,
+          active_room:
+            selectedUser.is_room == 1
+              ? selectedUser.user_id === undefined
+                ? selectedUser.id
+                : selectedUser.user_id
+              : null,
+          chat_meta_id: selectedUser.chat_meta_id,
+          message_content: sendMessage,
+          message_type: this.props.replyState ? 8 : messageType,
+          random_id: randomId,
+        };
+        // Save To Db
+        let newMessageArray = {
+          data: {
+            data: [
+              {
+                chats: [message],
+                is_room: message.is_room === undefined ? 0 : message.is_room,
+                room_id: message.is_room === 1 ? message.chatUser : null,
+                user_id:
+                  message.is_room === 0 || message.is_room === undefined
+                    ? message.chatUser
+                    : null,
+              },
+            ],
+          },
+        };
+        let tableName = "messages_list_table";
+        let resp = newMessageArray;
+        let onlineUserId = this.props.user?.user.id;
+
+        // Save in state
+        this.setState((previousState) => ({
+          messages: GiftedChat.append(previousState.messages, [message]),
+        }));
+        // Send to db
+        MessagesQuieries.insertAndUpdateMessageList(
+          { tableName, resp, onlineUserId },
+          (res3) => {
+            // save to server
+            socket.emit("save_message", socketMessage);
+            var data = {};
+            data["user_list_sec"] = "recent";
+            data["current_user"] = this.props.user?.user.id;
+            socket.emit("user_list", JSON.stringify(data));
+
+            socket.on("user_list_change", (res) => {
+              ChatUsersQuieries.insertAndUpdateUserList(
+                "users_list_table",
+                res?.chat_list,
+                this.props?.user?.user.id
+              );
+              socket.off("user_list");
+              socket.off("user_list_change");
+            });
+          }
+        );
+      } else {
+        this.props.onSetMessageEdit(false);
+        let token = this.props.user?.token;
+        let formData = new FormData();
+        formData.append(
+          "active_user",
+          this.props.longPress[0].is_room === 0
+            ? this.props.longPress[0].chatUser
+            : 0
+        );
+        formData.append(
+          "active_room",
+          this.props.longPress[0].is_room === 1
+            ? this.props.longPress[0].chatUser.id
+            : 0
+        );
+        formData.append("message_content", sendMessage);
+        formData.append("message_type", messageType);
+        formData.append("message_method", "edit");
+        formData.append("edit_id", this.props.longPress[0].id);
+
+        ChatServices.editMessage(formData, token).then((res) => {
+          if (res.data.errors.length > 0) {
+            Toast.show("Editable time exceeded", Toast.SHORT);
+          }
+        });
+      }
+      this.props.onSetOnLongPress([]);
+      this.props.onSetReplyState(false);
     } else {
-      this.props.onSetMessageEdit(false);
-      let token = this.props.user?.token;
-      let formData = new FormData();
-      formData.append(
-        "active_user",
-        this.props.longPress[0].is_room === 0
-          ? this.props.longPress[0].chatUser
-          : 0
-      );
-      formData.append(
-        "active_room",
-        this.props.longPress[0].is_room === 1
-          ? this.props.longPress[0].chatUser.id
-          : 0
-      );
-      formData.append("message_content", sendMessage);
-      formData.append("message_type", messageType);
-      formData.append("message_method", "edit");
-      formData.append("edit_id", this.props.longPress[0].id);
-
-      ChatServices.editMessage(formData, token).then((res) => {
-        if (res.data.errors.length > 0) {
-          Toast.show("Editable time exceeded", Toast.SHORT);
-        }
-      });
+      Toast.show("Error Sending Message", Toast.SHORT);
     }
-    this.props.onSetOnLongPress([]);
-    this.props.onSetReplyState(false);
   };
 
   setSearchResponse = (data) => {
@@ -864,7 +871,7 @@ class MessageScreen extends Component {
   render() {
     const { selectedUser } = this.props?.route?.params;
     return (
-      <View style={{ flex: 1 }}>
+      <View style={styles.container}>
         <SafeAreaView style={{ backgroundColor: "#008069" }}></SafeAreaView>
         {this.props.mediaType !== null ? (
           <MediaUpload
@@ -874,7 +881,7 @@ class MessageScreen extends Component {
           />
         ) : (
           <TouchableOpacity
-            style={{ flex: 1 }}
+            style={styles.container}
             activeOpacity={1}
             onPress={() => this.props.onSetMediaOptionsOpen(false)}
           >
@@ -904,11 +911,7 @@ class MessageScreen extends Component {
                     { opacity: this.state.fadeAnimation },
                   ]}
                 >
-                  <Text
-                    style={{ color: "grey", fontWeight: "600", fontSize: 12 }}
-                  >
-                    {renderchangedate}
-                  </Text>
+                  <Text style={styles.changeDateText}>{renderchangedate}</Text>
                 </Animated.View>
 
                 <GiftedChat
@@ -953,6 +956,13 @@ class MessageScreen extends Component {
                             offset: this.state.offset + 100,
                           });
                           this.getAllMsgsFromDb();
+                        } else if (this.isCloseToBottom(nativeEvent)) {
+                          await this.setState({
+                            offsetBottom: this.state.offsetBottom - 100,
+                            isInverted: true,
+                          });
+                          if (this.state.offsetBottom > -100)
+                            this.getAllMsgsFromDb();
                         }
                       }
                     },
@@ -975,18 +985,19 @@ class MessageScreen extends Component {
                     onPress={async () => {
                       if (this.state.initialIndex > 0) {
                         await this.setState({
-                          offset: 0,
+                          offsetBottom: 0,
                           initialIndex: 0,
                           isInverted: true,
                         });
                         this.getAllMsgsFromDb();
-                      } else if (this.isCloseToBottom(nativeEvent)) {
-                        await this.setState({
-                          offsetBottom: this.state.offsetBottom - 100,
-                          isInverted: true,
-                        });
-                        if (this.state.offsetBottom > -100)
-                          this.getAllMsgsFromDb();
+                      } else {
+                        this.chatRef?._messageContainerRef?.current?.scrollToIndex(
+                          {
+                            index: 0,
+                            animated: true,
+                            viewPosition: 0,
+                          }
+                        );
                       }
                     }}
                   >
@@ -1069,36 +1080,6 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
   },
-  videoWrapper: {
-    flex: 1,
-    backgroundColor: "#000000c0",
-  },
-  crossIconPosition: {
-    position: "absolute",
-    right: 10,
-    top: 10,
-    zIndex: 1,
-  },
-  activityIndicator: {
-    position: "absolute",
-    top: "50%",
-    left: 0,
-    right: 0,
-    zIndex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  unreadMessages: {
-    alignSelf: "center",
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    width: "60%",
-    paddingVertical: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    marginVertical: 10,
-  },
 
   scrollDownBtn: {
     position: "absolute",
@@ -1124,5 +1105,11 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     position: "absolute",
     zIndex: 100,
+  },
+
+  changeDateText: {
+    color: "grey",
+    fontWeight: "600",
+    fontSize: 12,
   },
 });
