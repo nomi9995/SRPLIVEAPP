@@ -282,6 +282,42 @@ class MessageScreen extends Component {
     );
   };
 
+  starCallback = (messageId, star) => {
+    let dummyArray = [];
+    dummyArray = [...this.state.messages];
+    let res = dummyArray.map((x) => {
+      if (x.id == messageId) {
+        return {
+          ...x,
+          my_star: star,
+        };
+      } else {
+        return {
+          ...x,
+        };
+      }
+    });
+    this.setState({ messages: res });
+  };
+
+  respondLaterCallback = (messageId, replyLater) => {
+    let dummyArray = [];
+    dummyArray = [...this.state.messages];
+    let res = dummyArray.map((x) => {
+      if (x.id == messageId) {
+        return {
+          ...x,
+          is_reply_later: replyLater,
+        };
+      } else {
+        return {
+          ...x,
+        };
+      }
+    });
+    this.setState({ messages: res });
+  };
+
   setMessageAsGifted = async (
     data,
     isMsgReadFirst = false,
@@ -892,6 +928,8 @@ class MessageScreen extends Component {
                   this.messageUpdateResponse(data)
                 }
                 filterdata={(data) => this.filterResponse(data)}
+                starCallback={this.starCallback}
+                respondLaterCallback={this.respondLaterCallback}
               />
 
               <ImageBackground

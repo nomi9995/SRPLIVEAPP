@@ -48,6 +48,7 @@ class MediaUploadPreview extends React.Component {
       loader: false,
       galleryCallback: props?.galleryCallback,
       selected: 0,
+      caption: "",
     };
   }
 
@@ -58,6 +59,7 @@ class MediaUploadPreview extends React.Component {
   }
 
   sendHandler = (caption) => {
+    console.log("caption", caption);
     this.props.onSetMediaUploadState(true);
     this.props.onUploadMedia(this.state.selectedMedia, caption);
   };
@@ -132,7 +134,7 @@ class MediaUploadPreview extends React.Component {
   };
 
   render() {
-    let caption = "";
+    // let caption = "";
     const { progressData, isCompressing } = this.props;
     const { page, selectedMedia, playVideo } = this.state;
     return (
@@ -278,14 +280,14 @@ class MediaUploadPreview extends React.Component {
                   <TextInput
                     placeholderTextColor={"grey"}
                     placeholder="Write a Caption!"
-                    onChangeText={(val) => (caption = val)}
+                    onChangeText={(val) => this.setState({ caption: val })}
                     style={styles.captionInputStyle}
                   />
                 )}
               </View>
               <View style={styles.sendBtnContainer}>
                 <TouchableOpacity
-                  onPress={() => this.sendHandler(caption)}
+                  onPress={() => this.sendHandler(this.state.caption)}
                   style={styles.sendBtn}
                 >
                   <FontAwesome5 name={"paper-plane"} size={20} color="white" />
