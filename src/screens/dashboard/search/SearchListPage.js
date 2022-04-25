@@ -99,7 +99,7 @@ class Searhlist extends Component {
             style={{
               flexDirection: "row",
               alignItems: "center",
-              paddingVertical: 5,
+              paddingVertical: 20,
             }}
           >
             <TouchableOpacity

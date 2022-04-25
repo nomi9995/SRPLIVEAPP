@@ -222,7 +222,12 @@ class MediaUpload extends Component {
 
   captureMedia = async () => {
     if (this.camera) {
-      const options = { quality: 0.5, pauseAfterCapture: true, zoom: 1.0 };
+      const options = {
+        quality: 0.5,
+        pauseAfterCapture: true,
+        zoom: 1.0,
+        fixOrientation: true,
+      };
       const data = await this.camera.takePictureAsync(options);
       let URl = data.uri.substring(50);
       let getType = URl.split(".");
@@ -298,7 +303,6 @@ class MediaUpload extends Component {
         }
       })
       .catch((e) => {
-        Toast.show("User cancelled media selection", Toast.SHORT);
         if (this.props.statusState) {
           this.props.onSetStatus(false);
           this.props.onSetMediaType(null);
@@ -327,8 +331,6 @@ class MediaUpload extends Component {
     let path = "";
     let imgQual = 0.7;
     let vidQual = 3;
-
-    console.log("compressionQuality: ", this.props.compressionQuality);
 
     if (this.props.compressionQuality == "low") {
       imgQual = 0.9;
@@ -364,7 +366,6 @@ class MediaUpload extends Component {
         };
 
         const data = await ProcessingManager.compress(path, options);
-        console.log(data);
         let obj = {
           uri: Platform.OS == "ios" ? data : data.source,
           name: element.name,

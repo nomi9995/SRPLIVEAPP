@@ -1,5 +1,12 @@
 import React, { Component } from "react";
-import { StyleSheet, Text, View, ScrollView, Platform } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+  Platform,
+  Alert,
+} from "react-native";
 import FastImage from "react-native-fast-image";
 import { connect } from "react-redux";
 import ChatServices from "../../../services/ChatServices";
