@@ -96,6 +96,7 @@ class SelectionPopup extends Component {
             { chatUserId, onlineUserId, messageId, star },
             (res3) => {
               if (res3) {
+                this.props.starCallback(messageId, star);
                 MessagesQuieries.selectDb(
                   { onlineUserId, chatUserId },
                   (res2) => {
@@ -138,6 +139,7 @@ class SelectionPopup extends Component {
             { chatUserId, onlineUserId, messageId, replyLater },
             (res3) => {
               if (res3) {
+                this.props.respondLaterCallback(messageId, replyLater);
                 MessagesQuieries.selectDb(
                   { onlineUserId, chatUserId },
                   (res2) => {

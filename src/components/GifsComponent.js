@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from "react";
 import {
   FlatList,
   StyleSheet,
@@ -9,17 +9,21 @@ import {
   TextInput,
   Dimensions,
   ActivityIndicator,
-} from 'react-native';
-import axios from 'axios';
-const windowWidth = Dimensions.get('window').width;
-const windowHeight = Dimensions.get('window').height;
+} from "react-native";
+import axios from "axios";
+const windowWidth = Dimensions.get("window").width;
+const windowHeight = Dimensions.get("window").height;
 //Redux
-import {connect} from 'react-redux';
-import FastImage from 'react-native-fast-image';
-import {setMediaType, setImagePreview, setPreviewType} from '../store/actions';
-import FontAwesome from 'react-native-vector-icons/dist/FontAwesome';
-import {ScrollView} from 'react-native-gesture-handler';
-const isCloseToBottom = ({layoutMeasurement, contentOffset, contentSize}) => {
+import { connect } from "react-redux";
+import FastImage from "react-native-fast-image";
+import {
+  setMediaType,
+  setImagePreview,
+  setPreviewType,
+} from "../store/actions";
+import FontAwesome5 from "react-native-vector-icons/dist/FontAwesome5";
+import { ScrollView } from "react-native-gesture-handler";
+const isCloseToBottom = ({ layoutMeasurement, contentOffset, contentSize }) => {
   const paddingToBottom = 20;
   return (
     layoutMeasurement.height + contentOffset.y >=
@@ -31,10 +35,10 @@ class GifsComponent extends Component {
     super(props);
     this.state = {
       gifsList: [],
-      searchGif: '',
+      searchGif: "",
       leftlist: [],
       rightlist: [],
-      next: '',
+      next: "",
     };
   }
 
@@ -48,15 +52,15 @@ class GifsComponent extends Component {
 
   getGifs = () => {
     var config = {
-      method: 'get',
+      method: "get",
       url: `https://api.tenor.com/v1/trending?key=J8KEXNHQ3TNL&media_filter=minimal&ar_range=standard&limit=50&pos=${this.state.next}`,
       headers: {},
     };
 
     axios(config)
-      .then(response => {
-        this.setState({gifsList: response.data.results});
-        this.setState({next: response.data.next});
+      .then((response) => {
+        this.setState({ gifsList: response.data.results });
+        this.setState({ next: response.data.next });
         this.setArrayList(response);
       })
       .catch(function (error) {
@@ -64,11 +68,11 @@ class GifsComponent extends Component {
       });
   };
 
-  handlePress = data => {
+  handlePress = (data) => {
     this.props.selectedMedia(data.media[0].gif.url);
   };
 
-  setArrayList = response => {
+  setArrayList = (response) => {
     if (response.data.results.length > 0) {
       let leftlist = [
         ...this.state.leftlist,
@@ -78,34 +82,34 @@ class GifsComponent extends Component {
         ...this.state.rightlist,
         ...response.data.results.slice(
           response.data.results.length / 2,
-          response.data.results.length,
+          response.data.results.length
         ),
       ];
-      this.setState({leftlist: leftlist});
-      this.setState({rightlist: rightlist});
+      this.setState({ leftlist: leftlist });
+      this.setState({ rightlist: rightlist });
     }
   };
 
-  searchGifData = query => {
-    this.setState({searchGif: query});
-    this.setState({gifsList: []});
-    this.setState({leftlist: []});
-    this.setState({rightlist: []});
-    this.setState({next: ''});
+  searchGifData = (query) => {
+    this.setState({ searchGif: query });
+    this.setState({ gifsList: [] });
+    this.setState({ leftlist: [] });
+    this.setState({ rightlist: [] });
+    this.setState({ next: "" });
     this.searchApi(query);
   };
 
   searchApi = () => {
     var config = {
-      method: 'get',
+      method: "get",
       url: `https://api.tenor.com/v1/search?q=${this.state.searchGif}&key=J8KEXNHQ3TNL&media_filter=minimal&ar_range=standard&limit=50`,
       headers: {},
     };
 
     axios(config)
-      .then(response => {
-        this.setState({gifsList: response.data.results});
-        this.setState({next: response.data.next});
+      .then((response) => {
+        this.setState({ gifsList: response.data.results });
+        this.setState({ next: response.data.next });
         this.setArrayList(response);
       })
       .catch(function (error) {
@@ -113,15 +117,16 @@ class GifsComponent extends Component {
       });
   };
 
-  renderItem = ({item, index}) => {
+  renderItem = ({ item, index }) => {
     return (
       <TouchableOpacity
         style={{
-          marginVertical: '1%',
-          backgroundColor: 'lightgrey',
-          marginBottom: '1%',
+          marginVertical: "1%",
+          backgroundColor: "lightgrey",
+          marginBottom: "1%",
         }}
-        onPress={() => this.handlePress(item)}>
+        onPress={() => this.handlePress(item)}
+      >
         <FastImage
           style={{
             width: windowWidth * 0.48,
@@ -141,18 +146,20 @@ class GifsComponent extends Component {
   render() {
     return (
       <>
-        <SafeAreaView style={{backgroundColor: '#008069'}}>
+        <SafeAreaView style={{ backgroundColor: "#008069" }}>
           <View
             style={{
-              flexDirection: 'row',
-              alignItems: 'center',
+              flexDirection: "row",
+              alignItems: "center",
               paddingVertical: 5,
-              paddingBottom: '7%',
-            }}>
+              paddingBottom: "7%",
+            }}
+          >
             <TouchableOpacity
               onPress={() => this.props.onSetMediaType(null)}
-              style={{paddingHorizontal: '2%'}}>
-              <FontAwesome name={'arrow-left'} size={20} color={'white'} />
+              style={{ paddingHorizontal: "2%" }}
+            >
+              <FontAwesome5 name={"arrow-left"} size={20} color={"white"} />
             </TouchableOpacity>
             <TextInput
               style={styles.searchTextInput}
@@ -160,58 +167,61 @@ class GifsComponent extends Component {
               placeholderTextColor="white"
               value={this.state.searchGif}
               selectionColor="white"
-              onChangeText={text => this.searchGifData(text)}
+              onChangeText={(text) => this.searchGifData(text)}
             />
           </View>
         </SafeAreaView>
 
         <ScrollView
           removeClippedSubviews={true}
-          onScroll={({nativeEvent}) => {
+          onScroll={({ nativeEvent }) => {
             if (isCloseToBottom(nativeEvent)) {
-              this.state.searchGif = ''
+              this.state.searchGif = ""
                 ? this.paginationOftrending()
                 : this.searchApi();
             }
           }}
-          scrollEventThrottle={400}>
-          <View style={{flexDirection: 'row', justifyContent: 'space-evenly'}}>
+          scrollEventThrottle={400}
+        >
+          <View
+            style={{ flexDirection: "row", justifyContent: "space-evenly" }}
+          >
             <View>
               {this.state.leftlist.map((item, index) =>
-                this.renderItem({item, index}),
+                this.renderItem({ item, index })
               )}
             </View>
             <View>
               {this.state.rightlist.map((item, index) =>
-                this.renderItem({item, index}),
+                this.renderItem({ item, index })
               )}
             </View>
           </View>
           {this.state.next ? (
-            <ActivityIndicator size={'large'} color={'green'} />
+            <ActivityIndicator size={"large"} color={"green"} />
           ) : null}
         </ScrollView>
       </>
     );
   }
 }
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     user: state.auth.user,
     theme: state.auth.theme,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    onSetMediaType: data => {
+    onSetMediaType: (data) => {
       dispatch(setMediaType(data));
     },
-    onSetImagePreview: data => {
+    onSetImagePreview: (data) => {
       dispatch(setImagePreview(data));
     },
 
-    onSetPreviewType: data => {
+    onSetPreviewType: (data) => {
       dispatch(setPreviewType(data));
     },
   };
@@ -225,31 +235,31 @@ const styles = StyleSheet.create({
   },
   containerinner: {
     flex: 1,
-    flexWrap: 'wrap',
-    flexDirection: 'row',
+    flexWrap: "wrap",
+    flexDirection: "row",
   },
   gifContainer: {
     maxHeight: 160,
-    maxWidth: '31%',
-    margin: '1%',
-    backgroundColor: 'lightgrey',
+    maxWidth: "31%",
+    margin: "1%",
+    backgroundColor: "lightgrey",
   },
 
   galleryHeader: {
-    backgroundColor: '#008069',
-    padding: '5%',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    backgroundColor: "#008069",
+    padding: "5%",
+    flexDirection: "row",
+    justifyContent: "space-between",
     top: 0,
   },
 
   galleryHeaderButtonView: {
-    flexDirection: 'row',
-    justifyContent: 'center',
+    flexDirection: "row",
+    justifyContent: "center",
   },
   searchTextInput: {
-    width: '80%',
+    width: "80%",
     // height: Platform.OS == 'android' ? '1%' : '100%',s
-    color: 'white',
+    color: "white",
   },
 });

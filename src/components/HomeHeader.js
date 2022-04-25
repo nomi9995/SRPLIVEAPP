@@ -453,6 +453,8 @@ class HomeHeader extends React.PureComponent {
               messageupdateresponse={(data) =>
                 this.props.messageupdateresponse(data)
               }
+              starCallback={this.props.starCallback}
+              respondLaterCallback={this.props.respondLaterCallback}
             />
           </Popover>
         </SafeAreaView>
@@ -479,7 +481,12 @@ class HomeHeader extends React.PureComponent {
               />
             </View>
           ) : (
-            <View style={styles.header}>
+            <View
+              style={[
+                styles.header,
+                { paddingVertical: screen == "groupList" ? 20 : "2%" },
+              ]}
+            >
               <View style={styles.mainFlex}>
                 <View style={styles.rowDirectionFlex}>
                   {screen === "message" ||
@@ -683,7 +690,7 @@ const styles = StyleSheet.create({
   header: {
     justifyContent: "space-between",
     backgroundColor: "#008069",
-    paddingVertical: "2%",
+    // paddingVertical: "2%",
   },
   header1: {
     justifyContent: "space-between",

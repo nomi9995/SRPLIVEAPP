@@ -1466,7 +1466,7 @@ class MessageBubble extends React.Component {
                     <Text
                       style={{
                         position: "absolute",
-                        bottom: 0,
+                        bottom: 3,
                         left: 10,
                         color: "white",
                         fontSize: 10,
@@ -1499,7 +1499,7 @@ class MessageBubble extends React.Component {
                     <Text
                       style={{
                         position: "absolute",
-                        bottom: 0,
+                        bottom: 3,
                         left: 10,
                         color: "white",
                         fontSize: 10,
@@ -1595,7 +1595,7 @@ class MessageBubble extends React.Component {
                   <Text
                     style={{
                       position: "absolute",
-                      bottom: 0,
+                      bottom: 3,
                       left: 10,
                       color: "white",
                       fontSize: 10,
@@ -1625,7 +1625,7 @@ class MessageBubble extends React.Component {
                   <Text
                     style={{
                       position: "absolute",
-                      bottom: 0,
+                      bottom: 3,
                       left: 10,
                       color: "white",
                       fontSize: 10,
@@ -1726,7 +1726,7 @@ class MessageBubble extends React.Component {
                     <Text
                       style={{
                         position: "absolute",
-                        bottom: 0,
+                        bottom: 3,
                         left: 10,
                         color: "white",
                         fontSize: 10,
@@ -1759,7 +1759,7 @@ class MessageBubble extends React.Component {
                     <Text
                       style={{
                         position: "absolute",
-                        bottom: 0,
+                        bottom: 3,
                         left: 10,
                         color: "white",
                         fontSize: 10,
@@ -2027,7 +2027,9 @@ class MessageBubble extends React.Component {
               style={styles[this.props.position].timeText}
             />
           )}
-          {this.props.position === "right" && this.renderTicks()}
+          <View style={{ marginBottom: 4 }}>
+            {this.props.position === "right" && this.renderTicks()}
+          </View>
         </View>
       );
     }
@@ -2434,11 +2436,13 @@ const styles = {
     },
     timeText: {
       marginRight: 10,
+      marginBottom: 2,
       fontSize: 10,
       color: "grey",
     },
     timeTextImage: {
       marginRight: 10,
+      marginBottom: 2,
       fontSize: 10,
       color: "grey",
     },
@@ -2593,11 +2597,13 @@ const styles = {
     },
     timeText: {
       marginRight: 2,
+      marginBottom: 2,
       fontSize: 10,
       color: "grey",
     },
     timeTextImage: {
       marginRight: 10,
+      marginBottom: 2,
       fontSize: 10,
       color: "grey",
     },
