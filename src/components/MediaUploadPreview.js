@@ -196,7 +196,7 @@ class MediaUploadPreview extends React.Component {
             </TouchableOpacity>
             {selectedMedia.length > 1 && (
               <TouchableOpacity
-                onPress={() => alert("Delete")}
+                onPress={() => this.props.deleteMedia(this.state.selected)}
                 disabled={this.props.mediaUploadState}
                 style={styles.trashBtn}
               >

@@ -277,13 +277,13 @@ export const onDownload = {
         name = `/${names[index]}`;
       } else if (type === 6) {
         url = appConfig.localPath + "Files/Sent";
-        name = `/${names[index].name}`;
+        name = `/${names[index]?.name}`;
       } else if (type === 7) {
         url = appConfig.localPath + "Audios/Sent";
-        name = `/${names[index].name}`;
+        name = `/${names[index]?.name}`;
       } else if (type === 11) {
         url = appConfig.localPath + "Videos/Sent";
-        name = `/${names[index].name}`;
+        name = `/${names[index]?.name}`;
       }
 
       onDownload.checkPermission().then((isPermitted) => {
@@ -403,13 +403,13 @@ export const onDownload = {
         name = `/${names[index]}`;
       } else if (type === 6) {
         url = fs.dirs.DocumentDir + "/srp_live/Files/Sent";
-        name = `/${names[index].name}`;
+        name = `/${names[index]?.name}`;
       } else if (type === 7) {
         url = fs.dirs.DocumentDir + "/srp_live/Audios/Sent";
-        name = `/${names[index].name}`;
+        name = `/${names[index]?.name}`;
       } else if (type === 11) {
         url = fs.dirs.DocumentDir + "/srp_live/Videos/Sent";
-        name = `/${names[index].name}`;
+        name = `/${names[index]?.name}`;
       }
 
       RNFetchBlob.fs.isDir(url).then((isDir) => {

@@ -446,6 +446,13 @@ class MediaUpload extends Component {
       });
   };
 
+  deleteMedia = (indx) => {
+    let dummyArray = [...this.state.selectedMedia];
+    this.setState({
+      selectedMedia: dummyArray.filter((item, index) => index != indx),
+    });
+  };
+
   cameraBackButton = () => {
     if (this.props.statusState) {
       this.props.onSetMediaType(null);
@@ -572,6 +579,7 @@ class MediaUpload extends Component {
             selectedMedia={this.state.selectedMedia}
             previewVisible={this.props.imagePreview}
             messageTypeState={this.state.messageTypeState}
+            deleteMedia={this.deleteMedia}
             onUploadMedia={(imgs, caption) => {
               if (!this.props.statusState) {
                 this.compressMedia(imgs, caption);
