@@ -918,6 +918,7 @@ class MessageScreen extends Component {
         ) : (
           <TouchableOpacity
             style={styles.container}
+            disabled={!this.props.mediaOptionsOpen}
             activeOpacity={1}
             onPress={() => this.props.onSetMediaOptionsOpen(false)}
           >

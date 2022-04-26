@@ -28,7 +28,7 @@ import {
   MessagesQuieries,
 } from "../../../database/services/Services";
 //Redux
-import { setRenderState } from "../../../store/actions";
+import { setRenderState, setAuthUser } from "../../../store/actions";
 
 let offset = 0;
 class RecentList extends Component {
@@ -147,10 +147,10 @@ class RecentList extends Component {
             "This user is already logged in on another device.",
             [
               {
-                text: "OK",
+                text: "Use Here",
                 onPress: () => {
                   this.props.onSetAuthUser(null);
-                  this.props.navigation.replace("LoginScreen");
+                  this.props.navProps.navigation.replace("LoginScreen");
                 },
               },
             ]
@@ -287,6 +287,9 @@ const mapDispatchToProps = (dispatch) => {
   return {
     onSetRenderState: (data) => {
       dispatch(setRenderState(data));
+    },
+    onSetAuthUser: (user) => {
+      dispatch(setAuthUser(user));
     },
   };
 };
