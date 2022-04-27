@@ -199,6 +199,7 @@ class AudioMessage extends React.PureComponent {
         return res.json();
       })
       .then((audio) => {
+        this.props.onCancelAudio();
         this.setState({ isSending: false });
         let obj = {
           name: audio.data.audios[0].name,
@@ -206,7 +207,6 @@ class AudioMessage extends React.PureComponent {
           size: audio.data.audios[0].size,
           duration: file.duration,
         };
-        this.props.onCancelAudio();
         this.props.sendAudioMessage(JSON.stringify(obj));
       })
       .catch((err) => {

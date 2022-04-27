@@ -683,6 +683,7 @@ class MessageBubble extends React.Component {
       let showLink = JSON.parse(this.props.currentMessage.message);
       return (
         <TouchableOpacity
+          onLongPress={this.longPressAction}
           style={styles.messageLinkFlex}
           onPress={() => Linking.openURL(showLink.url)}
         >
@@ -703,6 +704,7 @@ class MessageBubble extends React.Component {
         let showLinkForwardMsg = JSON.parse(showLink.message);
         return (
           <TouchableOpacity
+            onLongPress={this.longPressAction}
             style={styles.messageLinkFlex}
             onPress={() => Linking.openURL(showLinkForwardMsg.url)}
           >
@@ -1028,7 +1030,7 @@ class MessageBubble extends React.Component {
                 style={styles.audioPlayPauseBtnStyle}
                 onPress={() => this.downloadMedia("Audios")}
               >
-                <Octicons name={"download"} size={20} color={"#000"} />
+                <Octicons name={"download"} size={22} color={"#000"} />
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
@@ -1037,7 +1039,7 @@ class MessageBubble extends React.Component {
               >
                 <FontAwesome
                   name={this.state.audio_played ? "pause" : "play"}
-                  size={20}
+                  size={22}
                   color={"#000"}
                 />
               </TouchableOpacity>
@@ -1160,7 +1162,7 @@ class MessageBubble extends React.Component {
                   style={styles.audioPlayPauseBtnStyle}
                   onPress={() => this.downloadMedia("Audios")}
                 >
-                  <Octicons name={"download"} size={20} color={"#000"} />
+                  <Octicons name={"download"} size={22} color={"#000"} />
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity
@@ -1169,7 +1171,7 @@ class MessageBubble extends React.Component {
                 >
                   <FontAwesome
                     name={this.state.audio_played ? "pause" : "play"}
-                    size={20}
+                    size={22}
                     color={"#000"}
                   />
                 </TouchableOpacity>
@@ -1379,7 +1381,7 @@ class MessageBubble extends React.Component {
                   style={styles.audioPlayPauseBtnStyle}
                   onPress={() => this.downloadMedia("Audios")}
                 >
-                  <Octicons name={"download"} size={20} color={"#000"} />
+                  <Octicons name={"download"} size={22} color={"#000"} />
                 </TouchableOpacity>
               ) : (
                 <TouchableOpacity
@@ -1388,7 +1390,7 @@ class MessageBubble extends React.Component {
                 >
                   <FontAwesome
                     name={this.state.audio_played ? "pause" : "play"}
-                    size={20}
+                    size={22}
                     color={"#000"}
                   />
                 </TouchableOpacity>
@@ -1478,15 +1480,23 @@ class MessageBubble extends React.Component {
                 ) : (
                   <>
                     <TouchableOpacity
+                      onLongPress={this.longPressAction}
                       onPress={() => {
-                        let path =
-                          this.props.position === "left"
-                            ? video?.name
-                            : appConfig.videoImagePath + video?.name;
-                        this.props.navProps.navigate("MessagePreview", {
-                          messageType: "Video",
-                          videoPath: path,
-                        });
+                        if (this.props.longPress.length !== 0) {
+                          this.props.onSetOnLongPress([
+                            this.props.currentMessage,
+                            ...this.props.longPress,
+                          ]);
+                        } else {
+                          let path =
+                            this.props.position === "left"
+                              ? video?.name
+                              : appConfig.videoImagePath + video?.name;
+                          this.props.navProps.navigate("MessagePreview", {
+                            messageType: "Video",
+                            videoPath: path,
+                          });
+                        }
                       }}
                       style={styles.videoPlayIcon}
                     >
@@ -1607,12 +1617,20 @@ class MessageBubble extends React.Component {
               ) : (
                 <>
                   <TouchableOpacity
+                    onLongPress={this.longPressAction}
                     onPress={() => {
-                      let path = video?.name;
-                      this.props.navProps.navigate("MessagePreview", {
-                        messageType: "Video",
-                        videoPath: path,
-                      });
+                      if (this.props.longPress.length !== 0) {
+                        this.props.onSetOnLongPress([
+                          this.props.currentMessage,
+                          ...this.props.longPress,
+                        ]);
+                      } else {
+                        let path = video?.name;
+                        this.props.navProps.navigate("MessagePreview", {
+                          messageType: "Video",
+                          videoPath: path,
+                        });
+                      }
                     }}
                     style={styles.videoPlayIcon}
                   >
@@ -1738,15 +1756,23 @@ class MessageBubble extends React.Component {
                 ) : (
                   <>
                     <TouchableOpacity
+                      onLongPress={this.longPressAction}
                       onPress={() => {
-                        let path =
-                          this.props.position === "left"
-                            ? video?.name
-                            : appConfig.videoImagePath + video?.name;
-                        this.props.navProps.navigate("MessagePreview", {
-                          messageType: "Video",
-                          videoPath: path,
-                        });
+                        if (this.props.longPress.length !== 0) {
+                          this.props.onSetOnLongPress([
+                            this.props.currentMessage,
+                            ...this.props.longPress,
+                          ]);
+                        } else {
+                          let path =
+                            this.props.position === "left"
+                              ? video?.name
+                              : appConfig.videoImagePath + video?.name;
+                          this.props.navProps.navigate("MessagePreview", {
+                            messageType: "Video",
+                            videoPath: path,
+                          });
+                        }
                       }}
                       style={styles.videoPlayIcon}
                     >
@@ -2307,7 +2333,7 @@ const styles = {
 
   playerContentStyle: {
     position: "absolute",
-    width: "98%",
+    width: "97%",
     height: "100%",
     flexDirection: "row",
   },
@@ -2317,6 +2343,7 @@ const styles = {
     width: "10%",
     alignItems: "center",
     justifyContent: "center",
+    marginRight: 2,
   },
 
   seekSliderContainerStyle: { width: "76%" },
@@ -2344,7 +2371,7 @@ const styles = {
     width: 40,
     height: 40,
     borderRadius: 20,
-    marginLeft: 3,
+    marginLeft: 4,
   },
 
   micIcon: {

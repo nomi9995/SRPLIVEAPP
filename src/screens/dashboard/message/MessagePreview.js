@@ -49,6 +49,13 @@ class MessagePreview extends Component {
   };
 
   render() {
+    let imgs = [];
+    for (var i = 0; i < this.props?.route.params.sliderState.length; i++) {
+      imgs.push({
+        url: this.props?.route.params.sliderState[i],
+      });
+    }
+
     return (
       <>
         <SafeAreaView style={{ backgroundColor: "#000" }}></SafeAreaView>
@@ -93,20 +100,23 @@ class MessagePreview extends Component {
             >
               <Ionicons name="close" size={30} color={"#fff"} />
             </TouchableOpacity>
-            <ImageViewer
-              // sliderBoxHeight={'100%'}
-              // resizeMode="contain"
-              // images={this.props?.route.params.sliderState}
-              imageUrls={this.props?.route.params.sliderState?.map((url) => ({
-                url,
-              }))}
-              index={0}
-              // menus={null}
-              // style={{ width: "100%", height: "100%", flex: 1 }}
-              // onLongPress={() => alert('longpress!')}
-              // imageWidth={200}
-              // imageHeight={200}
-            />
+            {imgs.length > 0 && (
+              <ImageViewer
+                // sliderBoxHeight={'100%'}
+                // resizeMode="contain"
+                // images={this.props?.route.params.sliderState}
+                // imageUrls={this.props?.route.params.sliderState?.map((url) => ({
+                //   url,
+                // }))}
+                imageUrls={imgs}
+                index={0}
+                // menus={null}
+                // style={{ width: "100%", height: "100%", flex: 1 }}
+                // onLongPress={() => alert('longpress!')}
+                // imageWidth={200}
+                // imageHeight={200}
+              />
+            )}
           </View>
         )}
       </>
