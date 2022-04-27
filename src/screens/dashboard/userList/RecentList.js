@@ -277,7 +277,6 @@ const mapStateToProps = (state) => {
     theme: state.theme.theme,
     user: state.auth.user,
     scroll: state.stateHandler.scrollState,
-    reloader: state.stateHandler.setreloader,
     statusState: state.stateHandler.statusState,
     renderstate: state.stateHandler.renderstate,
   };

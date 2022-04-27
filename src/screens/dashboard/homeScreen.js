@@ -2,10 +2,7 @@ import React, { Component } from "react";
 import {
   View,
   StyleSheet,
-  Text,
-  ActivityIndicator,
   PermissionsAndroid,
-  Image,
   Dimensions,
   TouchableOpacity,
 } from "react-native";
@@ -119,64 +116,41 @@ class homeScreen extends Component {
     if (index === 1) name = "camera";
     else name = "comment-alt";
 
-    return (
+    return this.props.statusState === true ? (
+      <MediaUpload onBack={() => this.setState({ index: 1 })} />
+    ) : (
       <>
-        {this.props.reloader ? (
-          <View
-            style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
-          >
-            <Image
-              source={require("../../assets/srp.png")}
-              style={{ height: 100, width: 230, marginBottom: "20%" }}
+        <HomeHeader
+          screen="home"
+          navProps={this.props}
+          userData={this.props?.user?.user}
+          optionPress={this.openPopover}
+          chatUserOnlineStatus={null}
+          typingStatus={false}
+        />
+        {this.props.searchState && this.props.searchShow ? (
+          <SearchList navProps={this.props} />
+        ) : !this.props.searchState && !this.props.searchShow ? (
+          <View style={styles.container}>
+            <TabView
+              navigationState={{ index, routes }}
+              renderTabBar={this.renderTabBar}
+              renderScene={this.renderScene}
+              onIndexChange={(data) => {
+                this.setState({ index: data });
+              }}
+              initialLayout={{ width: Dimensions.get("window").width }}
             />
-            <ActivityIndicator size={"large"} color={"green"} />
-            <View>
-              <Text style={{ color: "gray" }}>
-                Please Wait while fetching data for you
-              </Text>
-            </View>
           </View>
-        ) : (
-          <>
-            {this.props.statusState === true ? (
-              <MediaUpload onBack={() => this.setState({ index: 1 })} />
-            ) : (
-              <>
-                <HomeHeader
-                  screen="home"
-                  navProps={this.props}
-                  userData={this.props?.user?.user}
-                  optionPress={this.openPopover}
-                  chatUserOnlineStatus={null}
-                  typingStatus={false}
-                />
-                {this.props.searchState && this.props.searchShow ? (
-                  <SearchList navProps={this.props} />
-                ) : !this.props.searchState && !this.props.searchShow ? (
-                  <View style={styles.container}>
-                    <TabView
-                      navigationState={{ index, routes }}
-                      renderTabBar={this.renderTabBar}
-                      renderScene={this.renderScene}
-                      onIndexChange={(data) => {
-                        this.setState({ index: data });
-                      }}
-                      initialLayout={{ width: Dimensions.get("window").width }}
-                    />
-                  </View>
-                ) : null}
-                <TouchableOpacity
-                  style={styles.editButtonPosition}
-                  onPress={() => this.onBottomButtonPress()}
-                >
-                  <View style={styles.editButton}>
-                    <FontAwesome5 name={name} size={27} color={"white"} />
-                  </View>
-                </TouchableOpacity>
-              </>
-            )}
-          </>
-        )}
+        ) : null}
+        <TouchableOpacity
+          style={styles.editButtonPosition}
+          onPress={() => this.onBottomButtonPress()}
+        >
+          <View style={styles.editButton}>
+            <FontAwesome5 name={name} size={27} color={"white"} />
+          </View>
+        </TouchableOpacity>
       </>
     );
   }
@@ -189,7 +163,6 @@ const mapStateToProps = (state) => {
     appCloseTime: state.stickers.appCloseTime,
     searchState: state.stateHandler.searchState,
     statusState: state.stateHandler.statusState,
-    reloader: state.stateHandler.setreloader,
     searchShow: state.stateHandler.searchShow,
   };
 };

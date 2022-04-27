@@ -1,28 +1,25 @@
 import React, { Component } from "react";
 import {
   View,
-  StyleSheet,
   Text,
-  TextInput,
-  TouchableOpacity,
-  KeyboardAvoidingView,
   Image,
-  ActivityIndicator,
-  Keyboard,
-  TouchableWithoutFeedback,
-  Platform,
   Alert,
+  Keyboard,
+  Platform,
+  TextInput,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
 } from "react-native";
 
-import { White } from "../../themes/constantColors";
+import Toast from "react-native-simple-toast";
+import AsyncStorage from "@react-native-community/async-storage";
 import FontAwesome from "react-native-vector-icons/dist/FontAwesome5";
 import FlashMessage, { showMessage } from "react-native-flash-message";
-import AsyncStorage from "@react-native-community/async-storage";
-import RNRestart from "react-native-restart";
-import Toast from "react-native-simple-toast";
 
 //Redux
-import { setAuthUser, setStickers, setReloader } from "../../store/actions";
 import { connect } from "react-redux";
 
 //Services
@@ -33,17 +30,14 @@ import ChatServices from "../../services/ChatServices";
 import {
   MessagesQuieries,
   ChatUsersQuieries,
-  LogoutQueries,
 } from "../../database/services/Services";
 
 class LoginScreen extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      email: "647@srp.com.tr",
+      email: "639@srp.com.tr",
       password: "123456",
-      AuthData: null,
-      scrollCheck: false,
     };
   }
   componentDidMount = () => {
@@ -52,14 +46,16 @@ class LoginScreen extends Component {
   };
 
   onLogin = () => {
+    Keyboard.dismiss();
     showMessage({
       message: "Please Wait!",
       type: "info",
     });
-    this.setState({ loader: true });
+
     let email = this.state.email;
     let password = this.state.password;
     let device = 2;
+
     UserService.login({ email, password, device }, true).then((response) => {
       this.PushNotification(response);
       if (response.data.errors.length === 0) {
@@ -70,14 +66,11 @@ class LoginScreen extends Component {
         });
         Toast.show("Login Successfully.", Toast.SHORT);
 
-        this.setState({ AuthData: response.data.data });
-        ChatServices.stickerList(response.data.data.token).then((res) => {
-          this.props.onSetStickers(res.data.data.stickers);
+        this.props.navigation.replace("LoadingMessages", {
+          token: response.data.data,
         });
-        this.localDbMethod();
       } else {
         showMessage({ message: "Login Failed", type: "warning" });
-        this.setState({ loader: false });
         if (response.data.errors[0]?.password !== undefined) {
           Alert.alert(response.data.errors[0]?.password[0]);
         } else if (response.data.errors[0]?.email !== undefined) {
@@ -85,88 +78,6 @@ class LoginScreen extends Component {
         }
       }
     });
-  };
-
-  localDbMethod = () => {
-    ChatUsersQuieries.create("users_list_table");
-    LogoutQueries.create("logout_time_table");
-    MessagesQuieries.create("messages_list_table");
-
-    let token = this.state.AuthData.token;
-    let payload = {
-      after: this.state.AuthData.user.created_at,
-    };
-
-    ChatServices.updatedMessages(payload, token).then((res) => {
-      let tableName = "messages_list_table";
-      let resp = res;
-      let onlineUserId = this.state.AuthData.user.id;
-
-      MessagesQuieries.insertAndUpdateMessageList(
-        { tableName, resp, onlineUserId },
-        (res3) => {
-          this.getUpdateMessageList();
-        }
-      );
-    });
-  };
-
-  getUpdateMessageList = () => {
-    let token = this.state.AuthData.token;
-    ChatServices.ALLUserList(token).then((res, err) => {
-      this.props.onSetAuthUser(this.state.AuthData);
-
-      ChatUsersQuieries.insertAndUpdateUserListonlogin(
-        "users_list_table",
-        res.data.data.chat_list,
-        this.props.user.user.id,
-        (res4) => {
-          if (res4) {
-            this.addRecentListToDB();
-          }
-        }
-      );
-    });
-  };
-
-  addRecentListToDB = () => {
-    this.setState({ DataLoader: true });
-    let user_list_section = "recent";
-    let page = this.state.pageNum;
-    let token = this.props.user?.token;
-    ChatServices.getUserList({ user_list_section, page }, token).then(
-      async (res) => {
-        if (res.data.errors == "Unauthorized") {
-          Alert.alert(
-            "Unauthorized",
-            "This user is already logged in on another device.",
-            [
-              {
-                text: "OK",
-                onPress: () => {
-                  this.props.onSetAuthUser(null);
-                  this.props.navigation.replace("LoginScreen");
-                },
-              },
-            ]
-          );
-        } else {
-          if (page > 1) {
-          } else {
-            ChatUsersQuieries.insertAndUpdateUserListonlogin(
-              "users_list_table",
-              res.data.data.chat_list,
-              this.props.user.user.id,
-              (res) => {
-                this.setState({ loader: false });
-                this.props.onSetReloader(false);
-                RNRestart.Restart();
-              }
-            );
-          }
-        }
-      }
-    );
   };
 
   PushNotification = async (response) => {
@@ -181,7 +92,7 @@ class LoginScreen extends Component {
   };
 
   render() {
-    const { theme, navigation } = this.props;
+    const { theme } = this.props;
     const keyboardVerticalOffset = Platform.OS === "ios" ? -60 : 0;
 
     return (
@@ -284,36 +195,16 @@ class LoginScreen extends Component {
 const mapStateToProps = (state) => {
   return {
     theme: state.theme.theme,
-    user: state.auth.user,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
-  return {
-    onSetAuthUser: (user) => {
-      dispatch(setAuthUser(user));
-    },
-    onSetStickers: (stickers) => {
-      dispatch(setStickers(stickers));
-    },
-
-    onSetReloader: (reloader) => {
-      dispatch(setReloader(reloader));
-    },
-  };
+  return {};
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(LoginScreen);
 
 const styles = StyleSheet.create({
-  icon: {
-    width: 120,
-    height: 90,
-    marginTop: "20%",
-    alignSelf: "center",
-    marginBottom: "10%",
-  },
-
   titleText: {
     marginTop: 45,
     fontSize: 18,

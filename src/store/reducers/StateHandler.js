@@ -37,9 +37,6 @@ export default (state = StateHandler, action) => {
     case ACTION_TYPES.STATUS_STATE:
       return { ...state, statusState: payload };
 
-    case ACTION_TYPES.SET_RELOADER:
-      return { ...state, setreloader: payload };
-
     case ACTION_TYPES.PREVIEW_TYPE:
       return { ...state, previewType: payload };
 

@@ -1,38 +1,42 @@
-import React from 'react';
-import {StatusBar, AppState, Linking} from 'react-native';
-import {NavigationContainer} from '@react-navigation/native';
-import {createStackNavigator} from '@react-navigation/stack';
-import moment from 'moment';
+import React from "react";
+import { StatusBar, AppState } from "react-native";
+import { NavigationContainer } from "@react-navigation/native";
+import { createStackNavigator } from "@react-navigation/stack";
+import moment from "moment";
+
 //Screens
-import InstructionScreen from '../src/screens/auth/instructionScreen';
-import LoginScreen from './screens/auth/LoginScreen';
-import homeScreen from './screens/dashboard/homeScreen';
-import MessageScreen from './screens/dashboard/message/messageScreen';
-import TestMessageScreen from './screens/dashboard/message/TestMessageScreen';
-import Profile from './screens/dashboard/profile/Profile';
-import AllList from './screens/dashboard/userList/AllList';
-import GroupList from './screens/dashboard/userList/groupList';
-import ForwardContactList from './screens/dashboard/userList/ForwardContactList';
-import ChangePassword from './screens/auth/ChangePssword';
-import MediaLinkDoc from './screens/dashboard/profile/MediaLinkDoc';
-import StarredList from './screens/messageActions/StarredList';
-import AcknowledgementMessage from './screens/messageActions/AcknowledgementMessage';
-import RespondLater from './screens/messageActions/RespondLater';
-import NotificationList from './screens/messageActions/NotificationList';
-import Favourite from './screens/messageActions/Favourite';
-import EditProfile from './screens/auth/EditProfile';
-import ChatUserProfile from './screens/dashboard/profile/ChatUserProfile';
-import ForgotPassword from './screens/auth/ForgotPassword';
-import DataAndStorge from './screens/dashboard/profile/DataAndStorge';
-import StatusViewer from './screens/dashboard/storyTab/StatusViewerScreen';
-import MyStoryView from './screens/dashboard/storyTab/MyStoryView';
-import MessagePreview from './screens/dashboard/message/MessagePreview';
-import SearchList from './screens/dashboard/search/SearchListPage';
-import ForwardContactListSearch from './screens/dashboard/search/forwardContactList';
-import ProfileImagePreviewscreen from './screens/dashboard/profile/profileImage';
+import InstructionScreen from "../src/screens/auth/instructionScreen";
+import LoginScreen from "./screens/auth/LoginScreen";
+import LoadingMessages from "./screens/auth/LoadingMessages";
+
+import homeScreen from "./screens/dashboard/homeScreen";
+import MessageScreen from "./screens/dashboard/message/messageScreen";
+import TestMessageScreen from "./screens/dashboard/message/TestMessageScreen";
+import Profile from "./screens/dashboard/profile/Profile";
+import AllList from "./screens/dashboard/userList/AllList";
+import GroupList from "./screens/dashboard/userList/groupList";
+import ForwardContactList from "./screens/dashboard/userList/ForwardContactList";
+import ChangePassword from "./screens/auth/ChangePssword";
+import MediaLinkDoc from "./screens/dashboard/profile/MediaLinkDoc";
+import StarredList from "./screens/messageActions/StarredList";
+import AcknowledgementMessage from "./screens/messageActions/AcknowledgementMessage";
+import RespondLater from "./screens/messageActions/RespondLater";
+import NotificationList from "./screens/messageActions/NotificationList";
+import Favourite from "./screens/messageActions/Favourite";
+import EditProfile from "./screens/auth/EditProfile";
+import ChatUserProfile from "./screens/dashboard/profile/ChatUserProfile";
+import ForgotPassword from "./screens/auth/ForgotPassword";
+import DataAndStorge from "./screens/dashboard/profile/DataAndStorge";
+import StatusViewer from "./screens/dashboard/storyTab/StatusViewerScreen";
+import MyStoryView from "./screens/dashboard/storyTab/MyStoryView";
+import MessagePreview from "./screens/dashboard/message/MessagePreview";
+import SearchList from "./screens/dashboard/search/SearchListPage";
+import ForwardContactListSearch from "./screens/dashboard/search/forwardContactList";
+import ProfileImagePreviewscreen from "./screens/dashboard/profile/profileImage";
+
 //Redux
-import {setAppCloseTime} from './store/actions';
-import {connect} from 'react-redux';
+import { setAppCloseTime } from "./store/actions";
+import { connect } from "react-redux";
 
 let RootStack = createStackNavigator();
 let DashboardStack = createStackNavigator();
@@ -95,20 +99,17 @@ class AppNavigator extends React.PureComponent {
   }
 
   setAppCloseTimeRedux = () => {
-    AppState.addEventListener('change', async state => {
-      let date = moment.utc().zone('+0100').format('YYYY-MM-DD HH:mm:ss');
-      if (state === 'background') {
+    AppState.addEventListener("change", async (state) => {
+      let date = moment.utc().zone("+0100").format("YYYY-MM-DD HH:mm:ss");
+      if (state === "background") {
         this.props.onSetAppCloseTime(date);
-      } else if (state === 'inactive') {
+      } else if (state === "inactive") {
         this.props.onSetAppCloseTime(date);
       }
     });
   };
 
   render() {
-    if (false) {
-      return <SplashScreen />;
-    }
     return (
       <>
         <StatusBar
@@ -125,6 +126,10 @@ class AppNavigator extends React.PureComponent {
               />
               <RootStack.Screen name="LoginScreen" component={LoginScreen} />
               <RootStack.Screen
+                name="LoadingMessages"
+                component={LoadingMessages}
+              />
+              <RootStack.Screen
                 name="ForgotPassword"
                 component={ForgotPassword}
               />
@@ -132,7 +137,8 @@ class AppNavigator extends React.PureComponent {
           ) : (
             <DashboardStack.Navigator
               mode="modal"
-              screenOptions={navigationOption()}>
+              screenOptions={navigationOption()}
+            >
               <DashboardStack.Screen name="Home" component={MainStackScreen} />
               <DashboardStack.Screen
                 name="StarredList"
@@ -159,15 +165,15 @@ class AppNavigator extends React.PureComponent {
   }
 }
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     user: state.auth.user,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
-    onSetAppCloseTime: time => {
+    onSetAppCloseTime: (time) => {
       dispatch(setAppCloseTime(time));
     },
   };

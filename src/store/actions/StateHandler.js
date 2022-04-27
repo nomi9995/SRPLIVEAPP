@@ -55,11 +55,6 @@ export const setStatusState = (payload) => ({
   payload: payload,
 });
 
-export const setReloader = (payload) => ({
-  type: ACTION_TYPES.SET_RELOADER,
-  payload: payload,
-});
-
 export const setPreviewType = (payload) => ({
   type: ACTION_TYPES.PREVIEW_TYPE,
   payload: payload,

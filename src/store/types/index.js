@@ -24,7 +24,6 @@ export const SEARCH_QUERY = "SEARCH_QUERY";
 export const SEARCH_STATE = "SEARCH_STATE";
 export const SEARCH_SHOW = "SEARCH_SHOW";
 export const STATUS_STATE = "STATUS_STATE";
-export const SET_RELOADER = "SET_RELOADER";
 export const PREVIEW_TYPE = "PREVIEW_TYPE";
 export const RENDER_STATE = "RENDER_STATE";
 export const MESSAGE_EDIT = "MESSAGE_EDIT";

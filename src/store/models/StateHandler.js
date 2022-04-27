@@ -10,7 +10,6 @@ export default {
   searchState: false,
   searchShow: false,
   statusState: false,
-  setreloader: false,
   previewType: null,
   renderstate: false,
   messageEdit: false,
