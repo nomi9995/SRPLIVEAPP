@@ -10,10 +10,9 @@ import {
   Animated,
   Platform,
   TouchableOpacity,
-  TouchableWithoutFeedback,
   Alert,
 } from "react-native";
-import { GiftedChat, Day } from "react-native-gifted-chat";
+import { GiftedChat } from "react-native-gifted-chat";
 import { socket } from "../../../sockets/connection";
 import { regex } from "../../../utils/regex";
 import Toast from "react-native-simple-toast";
@@ -94,6 +93,13 @@ class MessageScreen extends Component {
     } else {
       Alert.alert("Disoconnected server", "Connection Server error");
     }
+
+    this.setState({
+      offset: 0,
+      offsetBottom: 0,
+      initialIndex: 0,
+      isInverted: true,
+    });
 
     if (this.props.route.params.screen == "seacrhTab")
       this.getSearchOffset(this.props.route.params.selectedUser);
@@ -213,10 +219,11 @@ class MessageScreen extends Component {
     this.getAllMsgsFromDb();
   };
 
-  getAllMsgsFromDb = () => {
+  getAllMsgsFromDb = (isFromDownBtn = false) => {
     const { selectedUser } = this.props?.route?.params;
     const { offset, offsetBottom, isInverted } = this.state;
 
+    console.log("values: ", offset, offsetBottom, isInverted);
     let onlineUserId = this.props.user?.user.id;
     let chatUserId =
       selectedUser?.user_id === undefined
@@ -229,7 +236,7 @@ class MessageScreen extends Component {
       { onlineUserId, chatUserId, isroom, offset: ofset },
       (res2) => {
         if (res2 !== null) {
-          this.setMessageAsGifted(res2, true);
+          this.setMessageAsGifted(res2, true, false, isFromDownBtn);
         }
       }
     );
@@ -319,12 +326,13 @@ class MessageScreen extends Component {
   setMessageAsGifted = async (
     data,
     isMsgReadFirst = false,
-    isSearchedData = false
+    isSearchedData = false,
+    isFromDownBtn
   ) => {
     const { selectedUser } = this.props?.route?.params;
     let dummyArray = [];
 
-    this.setState({ messages: [] });
+    // this.setState({ messages: [] });
 
     data.forEach((element) => {
       let message = regex.getMessages(
@@ -340,10 +348,22 @@ class MessageScreen extends Component {
     } else {
       if (this.state.isInverted) {
         let newState = [...dummyArray, ...this.state.messages];
-        this.setState({ messages: newState, isInverted: false });
+        this.setState({
+          messages: newState,
+          isInverted: false,
+          initialIndex: 0,
+        });
       } else {
         this.setState({ messages: [...this.state.messages, ...dummyArray] });
       }
+    }
+
+    if (isFromDownBtn) {
+      this.chatRef?._messageContainerRef?.current?.scrollToIndex({
+        index: 0,
+        animated: true,
+        viewPosition: 0,
+      });
     }
 
     this.props.onSetOnLongPress([]);
@@ -755,11 +775,13 @@ class MessageScreen extends Component {
       this.state.shouldScrollToIndex === true
     ) {
       this.setState({ shouldScrollToIndex: false });
-      this.chatRef?._messageContainerRef?.current?.scrollToIndex({
-        index: this.state.navIndex,
-        animated: true,
-        viewPosition: 0.5,
-      });
+      setTimeout(() => {
+        this.chatRef?._messageContainerRef?.current?.scrollToIndex({
+          index: this.state.navIndex,
+          animated: true,
+          viewPosition: 0.5,
+        });
+      }, 500);
 
       setTimeout(() => {
         this.setState({ highlightIndex: 0, navIndex: -1 });
@@ -830,14 +852,6 @@ class MessageScreen extends Component {
   messageUpdateResponse = (data) => {
     this.setMessageAsGifted(data);
   };
-
-  isCloseToTop({ layoutMeasurement, contentOffset, contentSize }) {
-    const paddingToTop = 20;
-    return (
-      contentSize.height - layoutMeasurement.height - paddingToTop <=
-      contentOffset.y
-    );
-  }
 
   isCloseToBottom = ({ contentOffset }) => {
     const paddingToBottom = 20;
@@ -978,31 +992,43 @@ class MessageScreen extends Component {
                     initialNumToRender: 20,
                     removeClippedSubviews: false,
                     maxToRenderPerBatch: 100,
+                    onEndReachedThreshold: 0.9,
+                    onStartReachedThreshold: 0.95,
 
-                    onScroll: async ({ nativeEvent }) => {
+                    onEndReached: async () => {
                       if (this.props.route.params.screen !== undefined) {
-                        if (this.isCloseToTop(nativeEvent)) {
-                          await this.setState({
-                            searchOffsetTop: this.state.searchOffsetTop + 40,
-                          });
+                        await this.setState({
+                          searchOffsetTop: this.state.searchOffsetTop + 40,
+                        });
+                        this.getSearchedMessages(
+                          this.props.route.params.selectedUser
+                        );
+                      } else {
+                        await this.setState({
+                          offset: this.state.offset + 100,
+                        });
+                        this.getAllMsgsFromDb();
+                      }
+                    },
+
+                    onStartReached: async () => {
+                      if (this.props.route.params.screen !== undefined) {
+                        await this.setState({
+                          searchOffsetBottom:
+                            this.state.searchOffsetBottom - 40,
+                          isInverted: true,
+                        });
+                        if (this.state.searchOffsetBottom > -40)
                           this.getSearchedMessages(
                             this.props.route.params.selectedUser
                           );
-                        }
                       } else {
-                        if (this.isCloseToTop(nativeEvent)) {
-                          await this.setState({
-                            offset: this.state.offset + 100,
-                          });
+                        await this.setState({
+                          offsetBottom: this.state.offsetBottom - 100,
+                          isInverted: true,
+                        });
+                        if (this.state.offsetBottom > -100)
                           this.getAllMsgsFromDb();
-                        } else if (this.isCloseToBottom(nativeEvent)) {
-                          await this.setState({
-                            offsetBottom: this.state.offsetBottom - 100,
-                            isInverted: true,
-                          });
-                          if (this.state.offsetBottom > -100)
-                            this.getAllMsgsFromDb();
-                        }
                       }
                     },
 
@@ -1028,7 +1054,7 @@ class MessageScreen extends Component {
                           initialIndex: 0,
                           isInverted: true,
                         });
-                        this.getAllMsgsFromDb();
+                        this.getAllMsgsFromDb(true);
                       } else {
                         this.chatRef?._messageContainerRef?.current?.scrollToIndex(
                           {
