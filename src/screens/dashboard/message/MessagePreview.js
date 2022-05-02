@@ -50,10 +50,12 @@ class MessagePreview extends Component {
 
   render() {
     let imgs = [];
-    for (var i = 0; i < this.props?.route.params.sliderState.length; i++) {
-      imgs.push({
-        url: this.props?.route.params.sliderState[i],
-      });
+    if (this.props?.route.params?.sliderState) {
+      for (var i = 0; i < this.props?.route.params.sliderState.length; i++) {
+        imgs.push({
+          url: this.props?.route.params.sliderState[i],
+        });
+      }
     }
 
     return (
@@ -100,7 +102,7 @@ class MessagePreview extends Component {
             >
               <Ionicons name="close" size={30} color={"#fff"} />
             </TouchableOpacity>
-            {imgs.length > 0 && (
+            {imgs && imgs.length > 0 && (
               <ImageViewer
                 // sliderBoxHeight={'100%'}
                 // resizeMode="contain"

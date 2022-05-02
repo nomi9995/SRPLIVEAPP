@@ -130,19 +130,42 @@ class MessageBubble extends React.Component {
 
   setMessagesFile = (showFile) => {
     let temp = [];
-    showFile.forEach((file) => {
-      onDownload.checkExistingMedia(file.name, "Files").then((res) => {
-        file.name =
-          res && this.props.position === "left"
-            ? Platform.OS === "ios"
-              ? `${fs.dirs.DocumentDir}/srp_live/Files/${file.name}`
-              : appConfig.localPath + "Files/" + file.name
-            : file.name;
-        file.isDownloaded = res;
-        temp.push(file);
-        this.setState({ filesArray: temp });
+    if (this.props.position === "left") {
+      showFile.forEach((file) => {
+        onDownload.checkExistingMedia(file.name, "Files").then((res) => {
+          file.name =
+            res && this.props.position === "left"
+              ? Platform.OS === "ios"
+                ? `${fs.dirs.DocumentDir}/srp_live/Files/${file.name}`
+                : appConfig.localPath + "Files/" + file.name
+              : file.name;
+          file.isDownloaded = res;
+          temp.push(file);
+          this.setState({ filesArray: temp });
+        });
       });
-    });
+    } else {
+      showFile.forEach((file) => {
+        onDownload
+          .checkExistingMediaSend(file.name, "Files")
+          .then(async (res) => {
+            if (res) {
+              file.name = res
+                ? Platform.OS === "ios"
+                  ? `${fs.dirs.DocumentDir}/srp_live/Files/Sent/${file.name}`
+                  : appConfig.localPath + "Files/Sent/" + file.name
+                : file.name;
+              file.isDownloaded = res;
+              temp.push(file);
+              this.setState({ filesArray: temp });
+            } else {
+              file.name = appConfig.filePath + file?.name;
+              temp.push(file);
+              this.setState({ filesArray: temp });
+            }
+          });
+      });
+    }
   };
 
   setMessagesInState = () => {
@@ -170,7 +193,7 @@ class MessageBubble extends React.Component {
         files.forEach((file) => {
           showFile.push(
             Object.assign(
-              { name: file },
+              { name: file.name },
               { isDownloaded: false },
               { isDownloading: false }
             )
@@ -771,7 +794,7 @@ class MessageBubble extends React.Component {
         ...this.props.longPress,
       ]);
     } else {
-      if (data.isDownloaded && this.props.position === "left") {
+      if (data.isDownloaded) {
         let url = data.name;
         try {
           await FileViewer.open(url, {

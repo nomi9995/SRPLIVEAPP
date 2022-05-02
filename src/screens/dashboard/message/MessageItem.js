@@ -5,11 +5,22 @@ import MessageBubble from "../../../components/MessageBubble";
 //Redux
 import { connect } from "react-redux";
 import moment from "moment";
+import { Animated, Platform } from "react-native";
 
 class MessageItem extends React.PureComponent {
   constructor(props) {
     super(props);
-    this.state = {};
+    this.state = {
+      smoothRender: new Animated.Value(0),
+    };
+  }
+
+  componentDidMount() {
+    Animated.timing(this.state.smoothRender, {
+      toValue: 1,
+      duration: Platform.OS === "ios" ? 225 : 275,
+      useNativeDriver: true,
+    }).start();
   }
 
   renderDay() {
@@ -71,14 +82,18 @@ class MessageItem extends React.PureComponent {
     let previousDate = moment(previousMessage.time).format("L");
     return (
       <>
-        <View
+        <Animated.View
           style={[
             styles[position].container,
             selctedMessageColor === null || selctedMessageColor === undefined
-              ? { backgroundColor: this.props.backgroundColor }
+              ? {
+                  backgroundColor: this.props.backgroundColor,
+                  opacity: this.state.smoothRender,
+                }
               : {
                   backgroundColor: "#C2DBDF",
                   borderRadius: 5,
+                  opacity: this.state.smoothRender,
                 },
           ]}
         >
@@ -89,7 +104,7 @@ class MessageItem extends React.PureComponent {
             isEdited={this.props.isEdited}
             keywords={keywords}
           />
-        </View>
+        </Animated.View>
         {currentDate !== previousDate && this.renderDay()}
       </>
     );

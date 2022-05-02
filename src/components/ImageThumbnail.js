@@ -36,8 +36,8 @@ export default class ImageThumbnail extends Component {
 
   setImagesInState = () => {
     let img = this.props?.images;
-    img.map((img) => {
-      this.state.imagesArray.push({ uri: img.uri, isDownloaded: false });
+    img.forEach((img) => {
+      this.state.imagesArray.push({ uri: img.uri, isDownloaded: true });
     });
   };
 
@@ -45,7 +45,7 @@ export default class ImageThumbnail extends Component {
     this.setState({ isDownloading: true });
     let imgArray = this.state?.imagesArray;
     if (Platform.OS == "android") {
-      imgArray.map((img) => {
+      imgArray.forEach((img) => {
         if (!img.isDownloaded) {
           onDownload.downloadFile(img.uri, "Images", (res) => {
             if (res) {
@@ -58,7 +58,7 @@ export default class ImageThumbnail extends Component {
         }
       });
     } else {
-      imgArray.map((img) => {
+      imgArray.forEach((img) => {
         if (!img.isDownloaded) {
           onDownload.downloadFileIos(img.uri, "Images", (res) => {
             if (res) {
@@ -76,7 +76,7 @@ export default class ImageThumbnail extends Component {
   checkExisingImages = () => {
     let imgArray = this.state?.imagesArray;
     if (this.props.msgPosition == "left") {
-      imgArray.map((img) => {
+      imgArray.forEach((img) => {
         onDownload.checkExistingMedia(img.uri, "Images").then((res) => {
           if (Platform.OS == "android") {
             let ind = this.state.imagesArray.indexOf(img);
@@ -96,7 +96,7 @@ export default class ImageThumbnail extends Component {
         });
       });
     } else {
-      imgArray.map((img) => {
+      imgArray.forEach((img) => {
         onDownload.checkExistingMediaSend(img.uri, "Images").then((res) => {
           if (Platform.OS == "android") {
             let ind = this.state.imagesArray.indexOf(img);
