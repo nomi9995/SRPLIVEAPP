@@ -330,52 +330,108 @@ class MediaUpload extends Component {
     let type = "";
     let path = "";
     let imgQual = 0.7;
-    let vidQual = 3;
+    let maxWidth = 800;
+    let vidQual = 4;
 
-    if (this.props.compressionQuality == "low") {
-      imgQual = 0.9;
-      vidQual = 3;
-    } else if (this.props.compressionQuality == "medium") {
-      imgQual = 0.7;
-      vidQual = 5;
-    } else if (this.props.compressionQuality == "high") {
-      imgQual = 0.5;
-      vidQual = 7;
-    }
+    if (
+      this.props.compressionQuality == "auto" ||
+      this.props.audioCompressionQuality == "auto" ||
+      this.props.videoCompressionQuality == "auto"
+    ) {
+      for (let index = 0; index < media.length; index++) {
+        const element = media[index];
+        path = element.source ? element.source : element.uri;
+        type = element.type.split("/")[0];
 
-    for (let index = 0; index < media.length; index++) {
-      const element = media[index];
-      path = element.source ? element.source : element.uri;
-      type = element.type.split("/")[0];
-
-      if (type == "image") {
         const options = {
-          quality: imgQual,
+          compressionMethod: "auto",
         };
-        const result = await Image.compress(path, options);
+        if (type == "image") {
+          const result = await Image.compress(path, options);
 
-        let obj = {
-          uri: result,
-          name: element.name,
-          type: element.type,
-        };
-        compressedMedia.push(obj);
-      } else if (type == "video") {
-        const options = {
-          bitrateMultiplier: vidQual,
-        };
-
-        const data = await ProcessingManager.compress(path, options);
-        let obj = {
-          uri: Platform.OS == "ios" ? data : data.source,
-          name: element.name,
-          type: element.type,
-        };
-        compressedMedia.push(obj);
+          let obj = {
+            uri: result,
+            name: element.name,
+            type: element.type,
+          };
+          compressedMedia.push(obj);
+        } else if (type == "video") {
+          const data = await Video.compress(path, options);
+          console.log("vvvv", data);
+          let obj = {
+            uri: data,
+            name: element.name,
+            type: element.type,
+          };
+          console.log("vvvv obj", obj);
+          compressedMedia.push(obj);
+        }
       }
+      this.setState({ isCompressing: false });
+      this.uploadMedia(compressedMedia, caption);
+    } else {
+      if (
+        this.props.compressionQuality == "low" ||
+        this.props.audioCompressionQuality == "low" ||
+        this.props.videoCompressionQuality == "low"
+      ) {
+        console.log("1");
+        imgQual = 0.9;
+        maxWidth = 1000;
+        vidQual = 6;
+      } else if (
+        this.props.compressionQuality == "medium" ||
+        this.props.audioCompressionQuality == "medium" ||
+        this.props.videoCompressionQuality == "medium"
+      ) {
+        imgQual = 0.7;
+        maxWidth = 800;
+        vidQual = 4;
+      } else if (
+        this.props.compressionQuality == "high" ||
+        this.props.audioCompressionQuality == "high" ||
+        this.props.videoCompressionQuality == "high"
+      ) {
+        imgQual = 0.5;
+        maxWidth = 500;
+        vidQual = 1;
+      }
+
+      for (let index = 0; index < media.length; index++) {
+        const element = media[index];
+        path = element.source ? element.source : element.uri;
+        type = element.type.split("/")[0];
+
+        if (type == "image") {
+          const options = {
+            maxWidth: maxWidth,
+            quality: imgQual,
+          };
+          const result = await Image.compress(path, options);
+
+          let obj = {
+            uri: result,
+            name: element.name,
+            type: element.type,
+          };
+          compressedMedia.push(obj);
+        } else if (type == "video") {
+          const options = {
+            bitrate: vidQual,
+          };
+
+          const data = await Video.compress(path, options);
+          let obj = {
+            uri: data,
+            name: element.name,
+            type: element.type,
+          };
+          compressedMedia.push(obj);
+        }
+      }
+      this.setState({ isCompressing: false });
+      this.uploadMedia(compressedMedia, caption);
     }
-    this.setState({ isCompressing: false });
-    this.uploadMedia(compressedMedia, caption);
   };
 
   uploadMedia = async (imgs, caption = "") => {
@@ -601,6 +657,8 @@ const mapStateToProps = (state) => {
     user: state.auth.user,
     statusState: state.stateHandler.statusState,
     compressionQuality: state.autoDownload.compressionQuality,
+    audioCompressionQuality: state.autoDownload.audioCompressionQuality,
+    videoCompressionQuality: state.autoDownload.videoCompressionQuality,
   };
 };
 

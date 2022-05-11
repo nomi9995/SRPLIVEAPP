@@ -12,7 +12,6 @@ import UserService from "../../services/UserService";
 
 //redux
 import { connect } from "react-redux";
-import { setCompressionQuality } from "../../store/actions";
 
 class MediaautoDownloadAndCompression extends Component {
   state = {
@@ -21,17 +20,6 @@ class MediaautoDownloadAndCompression extends Component {
 
   closeModal = () => {
     this.props.closeBottomModel();
-  };
-
-  CompressionData = (data) => {
-    this.props.onSetCompressionQuality(data);
-    // let token = this.props.authToken;
-    // let payload = {
-    //   compression: data,
-    // };
-    // UserService.compressionImage(payload, token).then((res) => {
-    //   this.props.CompressionData(data);
-    // });
   };
 
   render() {
@@ -56,23 +44,37 @@ class MediaautoDownloadAndCompression extends Component {
                 <>
                   <TouchableOpacity
                     style={styles.statusButton}
-                    onPress={() => this.CompressionData("low")}
+                    onPress={() => this.props.compressionData("auto")}
+                  >
+                    <Text style={{ fontSize: 16 }}>Auto</Text>
+                  </TouchableOpacity>
+                  <View style={styles.bottomLine} />
+                  <TouchableOpacity
+                    style={styles.statusButton}
+                    onPress={() => this.props.compressionData("low")}
                   >
                     <Text style={{ fontSize: 16 }}>Low</Text>
                   </TouchableOpacity>
                   <View style={styles.bottomLine} />
                   <TouchableOpacity
                     style={styles.statusButton}
-                    onPress={() => this.CompressionData("medium")}
+                    onPress={() => this.props.compressionData("medium")}
                   >
                     <Text style={{ fontSize: 16 }}>Medium</Text>
                   </TouchableOpacity>
                   <View style={styles.bottomLine} />
                   <TouchableOpacity
                     style={styles.statusButton}
-                    onPress={() => this.CompressionData("high")}
+                    onPress={() => this.props.compressionData("high")}
                   >
                     <Text style={{ fontSize: 16 }}>High</Text>
+                  </TouchableOpacity>
+                  <View style={styles.bottomLine} />
+                  <TouchableOpacity
+                    style={styles.statusButton}
+                    onPress={() => this.props.compressionData("uncompressed")}
+                  >
+                    <Text style={{ fontSize: 16 }}>Uncompressed</Text>
                   </TouchableOpacity>
                   <View style={styles.bottomLine} />
                 </>
@@ -127,11 +129,7 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch) => {
-  return {
-    onSetCompressionQuality: (quality) => {
-      dispatch(setCompressionQuality(quality));
-    },
-  };
+  return {};
 };
 
 export default connect(

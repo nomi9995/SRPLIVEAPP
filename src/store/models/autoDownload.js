@@ -3,4 +3,6 @@ export default {
   video: "Always",
   docs: "Always",
   compressionQuality: "medium",
+  audioCompressionQuality: "medium",
+  videoCompressionQuality: "medium",
 };

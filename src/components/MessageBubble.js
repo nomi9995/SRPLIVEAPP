@@ -20,6 +20,7 @@ import FileViewer from "react-native-file-viewer";
 import LocalTimeZone from "react-native-localize";
 import Color from "react-native-gifted-chat/lib/Color";
 import HighlightText from "@sanar/react-native-highlight-text";
+import Toast from "react-native-simple-toast";
 
 // Icons
 import Octicons from "react-native-vector-icons/dist/Octicons";
@@ -788,6 +789,7 @@ class MessageBubble extends React.Component {
   }
 
   openFile = async (data) => {
+    console.log("open file", data);
     if (this.props.longPress.length !== 0) {
       this.props.onSetOnLongPress([
         this.props.currentMessage,
@@ -805,8 +807,7 @@ class MessageBubble extends React.Component {
           console.log("An error occurred", e);
         }
       } else {
-        let url = appConfig.filePath + data.name;
-        Linking.openURL(url);
+        Toast.show("File doesn't exist!");
       }
     }
   };

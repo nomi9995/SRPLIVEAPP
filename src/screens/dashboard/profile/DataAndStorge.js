@@ -20,6 +20,9 @@ import {
   setAutoDocDownload,
   setAutoVideoDownload,
   setAutoPhotoDownload,
+  setCompressionQuality,
+  setAudioCompressionQuality,
+  setVideoCompressionQuality,
 } from "../../../store/actions";
 //Component
 import MediaautoDownloadAndCompression from "../../../components/Modal/MediaautoDownloadAndCompression";
@@ -29,6 +32,8 @@ class DataandStorage extends Component {
     super(props);
     this.state = {
       mediaAndCompression: false,
+      audioCompression: false,
+      videoCompression: false,
       compression: false,
       mediaAndCompressionVideo: false,
       mediaAndCompressionAudio: false,
@@ -64,8 +69,11 @@ class DataandStorage extends Component {
       mediaAndCompressionVideo: false,
       mediaAndCompressionAudio: false,
       mediaAndCompressionDocs: false,
+      mediaAndCompression: false,
+      audioCompression: false,
+      videoCompression: false,
+      compression: false,
     });
-    this.setState({ compression: false });
   };
   setvideo = (data) => {
     this.props.onSetAutoVideoDownload(data);
@@ -80,8 +88,22 @@ class DataandStorage extends Component {
     this.CloseMediaOption();
   };
   setimageComp = (data) => {
+    this.props.onSetCompressionQuality(data);
     this.props.user.user.user_image_compression = data;
     this.props.onSetAuthUser(this.props.user);
+    this.CloseMediaOption();
+  };
+  setaudioComp = (data) => {
+    this.props.onSetAudioCompressionQuality(data);
+    console.log("aaa", this.props.user);
+    // this.props.user.user.user_image_compression = data;
+    // this.props.onSetAuthUser(this.props.user);
+    this.CloseMediaOption();
+  };
+  setvideoComp = (data) => {
+    this.props.onSetVideoCompressionQuality(data);
+    // this.props.user.user.user_image_compression = data;
+    // this.props.onSetAuthUser(this.props.user);
     this.CloseMediaOption();
   };
 
@@ -158,13 +180,12 @@ class DataandStorage extends Component {
             </TouchableOpacity>
           </View>
           <View style={styles.MediaautoMainView}>
-            <Text style={styles.MediaautoText}>Image compression setting</Text>
+            <Text style={styles.MediaautoText}>Compression settings</Text>
             <View style={styles.MediaAutoborderLine}></View>
             <TouchableOpacity
               style={styles.PhotVideoDocsView}
               onPress={() =>
                 this.setState({
-                  mediaAndCompressionDocs: false,
                   mediaAndCompression: true,
                   compression: true,
                 })
@@ -186,6 +207,60 @@ class DataandStorage extends Component {
               <Text style={[styles.neverText, { marginLeft: "12%" }]}>
                 {/* {this.props.user.user?.user_image_compression} */}
                 {this.props.compressionQuality}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.PhotVideoDocsView}
+              onPress={() =>
+                this.setState({
+                  audioCompression: true,
+                  compression: true,
+                })
+              }
+            >
+              <View style={styles.photoVideoDocsInnerView}>
+                <View style={styles.photoIconContainer}>
+                  <FontAwesome
+                    name={"microphone-alt"}
+                    size={23}
+                    color={"lightgrey"}
+                    style={{ marginLeft: 5 }}
+                  />
+                </View>
+                <Text style={[styles.photoVideoDocsText, { marginLeft: -1 }]}>
+                  Audio compression
+                </Text>
+              </View>
+              <Text style={[styles.neverText, { marginLeft: "12%" }]}>
+                {/* {this.props.user.user?.user_image_compression} */}
+                {this.props.audioCompressionQuality}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.PhotVideoDocsView}
+              onPress={() =>
+                this.setState({
+                  videoCompression: true,
+                  compression: true,
+                })
+              }
+            >
+              <View style={styles.photoVideoDocsInnerView}>
+                <View style={styles.photoIconContainer}>
+                  <FontAwesome
+                    name={"play"}
+                    size={19}
+                    color={"lightgrey"}
+                    style={{ marginLeft: 5 }}
+                  />
+                </View>
+                <Text style={[styles.photoVideoDocsText, { marginLeft: -1 }]}>
+                  Video compression
+                </Text>
+              </View>
+              <Text style={[styles.neverText, { marginLeft: "12%" }]}>
+                {/* {this.props.user.user?.user_image_compression} */}
+                {this.props.videoCompressionQuality}
               </Text>
             </TouchableOpacity>
           </View>
@@ -279,7 +354,25 @@ class DataandStorage extends Component {
             closeBottomModel={(data) => this.CloseMediaOption()}
             compressionsetting={this.state.compression}
             authToken={this.props.user.token}
-            CompressionData={(data) => this.setimageComp(data)}
+            compressionData={(data) => this.setimageComp(data)}
+          />
+        )}
+        {this.state.audioCompression && this.state.compression && (
+          <MediaautoDownloadAndCompression
+            openModal={this.state.audioCompression}
+            closeBottomModel={(data) => this.CloseMediaOption()}
+            compressionsetting={this.state.compression}
+            authToken={this.props.user.token}
+            compressionData={(data) => this.setaudioComp(data)}
+          />
+        )}
+        {this.state.videoCompression && this.state.compression && (
+          <MediaautoDownloadAndCompression
+            openModal={this.state.videoCompression}
+            closeBottomModel={(data) => this.CloseMediaOption()}
+            compressionsetting={this.state.compression}
+            authToken={this.props.user.token}
+            compressionData={(data) => this.setvideoComp(data)}
           />
         )}
       </View>
@@ -295,6 +388,8 @@ const mapStateToProps = (state) => {
     videoDownload: state.autoDownload.video,
     docsDownload: state.autoDownload.docs,
     compressionQuality: state.autoDownload.compressionQuality,
+    audioCompressionQuality: state.autoDownload.audioCompressionQuality,
+    videoCompressionQuality: state.autoDownload.videoCompressionQuality,
   };
 };
 
@@ -312,8 +407,14 @@ const mapDispatchToProps = (dispatch) => {
     onSetAutoDocDownload: (data) => {
       dispatch(setAutoDocDownload(data));
     },
-    onSetImageCompression: (data) => {
-      dispatch(setImageCompression(data));
+    onSetCompressionQuality: (quality) => {
+      dispatch(setCompressionQuality(quality));
+    },
+    onSetAudioCompressionQuality: (quality) => {
+      dispatch(setAudioCompressionQuality(quality));
+    },
+    onSetVideoCompressionQuality: (quality) => {
+      dispatch(setVideoCompressionQuality(quality));
     },
   };
 };
