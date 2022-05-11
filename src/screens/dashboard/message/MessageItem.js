@@ -78,8 +78,8 @@ class MessageItem extends React.PureComponent {
     if (longPress.length !== 0) {
       selctedMessageColor = longPress?.find((x) => x.id === currentMessage.id);
     }
-    let currentDate = moment(this.props.currentMessage.time).format("L");
-    let previousDate = moment(previousMessage.time).format("L");
+    let currentDate = moment(currentMessage?.time).format("L");
+    let previousDate = moment(previousMessage?.time).format("L");
     return (
       <>
         <Animated.View

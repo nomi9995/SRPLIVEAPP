@@ -82,6 +82,7 @@ class MessageScreen extends Component {
       showDownBtn: false,
       shouldSetScrollIndex: false,
       initialIndex: 0,
+      shouldSetInitialIndex: false,
     };
   }
 
@@ -198,32 +199,37 @@ class MessageScreen extends Component {
   };
 
   calculateOffset = async () => {
-    let ind = -1;
-    const { selectedUser } = this.props?.route?.params;
-    positionsArray = this.props.scrollPosition;
+    if (Platform.OS == "ios") {
+      console.log("hello");
+      let ind = -1;
+      const { selectedUser } = this.props?.route?.params;
+      positionsArray = this.props.scrollPosition;
 
-    let chatUserId =
-      selectedUser?.user_id === undefined
-        ? selectedUser.id
-        : selectedUser.user_id;
+      let chatUserId =
+        selectedUser?.user_id === undefined
+          ? selectedUser.id
+          : selectedUser.user_id;
 
-    if (positionsArray.length > 0) {
-      ind = positionsArray.findIndex(
-        (x) => parseInt(x.selectedUser) === parseInt(chatUserId)
-      );
+      if (positionsArray.length > 0) {
+        ind = positionsArray.findIndex(
+          (x) => parseInt(x.selectedUser) === parseInt(chatUserId)
+        );
+      }
+
+      let n = ind !== -1 ? positionsArray[ind].index : 0;
+
+      await this.setState({ offset: n, offsetBottom: n, initialIndex: n });
+      this.getAllMsgsFromDb();
+    } else {
+      await this.setState({ offset: 0, offsetBottom: 0, initialIndex: 0 });
+      this.getAllMsgsFromDb();
     }
-
-    let n = ind !== -1 ? positionsArray[ind].index : 0;
-
-    await this.setState({ offset: n, offsetBottom: n, initialIndex: n });
-    this.getAllMsgsFromDb();
   };
 
   getAllMsgsFromDb = (isFromDownBtn = false) => {
     const { selectedUser } = this.props?.route?.params;
     const { offset, offsetBottom, isInverted } = this.state;
 
-    console.log("values: ", offset, offsetBottom, isInverted);
     let onlineUserId = this.props.user?.user.id;
     let chatUserId =
       selectedUser?.user_id === undefined
@@ -351,7 +357,9 @@ class MessageScreen extends Component {
         this.setState({
           messages: newState,
           isInverted: false,
-          initialIndex: 0,
+          initialIndex: this.state.shouldSetInitialIndex
+            ? 0
+            : this.state.initialIndex,
         });
       } else {
         this.setState({ messages: [...this.state.messages, ...dummyArray] });
@@ -993,7 +1001,11 @@ class MessageScreen extends Component {
                     removeClippedSubviews: false,
                     maxToRenderPerBatch: 100,
                     onEndReachedThreshold: 0.9,
-                    onStartReachedThreshold: 0.95,
+                    maintainVisibleContentPosition: {
+                      minIndexForVisible: !this.state.shouldSetInitialIndex
+                        ? 0
+                        : this.state.initialIndex,
+                    },
 
                     onEndReached: async () => {
                       if (this.props.route.params.screen !== undefined) {
@@ -1011,24 +1023,27 @@ class MessageScreen extends Component {
                       }
                     },
 
-                    onStartReached: async () => {
-                      if (this.props.route.params.screen !== undefined) {
-                        await this.setState({
-                          searchOffsetBottom:
-                            this.state.searchOffsetBottom - 40,
-                          isInverted: true,
-                        });
-                        if (this.state.searchOffsetBottom > -40)
-                          this.getSearchedMessages(
-                            this.props.route.params.selectedUser
-                          );
-                      } else {
-                        await this.setState({
-                          offsetBottom: this.state.offsetBottom - 100,
-                          isInverted: true,
-                        });
-                        if (this.state.offsetBottom > -100)
-                          this.getAllMsgsFromDb();
+                    onScroll: async ({ nativeEvent }) => {
+                      if (this.isCloseToBottom(nativeEvent)) {
+                        if (this.props.route.params.screen !== undefined) {
+                          await this.setState({
+                            searchOffsetBottom:
+                              this.state.searchOffsetBottom - 40,
+                            isInverted: true,
+                          });
+                          if (this.state.searchOffsetBottom > -40)
+                            this.getSearchedMessages(
+                              this.props.route.params.selectedUser
+                            );
+                        } else {
+                          await this.setState({
+                            offsetBottom: this.state.offsetBottom - 100,
+                            isInverted: true,
+                            shouldSetInitialIndex: true,
+                          });
+                          if (this.state.offsetBottom > -100)
+                            this.getAllMsgsFromDb();
+                        }
                       }
                     },
 
