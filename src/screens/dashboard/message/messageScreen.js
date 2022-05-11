@@ -200,7 +200,6 @@ class MessageScreen extends Component {
 
   calculateOffset = async () => {
     if (Platform.OS == "ios") {
-      console.log("hello");
       let ind = -1;
       const { selectedUser } = this.props?.route?.params;
       positionsArray = this.props.scrollPosition;
@@ -625,9 +624,11 @@ class MessageScreen extends Component {
     if (ids.length > 0) {
       let payload = {
         read_messages: ids,
+        active_room: selectedUser.is_room === 1 ? selectedUser?.user_id : null,
         active_user: selectedUser.is_room === 0 ? selectedUser?.user_id : null,
         current_user: this.props.user?.user.id,
       };
+
       socket.emit("message_read", JSON.stringify(payload));
     }
   };

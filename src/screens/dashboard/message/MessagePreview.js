@@ -11,7 +11,7 @@ import {
 import { SliderBox } from "react-native-image-slider-box";
 import Ionicons from "react-native-vector-icons/dist/Ionicons";
 import Video from "react-native-video-controls";
-import ImageViewer from "react-native-image-zoom-viewer";
+import ImageViewer from "react-native-image-zoom-viewer-fixed";
 
 //redux
 import { connect } from "react-redux";

@@ -57,10 +57,12 @@ class HomeHeader extends React.PureComponent {
       popoverAnchor: { x: 0, y: 0, width: 0, height: 0 },
       SlectedpopoverAnchor: { x: 0, y: 0, width: 0, height: 0 },
       mediaExist: 0,
+      isBackPressed: false,
     };
   }
 
   componentDidMount = () => {
+    this.setState({ isBackPressed: false });
     BackHandler.addEventListener("hardwareBackPress", this.hardwareBack);
   };
 
@@ -143,10 +145,11 @@ class HomeHeader extends React.PureComponent {
         this.props.onSetMediaOptionsOpen(false);
         this.props.onSetSickerOpen(false);
       } else if (screen === "message") {
-        navProps.navigation.replace("Home");
+        this.setState({ isBackPressed: true });
         this.props.onSetMessageText(null);
         this.props.onSetMediaOptionsOpen(false);
         this.props.onSetSickerOpen(false);
+        navProps.navigation.replace("Home");
       } else if (screen === "home") {
         BackHandler.exitApp();
       } else {
@@ -493,6 +496,7 @@ class HomeHeader extends React.PureComponent {
                   screen === "allUser" ||
                   screen == "groupList" ? (
                     <TouchableOpacity
+                      disabled={this.state.isBackPressed}
                       style={styles.backIcon}
                       onPress={() => this.backButton()}
                     >

@@ -824,11 +824,11 @@ class MessageBubble extends React.Component {
               onPress={() => this.openFile(res)}
               onLongPress={this.longPressAction}
             >
-              {res?.name.toString().includes(".pdf") ? (
+              {/* {res?.name.toString().includes(".pdf") ? (
                 <>
                   <PdfThumail data={res} />
                 </>
-              ) : null}
+              ) : null} */}
               <View style={styles.messageFileFlex}>
                 <FileTypeIcon
                   data={res}
@@ -2307,7 +2307,7 @@ const styles = {
     marginLeft: 2,
   },
   messageFileView: {
-    paddingBottom: 20,
+    // paddingBottom: 20,
     padding: 5,
     width: windowWidth * 0.7,
   },
