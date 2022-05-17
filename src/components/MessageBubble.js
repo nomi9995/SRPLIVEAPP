@@ -316,23 +316,33 @@ class MessageBubble extends React.Component {
       arr[ind].isDownloading = true;
       this.setState({ filesArray: arr });
       if (Platform.OS == "android") {
-        onDownload.downloadFile(arr[ind].name, "Files", (res) => {
-          if (res) {
-            arr[ind].name = res.data;
-            arr[ind].isDownloaded = true;
-            arr[ind].isDownloading = false;
-            this.setState({ filesArray: arr });
-          }
-        });
+        onDownload.downloadFile(
+          arr[ind].name,
+          "Files",
+          (res) => {
+            if (res) {
+              arr[ind].name = res.data;
+              arr[ind].isDownloaded = true;
+              arr[ind].isDownloading = false;
+              this.setState({ filesArray: arr });
+            }
+          },
+          this.props.position == "left" ? false : true
+        );
       } else {
-        onDownload.downloadFileIos(arr[ind]?.name, "Files", (res) => {
-          if (res) {
-            arr[ind].name = res.data;
-            arr[ind].isDownloaded = true;
-            arr[ind].isDownloading = false;
-            this.setState({ filesArray: arr, isDownloading: false });
-          }
-        });
+        onDownload.downloadFileIos(
+          arr[ind]?.name.split("/")[arr[ind]?.name.split("/").length - 1],
+          "Files",
+          (res) => {
+            if (res) {
+              arr[ind].name = res.data;
+              arr[ind].isDownloaded = true;
+              arr[ind].isDownloading = false;
+              this.setState({ filesArray: arr, isDownloading: false });
+            }
+          },
+          this.props.position == "left" ? false : true
+        );
       }
     } else if (type === "Audios") {
       this.setState({ isDownloading: true });
@@ -788,8 +798,7 @@ class MessageBubble extends React.Component {
     return null;
   }
 
-  openFile = async (data) => {
-    console.log("open file", data);
+  openFile = async (data, ind) => {
     if (this.props.longPress.length !== 0) {
       this.props.onSetOnLongPress([
         this.props.currentMessage,
@@ -807,7 +816,7 @@ class MessageBubble extends React.Component {
           console.log("An error occurred", e);
         }
       } else {
-        Toast.show("File doesn't exist!");
+        this.downloadMedia("Files", ind);
       }
     }
   };
@@ -821,7 +830,7 @@ class MessageBubble extends React.Component {
             <TouchableOpacity
               key={ind}
               style={styles.messageFileView}
-              onPress={() => this.openFile(res)}
+              onPress={() => this.openFile(res, ind)}
               onLongPress={this.longPressAction}
             >
               {/* {res?.name.toString().includes(".pdf") ? (
@@ -830,37 +839,43 @@ class MessageBubble extends React.Component {
                 </>
               ) : null} */}
               <View style={styles.messageFileFlex}>
-                <FileTypeIcon
-                  data={res}
-                  style={{
-                    color: "red",
-                    fontSize: 25,
-                  }}
-                />
-                <Text
-                  numberOfLines={1}
-                  style={styles[this.props?.position]?.fileNameText}
-                >
-                  {showFile[ind].name}
-                </Text>
-                {res.isDownloading ? (
-                  <View style={{ padding: 5 }}>
-                    <ActivityIndicator size={"small"} color={"#fff"} />
-                  </View>
-                ) : !res.isDownloaded && this.props.position === "left" ? (
-                  <TouchableOpacity
+                <View style={{ flex: 0.15 }}>
+                  <FileTypeIcon
+                    data={res}
                     style={{
-                      padding: 5,
+                      color: "red",
+                      fontSize: 25,
                     }}
-                    onPress={() => this.downloadMedia("Files", ind)}
+                  />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text
+                    numberOfLines={1}
+                    style={styles[this.props?.position]?.fileNameText}
                   >
-                    <FontAwesome5
-                      name={"arrow-circle-o-down"}
-                      size={23}
-                      color={"grey"}
-                    />
-                  </TouchableOpacity>
-                ) : null}
+                    {showFile[ind].name}
+                  </Text>
+                </View>
+                <View style={{ flex: 0.15 }}>
+                  {res.isDownloading ? (
+                    <View style={{ padding: 5 }}>
+                      <ActivityIndicator size={"small"} color={"#fff"} />
+                    </View>
+                  ) : !res.isDownloaded ? (
+                    <TouchableOpacity
+                      style={{
+                        padding: 5,
+                      }}
+                      onPress={() => this.downloadMedia("Files", ind)}
+                    >
+                      <FontAwesome5
+                        name={"arrow-circle-o-down"}
+                        size={23}
+                        color={"grey"}
+                      />
+                    </TouchableOpacity>
+                  ) : null}
+                </View>
               </View>
               <Text style={styles[this.props?.position]?.fileSizeText}>
                 {res.size}

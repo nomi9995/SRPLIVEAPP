@@ -158,10 +158,12 @@ export const onDownload = {
     return RNFetchBlob.fs.mkdir(path);
   },
 
-  downloadFile: (data, type, callback) => {
+  downloadFile: (data, type, callback, isSent) => {
     let res = null;
     onDownload.checkPermission().then((isPermited) => {
-      const folderPath = `/storage/emulated/0/Android/media/com.srp_live/${type}`;
+      const folderPath = isSent
+        ? `/storage/emulated/0/Android/media/com.srp_live/${type}/Sent`
+        : `/storage/emulated/0/Android/media/com.srp_live/${type}`;
       const filePath = folderPath + "/" + data;
 
       if (isPermited) {
@@ -201,8 +203,10 @@ export const onDownload = {
     });
   },
 
-  downloadFileIos: (data, type, callback) => {
-    const folderPath = `${fs.dirs.DocumentDir}/srp_live/${type}`;
+  downloadFileIos: (data, type, callback, isSent) => {
+    const folderPath = isSent
+      ? `${fs.dirs.DocumentDir}/srp_live/${type}/Sent`
+      : `${fs.dirs.DocumentDir}/srp_live/${type}`;
     const filePath = folderPath + "/" + data;
     let res;
     RNFetchBlob.fs.isDir(folderPath).then(async (isDir) => {
