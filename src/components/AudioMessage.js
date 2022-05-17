@@ -47,6 +47,7 @@ class AudioMessage extends React.PureComponent {
   }
 
   componentDidMount = () => {
+    console.log("audio quality", this.props.audioCompressionQuality);
     if (Platform.OS == "ios") {
       this.onStartRecord();
     }
@@ -139,8 +140,14 @@ class AudioMessage extends React.PureComponent {
     this.setState({ isSending: true });
     try {
       const result = await this.audioRecorderPlayer.stopRecorder();
+      console.log("audio result", result);
       if (Platform.OS == "ios") {
-        const result1 = await Audio.compress(result, { quality: "medium" });
+        const result1 = await Audio.compress(result, {
+          quality:
+            this.props.audioCompressionQuality == "auto" || "uncompressed"
+              ? "medium"
+              : this.props.audioCompressionQuality,
+        });
         this.audioRecorderPlayer.removeRecordBackListener();
         let audioFile1 = {
           uri: `file:///${result1.split("//")[1]}`,
@@ -171,6 +178,7 @@ class AudioMessage extends React.PureComponent {
           }`,
           duration: this.state.recordTime,
         };
+        console.log("audio file", audioFile);
         this.socketAPIRun(audioFile);
       }
     } catch (err) {
@@ -203,7 +211,7 @@ class AudioMessage extends React.PureComponent {
         this.setState({ isSending: false });
         let obj = {
           name: audio.data.audios[0].name,
-          extenstion: audio.data.audios[0].extenstion,
+          extension: audio.data.audios[0].extension,
           size: audio.data.audios[0].size,
           duration: file.duration,
         };
@@ -473,6 +481,7 @@ const mapStateToProps = (state) => {
     stickerOpen: state.stateHandler.stickerOpen,
     replyState: state.stateHandler.replyState,
     user: state.auth.user,
+    audioCompressionQuality: state.autoDownload.audioCompressionQuality,
   };
 };
 

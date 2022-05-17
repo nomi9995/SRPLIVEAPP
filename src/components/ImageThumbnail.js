@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Platform,
   Dimensions,
+  Image,
 } from "react-native";
 import FastImage from "react-native-fast-image";
 import Icon from "react-native-vector-icons/FontAwesome";
@@ -26,6 +27,9 @@ export default class ImageThumbnail extends Component {
       isDownloading: false,
       currentImage: null,
       calcImgHeight: 0,
+      width: 0,
+      height: 0,
+      desiredHeight: 0,
     };
   }
 
@@ -39,6 +43,42 @@ export default class ImageThumbnail extends Component {
     img.forEach((img) => {
       this.state.imagesArray.push({ uri: img.uri, isDownloaded: true });
     });
+  };
+
+  RemoteImage = ({ uri, desiredWidth }) => {
+    Image.getSize(uri, (width, height) => {
+      this.setState({
+        desiredHeight: (desiredWidth / width) * height,
+      });
+    });
+
+    return (
+      <Image
+        source={{ uri }}
+        style={{
+          borderWidth: 1,
+          width: desiredWidth,
+          height: this.state.desiredHeight,
+        }}
+      />
+    );
+  };
+
+  demo = () => {
+    return (
+      <View
+        style={{
+          flex: 1,
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <this.RemoteImage
+          uri="https://via.placeholder.com/350x150"
+          desiredWidth={200}
+        />
+      </View>
+    );
   };
 
   donwloadImages = () => {
@@ -151,14 +191,24 @@ export default class ImageThumbnail extends Component {
     const minWidth = this.props.size ? this.props.size : 290;
     const minHeight = this.props.size ? this.props.size : 290;
     const iconSize = 50;
-    const singleImageWidth = windowWidth * 0.77;
+    const singleImageWidth = windowWidth * 0.65;
     const multipleImagesWidth = (windowWidth * 0.77) / 2;
+
+    console.log("singleImageWidth", singleImageWidth);
 
     const styles = StyleSheet.create({
       imageMessageSingleFlex: {
-        maxWidth: windowWidth * 0.8,
+        // backgroundColor: "yellow",
+        width: singleImageWidth,
+        display: "flex",
+        flex: 1,
+        justifyContent: "flex-end",
+        flexGrow: 0,
+        flexShrink: 0,
+        flexBasis: "auto",
+        maxWidth: windowWidth * 0.7,
         // minWidth: minWidth,
-        maxHeight: windowHeight * 0.5,
+        maxHeight: windowHeight * 0.63,
         // minHeight: minHeight,
         borderRadius: radiusValue,
         overflow: "hidden",
@@ -246,11 +296,20 @@ export default class ImageThumbnail extends Component {
         return (
           <View
             key={ind}
-            style={
+            style={[
               msgType === 8
                 ? styles.replyImageMessageFlex
-                : styles.imageMessageSingleFlex
-            }
+                : [
+                    styles.imageMessageSingleFlex,
+                    {
+                      height:
+                        (this.ImageCalculateHeight(img) /
+                          this.ImageCalculateWidth(img)) *
+                        windowWidth *
+                        0.66,
+                    },
+                  ],
+            ]}
           >
             <FastImage
               source={{
@@ -259,16 +318,10 @@ export default class ImageThumbnail extends Component {
               style={[
                 styles.fastImageStyleOneImg,
                 {
-                  height:
-                    msgType === 8
-                      ? "95%"
-                      : (this.ImageCalculateHeight(img) /
-                          this.ImageCalculateWidth(img)) *
-                        windowWidth *
-                        0.85,
+                  height: msgType === 8 ? "95%" : "100%",
 
                   //  this.state.calcImgHeight
-                  width: msgType === 8 ? "95%" : singleImageWidth,
+                  width: msgType === 8 ? "95%" : "100%",
                 },
               ]}
               resizeMode="stretch"
