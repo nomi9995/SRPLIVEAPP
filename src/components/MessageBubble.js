@@ -195,6 +195,7 @@ class MessageBubble extends React.Component {
           showFile.push(
             Object.assign(
               { name: file.name },
+              { extension: file.name.split(/[.]+/).pop() },
               { isDownloaded: false },
               { isDownloading: false }
             )
@@ -316,12 +317,16 @@ class MessageBubble extends React.Component {
       arr[ind].isDownloading = true;
       this.setState({ filesArray: arr });
       if (Platform.OS == "android") {
+        console.log("aaaa", arr[ind].name);
         onDownload.downloadFile(
           arr[ind].name,
           "Files",
           (res) => {
             if (res) {
+              console.log("res", res);
+              res.data;
               arr[ind].name = res.data;
+              arr[ind].extension = res.data.split(/[.]+/).pop();
               arr[ind].isDownloaded = true;
               arr[ind].isDownloading = false;
               this.setState({ filesArray: arr });
@@ -336,6 +341,7 @@ class MessageBubble extends React.Component {
           (res) => {
             if (res) {
               arr[ind].name = res.data;
+              arr[ind].extension = res.data.split(/[.]+/).pop();
               arr[ind].isDownloaded = true;
               arr[ind].isDownloading = false;
               this.setState({ filesArray: arr, isDownloading: false });
@@ -376,7 +382,7 @@ class MessageBubble extends React.Component {
   renderMessageText() {
     if (this.props?.currentMessage?.type === 1) {
       return (
-        <View style={styles.messageTextFlex}>
+        <View style={[styles.messageTextFlex, { maxWidth: windowWidth * 0.8 }]}>
           {this.props.keywords ? (
             <HighlightText
               highlightStyle={{
@@ -2481,6 +2487,7 @@ const styles = {
       backgroundColor: "white",
       paddingVertical: 7,
       minWidth: 100,
+      alignItems: "baseline",
       maxWidth: windowWidth * 0.8,
       shadowOpacity: 0.3,
       shadowRadius: 2,
@@ -2641,6 +2648,7 @@ const styles = {
       minHeight: 20,
       marginRight: 0,
       maxWidth: "85%",
+      alignItems: "baseline",
       // minWidth: "0%",
       shadowOpacity: 0.3,
       shadowRadius: 2,

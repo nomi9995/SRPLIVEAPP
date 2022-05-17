@@ -194,8 +194,6 @@ export default class ImageThumbnail extends Component {
     const singleImageWidth = windowWidth * 0.65;
     const multipleImagesWidth = (windowWidth * 0.77) / 2;
 
-    console.log("singleImageWidth", singleImageWidth);
-
     const styles = StyleSheet.create({
       imageMessageSingleFlex: {
         // backgroundColor: "yellow",

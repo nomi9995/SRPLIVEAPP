@@ -1,11 +1,11 @@
-import React, {Component} from 'react';
-import {Text, StyleSheet} from 'react-native';
-import fileType from '../utils/mimetype';
-import FontAwesome from 'react-native-vector-icons/dist/FontAwesome5';
-import FontAwesome5 from 'react-native-vector-icons/dist/FontAwesome';
-import Feather from 'react-native-vector-icons/dist/Feather';
-import Entypo from 'react-native-vector-icons/dist/Entypo';
-import AntDesign from 'react-native-vector-icons/dist/AntDesign';
+import React, { Component } from "react";
+import { Text, StyleSheet } from "react-native";
+import fileType from "../utils/mimetype";
+import FontAwesome from "react-native-vector-icons/dist/FontAwesome5";
+import FontAwesome5 from "react-native-vector-icons/dist/FontAwesome";
+import Feather from "react-native-vector-icons/dist/Feather";
+import Entypo from "react-native-vector-icons/dist/Entypo";
+import AntDesign from "react-native-vector-icons/dist/AntDesign";
 class FileTypeIcon extends Component {
   constructor(props) {
     super(props);
@@ -15,70 +15,70 @@ class FileTypeIcon extends Component {
   }
 
   render() {
-    const data = this.props?.data?.extenstion;
-    // console.log('extention', data);
+    const data = this.props?.data?.extension;
+    // console.log("extention data", this.props.data);
     let extention = undefined;
     if (data) {
       extention = fileType[data];
     } else {
-      extention = '';
+      extention = "";
     }
-    // console.log('extention', extention);
+    // console.log("extention", extention);
     return (
       <>
-        {extention.includes('image') ? (
+        {extention.includes("image") ? (
           <FontAwesome5
-            name={'image'}
+            name={"image"}
             style={{
-              color: 'grey',
+              color: "grey",
               fontSize: 25,
             }}
           />
-        ) : extention.includes('pdf') ? (
+        ) : extention.includes("pdf") ? (
           <AntDesign
-            name={'pdffile1'}
+            name={"pdffile1"}
             style={{
-              color: 'red',
+              color: "red",
               fontSize: 25,
             }}
           />
-        ) : extention.includes('msword') ? (
+        ) : extention.includes("msword") ? (
           <FontAwesome5
-            name={'file-word-o'}
+            name={"file-word-o"}
             style={{
-              color: 'blue',
+              color: "blue",
               fontSize: 25,
             }}
           />
-        ) : extention.includes('video') ? (
+        ) : extention.includes("video") ? (
           <Entypo
-            name={'video'}
+            name={"video"}
             style={{
-              color: 'red',
+              color: "red",
               fontSize: 25,
             }}
           />
-        ) : extention.includes('sheet') ? (
+        ) : extention.includes("sheet") ? (
           <FontAwesome5
-            name={'file-excel-o'}
+            name={"file-excel-o"}
             style={{
-              color: 'green',
+              color: "green",
               fontSize: 25,
             }}
           />
-        ) : extention.includes('presentation') ? (
+        ) : extention.includes("presentation") ? (
           <AntDesign
-            name={'pptfile1'}
+            name={"pptfile1"}
             style={{
-              color: '#ffd400',
+              color: "#ffd400",
               fontSize: 25,
             }}
           />
         ) : (
           <AntDesign
-            name={'file1'}
+            name={"file1"}
             style={{
-              color: '#5959b5',
+              color: "#5959b5",
               fontSize: 25,
             }}
           />
@@ -90,11 +90,11 @@ class FileTypeIcon extends Component {
 
 const styles = StyleSheet.create({
   baseText: {
-    fontFamily: 'Cochin',
+    fontFamily: "Cochin",
   },
   titleText: {
     fontSize: 20,
-    fontWeight: 'bold',
+    fontWeight: "bold",
   },
 });
 
