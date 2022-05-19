@@ -331,30 +331,25 @@ class MediaUpload extends Component {
     let path = "";
     let imgQual = 0.7;
     let maxWidth = 800;
-    let vidQual = 5;
+    let vidQual = 4;
     let imgOptions = {};
 
     if (this.props.compressionQuality == "low") {
-      console.log("img high");
       imgQual = 0.9;
       maxWidth = 1000;
     } else if (this.props.compressionQuality == "medium") {
-      console.log("img med");
       imgQual = 0.7;
       maxWidth = 800;
     } else if (this.props.compressionQuality == "high") {
-      console.log("img high");
       imgQual = 0.5;
       maxWidth = 500;
-    } else if (this.props.videoCompressionQuality == "low") {
-      console.log("low");
-      vidQual = 3;
+    }
+    if (this.props.videoCompressionQuality == "low") {
+      vidQual = 6;
     } else if (this.props.videoCompressionQuality == "medium") {
-      console.log("medium");
-      vidQual = 5;
+      vidQual = 4;
     } else if (this.props.videoCompressionQuality == "auto") {
-      console.log("high");
-      vidQual = 10;
+      vidQual = 1.5;
     }
 
     for (let index = 0; index < media.length; index++) {
@@ -363,7 +358,6 @@ class MediaUpload extends Component {
       type = element.type.split("/")[0];
 
       if (type == "image") {
-        console.log("type image called.");
         let result;
         if (this.props.compressionQuality == "auto") {
           imgOptions = {
@@ -376,7 +370,6 @@ class MediaUpload extends Component {
           };
         }
 
-        console.log("img options", imgOptions);
         if (this.props.compressionQuality == "uncompressed") {
           result = path;
         } else {
@@ -388,30 +381,33 @@ class MediaUpload extends Component {
           name: element.name,
           type: element.type,
         };
+        console.log("img obj", obj);
         compressedMedia.push(obj);
       } else if (type == "video") {
-        console.log("type video called.");
         let vidOptions = {
           bitrateMultiplier: vidQual,
         };
 
-        console.log("vid options", vidOptions);
-
         let data;
+        let obj = {};
         if (
           this.props.videoCompressionQuality == "high" ||
           this.props.videoCompressionQuality == "uncompressed"
         ) {
-          console.log("high");
           data = path;
+          obj = {
+            uri: data,
+            name: element.name,
+            type: element.type,
+          };
         } else {
           data = await ProcessingManager.compress(path, vidOptions);
+          obj = {
+            uri: Platform.OS == "ios" ? data : data.source,
+            name: element.name,
+            type: element.type,
+          };
         }
-        let obj = {
-          uri: data,
-          name: element.name,
-          type: element.type,
-        };
         compressedMedia.push(obj);
       }
     }
@@ -440,6 +436,7 @@ class MediaUpload extends Component {
         "Content-Type": "multipart/form-data",
       },
       onUploadProgress: (progressEvent) => {
+        console.log("progress", progressEvent);
         let { progress } = this.state;
         progress = {
           percentage: (progressEvent.loaded / progressEvent.total) * 100,

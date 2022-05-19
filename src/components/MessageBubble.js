@@ -317,13 +317,11 @@ class MessageBubble extends React.Component {
       arr[ind].isDownloading = true;
       this.setState({ filesArray: arr });
       if (Platform.OS == "android") {
-        console.log("aaaa", arr[ind].name);
         onDownload.downloadFile(
           arr[ind].name,
           "Files",
           (res) => {
             if (res) {
-              console.log("res", res);
               res.data;
               arr[ind].name = res.data;
               arr[ind].extension = res.data.split(/[.]+/).pop();
@@ -998,7 +996,7 @@ class MessageBubble extends React.Component {
     let seconds = Math.floor(ev.currentTime - minutes * 60);
     let time = `${minutes} : ${seconds}`;
     await this.setState({
-      currentDurationSec: ev.playableDuration,
+      currentDurationSec: ev.seekableDuration,
       currentPositionSec: ev.currentTime,
       audio_playTime: time,
     });
@@ -1013,10 +1011,11 @@ class MessageBubble extends React.Component {
     this.audioPlayerRef.seek(0);
   };
 
-  playPauseAction = async () => {
-    await this.setState({
+  playPauseAction = () => {
+    this.setState({
       audio_played: !this.state.audio_played,
     });
+    console.log("this.state?.audiosArray[0]", this.state?.audiosArray[0]);
     this.props.onSetAudioPlayState(this.state?.audiosArray[0]?.name);
   };
 

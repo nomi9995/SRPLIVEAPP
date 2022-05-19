@@ -95,15 +95,10 @@ class DataandStorage extends Component {
   };
   setaudioComp = (data) => {
     this.props.onSetAudioCompressionQuality(data);
-    console.log("aaa", this.props.user);
-    // this.props.user.user.user_image_compression = data;
-    // this.props.onSetAuthUser(this.props.user);
     this.CloseMediaOption();
   };
   setvideoComp = (data) => {
     this.props.onSetVideoCompressionQuality(data);
-    // this.props.user.user.user_image_compression = data;
-    // this.props.onSetAuthUser(this.props.user);
     this.CloseMediaOption();
   };
 

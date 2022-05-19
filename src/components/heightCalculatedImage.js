@@ -43,7 +43,7 @@ const PizzaTranslator = (props) => {
           uri: props.uri,
         }}
         style={{
-          width: windowWidth * 0.85,
+          width: windowWidth * 0.65,
           height:
             (ImageCalculateHeight(props.uri.replace(/ /g, "%20")) /
               ImageCalculateWidth(props.uri.replace(/ /g, "%20"))) *

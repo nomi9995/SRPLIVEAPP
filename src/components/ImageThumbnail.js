@@ -234,6 +234,7 @@ export default class ImageThumbnail extends Component {
         alignItems: "center",
         justifyContent: "center",
         zIndex: 1,
+        borderRadius: 10,
         backgroundColor: "rgba(52, 52, 52, 0.8)",
       },
 

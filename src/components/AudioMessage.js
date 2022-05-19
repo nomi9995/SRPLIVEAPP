@@ -140,7 +140,6 @@ class AudioMessage extends React.PureComponent {
     this.setState({ isSending: true });
     try {
       const result = await this.audioRecorderPlayer.stopRecorder();
-      console.log("audio result", result);
       if (Platform.OS == "ios") {
         const result1 = await Audio.compress(result, {
           quality:
@@ -152,7 +151,7 @@ class AudioMessage extends React.PureComponent {
         let audioFile1 = {
           uri: `file:///${result1.split("//")[1]}`,
           name: "srplive-1234.m4a",
-          type: `audio/${result1.split(".")[1]}`,
+          type: `audio/${result1.split(".").pop()}`,
           duration: this.state.recordTime,
         };
         console.log("audioFile1", audioFile1);
@@ -160,22 +159,8 @@ class AudioMessage extends React.PureComponent {
       } else {
         let audioFile = {
           uri: result,
-          name: result.toString().split("/")[
-            result.toString().split("/").length - 1
-          ],
-          type: `audio/${
-            result
-              .toString()
-              .split("/")
-              [result.toString().split("/").length - 1].toString()
-              .split(".")[
-              result
-                .toString()
-                .split("/")
-                [result.toString().split("/").length - 1].toString()
-                .split(".").length - 1
-            ]
-          }`,
+          name: result.toString().split("/").pop(),
+          type: `audio/${result.toString().split(".").pop()}`,
           duration: this.state.recordTime,
         };
         console.log("audio file", audioFile);
@@ -219,6 +204,7 @@ class AudioMessage extends React.PureComponent {
       })
       .catch((err) => {
         this.setState({ isSending: false });
+        this.onStopRecord();
         console.log("++ ", err);
       });
   };
