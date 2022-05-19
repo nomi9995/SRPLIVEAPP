@@ -199,30 +199,30 @@ class MessageScreen extends Component {
   };
 
   calculateOffset = async () => {
-    if (Platform.OS == "ios") {
-      let ind = -1;
-      const { selectedUser } = this.props?.route?.params;
-      positionsArray = this.props.scrollPosition;
+    // if (Platform.OS == "ios") {
+    let ind = -1;
+    const { selectedUser } = this.props?.route?.params;
+    positionsArray = this.props.scrollPosition;
 
-      let chatUserId =
-        selectedUser?.user_id === undefined
-          ? selectedUser.id
-          : selectedUser.user_id;
+    let chatUserId =
+      selectedUser?.user_id === undefined
+        ? selectedUser.id
+        : selectedUser.user_id;
 
-      if (positionsArray.length > 0) {
-        ind = positionsArray.findIndex(
-          (x) => parseInt(x.selectedUser) === parseInt(chatUserId)
-        );
-      }
-
-      let n = ind !== -1 ? positionsArray[ind].index : 0;
-
-      await this.setState({ offset: n, offsetBottom: n, initialIndex: n });
-      this.getAllMsgsFromDb();
-    } else {
-      await this.setState({ offset: 0, offsetBottom: 0, initialIndex: 0 });
-      this.getAllMsgsFromDb();
+    if (positionsArray.length > 0) {
+      ind = positionsArray.findIndex(
+        (x) => parseInt(x.selectedUser) === parseInt(chatUserId)
+      );
     }
+
+    let n = ind !== -1 ? positionsArray[ind].index : 0;
+
+    await this.setState({ offset: n, offsetBottom: n, initialIndex: n });
+    this.getAllMsgsFromDb();
+    // } else {
+    //   await this.setState({ offset: 0, offsetBottom: 0, initialIndex: 0 });
+    //   this.getAllMsgsFromDb();
+    // }
   };
 
   getAllMsgsFromDb = (isFromDownBtn = false) => {
@@ -883,6 +883,10 @@ class MessageScreen extends Component {
 
     renderchangedate = Date;
 
+    if (this.state.initialIndex > 0) {
+      this.scrollStart();
+    }
+
     if (msgDate != Date) {
       await this.setState({ msgDate: Date });
     }
@@ -1070,6 +1074,7 @@ class MessageScreen extends Component {
                           initialIndex: 0,
                           isInverted: true,
                         });
+                        this.scrollEnd();
                         this.getAllMsgsFromDb(true);
                       } else {
                         this.chatRef?._messageContainerRef?.current?.scrollToIndex(
