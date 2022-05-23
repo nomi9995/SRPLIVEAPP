@@ -87,7 +87,7 @@ class AudioMessage extends React.PureComponent {
     try {
       const path = Platform.select({
         ios: `srplive-1234.m4a`,
-        android: `${this.state.audioPath}/1234.mp3`,
+        android: `${this.state.audioPath}/1234.m4a`,
       });
       const uri = await this.audioRecorderPlayer.startRecorder(path);
       this.audioRecorderPlayer.addRecordBackListener((e) => {
