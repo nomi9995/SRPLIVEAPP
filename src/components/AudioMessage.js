@@ -87,7 +87,7 @@ class AudioMessage extends React.PureComponent {
     try {
       const path = Platform.select({
         ios: `srplive-1234.m4a`,
-        android: `${this.state.audioPath}/1234.mp3`,
+        android: `${this.state.audioPath}/1234.m4a`,
       });
       const uri = await this.audioRecorderPlayer.startRecorder(path);
       this.audioRecorderPlayer.addRecordBackListener((e) => {
@@ -140,21 +140,32 @@ class AudioMessage extends React.PureComponent {
     this.setState({ isSending: true });
     try {
       const result = await this.audioRecorderPlayer.stopRecorder();
+      let result1;
+      let audioFile1 = {};
       if (Platform.OS == "ios") {
-        const result1 = await Audio.compress(result, {
-          quality:
-            this.props.audioCompressionQuality == "auto" || "uncompressed"
-              ? "medium"
-              : this.props.audioCompressionQuality,
-        });
-        this.audioRecorderPlayer.removeRecordBackListener();
-        let audioFile1 = {
-          uri: `file:///${result1.split("//")[1]}`,
-          name: "srplive-1234.m4a",
-          type: `audio/${result1.split(".").pop()}`,
-          duration: this.state.recordTime,
-        };
-        console.log("audioFile1", audioFile1);
+        if (this.props.audioCompressionQuality == "uncompressed") {
+          this.audioRecorderPlayer.removeRecordBackListener();
+          audioFile1 = {
+            uri: `${result}`,
+            name: "srplive-1234.m4a",
+            type: `audio/${result.split(".").pop()}`,
+            duration: this.state.recordTime,
+          };
+        } else {
+          this.audioRecorderPlayer.removeRecordBackListener();
+          result1 = await Audio.compress(result, {
+            quality:
+              this.props.audioCompressionQuality == "auto"
+                ? "medium"
+                : this.props.audioCompressionQuality,
+          });
+          audioFile1 = {
+            uri: `file:///${result1.split("//")[1]}`,
+            name: "srplive-1234.m4a",
+            type: `audio/${result1.split(".").pop()}`,
+            duration: this.state.recordTime,
+          };
+        }
         this.socketAPIRun(audioFile1);
       } else {
         let audioFile = {
