@@ -35,6 +35,7 @@ class homeScreen extends Component {
       routes: [
         { key: "first", title: "CHATS" },
         { key: "second", title: "STATUS" },
+        { key: "third", title: "CALLS" },
       ],
     };
   }
@@ -93,12 +94,13 @@ class homeScreen extends Component {
   };
 
   FirstRoute = () => <RecentList navProps={this.props} />;
-
   SecondRoute = () => <StoryTabs navProps={this.props} />;
+  ThirdRoute = () => <CallTab navProps={this.props} />;
 
   renderScene = SceneMap({
     first: this.FirstRoute,
     second: this.SecondRoute,
+    third: this.ThirdRoute,
   });
 
   renderTabBar = (props) => (
@@ -114,6 +116,7 @@ class homeScreen extends Component {
 
     let name = "comment-alt";
     if (index === 1) name = "camera";
+    if (index === 2) name = "phone";
     else name = "comment-alt";
 
     return this.props.statusState === true ? (

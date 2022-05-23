@@ -34,8 +34,47 @@ class MessageInputToolBar extends React.PureComponent {
     this.state = {
       changeText: true,
       audioRecod: false,
+      isFirst: true,
     };
   }
+
+  componentDidMount = () => {
+    setInterval(() => {
+      let len = this.props.messageText.length;
+      setTimeout(() => {
+        let lenAgain = this.props.messageText.length;
+        if (len == lenAgain) {
+          this.turnOffSocket();
+        }
+      }, 3000);
+    }, 5000);
+  };
+
+  componentDidUpdate = (prevProps) => {
+    if (prevProps.messageText != null) {
+      if (prevProps.messageText.length > this.props.messageText.length) {
+        this.turnOffSocket();
+      }
+    }
+  };
+
+  turnOnSocket = () => {
+    let obj = {
+      typing_user: this.props.user?.user.id,
+      active_room: null,
+      active_user: this.props.selectedUser.user_id,
+    };
+    socket.emit("typing_on", JSON.stringify(obj));
+  };
+
+  turnOffSocket = () => {
+    let typing_off = {
+      typing_user: this.props.user?.user.id,
+      active_room: null,
+      active_user: this.props.selectedUser.user_id,
+    };
+    socket.emit("typing_off", JSON.stringify(typing_off));
+  };
 
   renderMediaOptions() {
     return <View>{this.props.renderMediaOptions("mediaOptionOpen")}</View>;
@@ -46,22 +85,9 @@ class MessageInputToolBar extends React.PureComponent {
   }
 
   onChangeText = (text) => {
+    if (text.length > this.props.messageText.length) this.turnOnSocket();
+
     this.props.onSetMessageText(text);
-    if (text === "") {
-      let typing_off = {
-        typing_user: this.props.user?.user.id,
-        active_room: null,
-        active_user: this.props.selectedUser.user_id,
-      };
-      socket.emit("typing_off", JSON.stringify(typing_off));
-    } else {
-      let obj = {
-        typing_user: this.props.user?.user.id,
-        active_room: null,
-        active_user: this.props.selectedUser.user_id,
-      };
-      socket.emit("typing_on", JSON.stringify(obj));
-    }
   };
 
   render() {
@@ -139,12 +165,14 @@ class MessageInputToolBar extends React.PureComponent {
                   <TouchableOpacity
                     style={styles.buttonWrapper}
                     onPress={() => {
+                      this.turnOffSocket();
+
                       if (this.props.replyState && !this.props.messageEdit) {
                         if (this.props.messageText.trim().length < 1000) {
                           this.props.onSendReplyMessage(
                             this.props.messageText.trim()
                           );
-                          this.props.onSetMessageText(null);
+                          this.props.onSetMessageText("");
                         } else {
                           Alert.alert(
                             "Sorry",
@@ -156,7 +184,7 @@ class MessageInputToolBar extends React.PureComponent {
                           this.props.onSendTextMessage(
                             this.props.messageText.trim()
                           );
-                          this.props.onSetMessageText(null);
+                          this.props.onSetMessageText("");
                         } else {
                           Alert.alert(
                             "Sorry",

@@ -13,6 +13,6 @@ export default {
   previewType: null,
   renderstate: false,
   messageEdit: false,
-  messageText: null,
+  messageText: "",
   audioPlayState: null,
 };

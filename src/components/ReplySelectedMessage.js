@@ -40,7 +40,7 @@ class ReplySelectedMessage extends React.PureComponent {
   onPressCross = () => {
     this.props.onSetReplyState(false);
     this.props.onSetMessageEdit(false);
-    this.props.onSetMessageText(null);
+    this.props.onSetMessageText("");
     this.props.onSetOnLongPress([]);
   };
 
