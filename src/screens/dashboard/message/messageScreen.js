@@ -394,8 +394,6 @@ class MessageScreen extends Component {
             if (msg !== undefined && res3 == false) {
               if (msg !== undefined) {
                 if (
-                  msg.chat.sender_id ===
-                    this.props?.route?.params.selectedUser?.user_id &&
                   msg.chat.chat_type === "private" &&
                   this.props?.route?.params.selectedUser.is_room == 0
                 ) {

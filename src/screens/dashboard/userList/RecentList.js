@@ -129,7 +129,9 @@ class RecentList extends Component {
         let onlineUserId = this.props.user?.user.id;
         MessagesQuieries.insertAndUpdateMessageList(
           { tableName, resp, onlineUserId },
-          (res3) => {}
+          (res3) => {
+            this.getUserData();
+          }
         );
       }
     });
