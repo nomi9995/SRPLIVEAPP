@@ -141,12 +141,12 @@ class HomeHeader extends React.PureComponent {
         this.props.onSetOnLongPress([]);
         this.props.onSetReplyState(false);
         this.props.onSetMessageEdit(false);
-        this.props.onSetMessageText(null);
+        this.props.onSetMessageText("");
         this.props.onSetMediaOptionsOpen(false);
         this.props.onSetSickerOpen(false);
       } else if (screen === "message") {
         this.setState({ isBackPressed: true });
-        this.props.onSetMessageText(null);
+        this.props.onSetMessageText("");
         this.props.onSetMediaOptionsOpen(false);
         this.props.onSetSickerOpen(false);
         navProps.navigation.replace("Home");
@@ -308,7 +308,7 @@ class HomeHeader extends React.PureComponent {
                     this.props.onSetOnLongPress([]);
                     this.props.onSetReplyState(false);
                     this.props.onSetMessageEdit(false);
-                    this.props.onSetMessageText(null);
+                    this.props.onSetMessageText("");
                     this.props.onSetMediaOptionsOpen(false);
                     this.props.onSetSickerOpen(false);
                     navProps.navigation.replace("MessageScreen", {

@@ -176,7 +176,7 @@ class MessageScreen extends Component {
     if (this.props?.longPress.length) {
       this.props.onSetReplyState(false);
       this.props.onSetMessageEdit(false);
-      this.props.onSetMessageText(null);
+      this.props.onSetMessageText("");
       this.props.onSetOnLongPress([]);
       this.props.onSetMediaOptionsOpen(false);
       this.props.onSetSickerOpen(false);
@@ -191,7 +191,7 @@ class MessageScreen extends Component {
     } else if (this.props.mediaOptionsOpen) {
       this.props.onSetMediaOptionsOpen(false);
     } else {
-      this.props.onSetMessageText(null);
+      this.props.onSetMessageText("");
       this.props.navigation.replace("Home");
     }
 
