@@ -3,6 +3,7 @@ import {
   View,
   Text,
   TouchableOpacity,
+  TouchableHighlight,
   StyleSheet,
   SafeAreaView,
   TextInput,
@@ -133,6 +134,7 @@ class HomeHeader extends React.PureComponent {
   };
 
   backButton = () => {
+    console.log("back button");
     const { screen, navProps, backPress, longPress } = this.props;
     if (this.props.navProps?.route?.params?.screen !== undefined) {
       navProps.navigation.goBack();
@@ -331,12 +333,13 @@ class HomeHeader extends React.PureComponent {
           <View style={styles.header1}>
             <View style={styles.mainFlex}>
               <View style={styles.rowDirectionFlex}>
-                <TouchableOpacity
+                <TouchableHighlight
+                  underlayColor="rgba(236, 236, 236, 0.2)"
                   style={styles.backIcon}
                   onPress={() => this.backButton()}
                 >
                   <FontAwesome name={"arrow-left"} size={20} color={"white"} />
-                </TouchableOpacity>
+                </TouchableHighlight>
                 <Text style={styles.slectedMessagesCountText}>
                   {longPress.length}
                 </Text>
@@ -348,7 +351,8 @@ class HomeHeader extends React.PureComponent {
                     this.props.longPress[0].type == 6 ||
                     this.props.longPress[0].type == 7 ||
                     this.props.longPress[0].type == 11 ? (
-                      <TouchableOpacity
+                      <TouchableHighlight
+                        underlayColor="rgba(236, 236, 236, 0.2)"
                         style={[
                           styles.iconDesign,
                           { alignItems: "center", marginRight: 12 },
@@ -363,13 +367,14 @@ class HomeHeader extends React.PureComponent {
                         {/* <Text style={{ color: "white", fontSize: 12 }}>
                           share
                         </Text> */}
-                      </TouchableOpacity>
+                      </TouchableHighlight>
                     ) : null}
                   </>
                 ) : null}
                 <View style={{ flexDirection: "row" }}>
                   {shouldEdit && (
-                    <TouchableOpacity
+                    <TouchableHighlight
+                      underlayColor="rgba(236, 236, 236, 0.2)"
                       style={[
                         styles.iconDesign,
                         { alignItems: "center", marginRight: 12 },
@@ -381,9 +386,10 @@ class HomeHeader extends React.PureComponent {
                         size={20}
                         color={"white"}
                       />
-                    </TouchableOpacity>
+                    </TouchableHighlight>
                   )}
-                  <TouchableOpacity
+                  <TouchableHighlight
+                    underlayColor="rgba(236, 236, 236, 0.2)"
                     style={[
                       styles.iconDesign,
                       { alignItems: "center", marginRight: 12 },
@@ -391,9 +397,10 @@ class HomeHeader extends React.PureComponent {
                     onPress={() => this.deleteMessage()}
                   >
                     <FontAwesome name={"trash"} size={20} color={"white"} />
-                  </TouchableOpacity>
+                  </TouchableHighlight>
                   {this.props.longPress.length == 1 ? (
-                    <TouchableOpacity
+                    <TouchableHighlight
+                      underlayColor="rgba(236, 236, 236, 0.2)"
                       onPress={() => {
                         this.props.onSetReplyState(true);
                       }}
@@ -403,9 +410,10 @@ class HomeHeader extends React.PureComponent {
                       ]}
                     >
                       <FontAwesome name={"reply"} size={20} color={"white"} />
-                    </TouchableOpacity>
+                    </TouchableHighlight>
                   ) : null}
-                  <TouchableOpacity
+                  <TouchableHighlight
+                    underlayColor="rgba(236, 236, 236, 0.2)"
                     onPress={() =>
                       navProps.navigation.replace("ForwardContactList", {
                         selectedUser: selectedUser,
@@ -417,8 +425,9 @@ class HomeHeader extends React.PureComponent {
                     ]}
                   >
                     <FontAwesome name={"share"} size={20} color={"white"} />
-                  </TouchableOpacity>
-                  <TouchableOpacity
+                  </TouchableHighlight>
+                  <TouchableHighlight
+                    underlayColor="rgba(236, 236, 236, 0.2)"
                     ref={(r) => {
                       this.button = r;
                     }}
@@ -430,7 +439,7 @@ class HomeHeader extends React.PureComponent {
                       size={20}
                       color={"white"}
                     />
-                  </TouchableOpacity>
+                  </TouchableHighlight>
                 </View>
               </View>
             </View>
@@ -467,12 +476,13 @@ class HomeHeader extends React.PureComponent {
         <SafeAreaView style={{ backgroundColor: "#008069" }}>
           {this.props.searchShow ? (
             <View style={styles.searchView}>
-              <TouchableOpacity
+              <TouchableHighlight
+                underlayColor="rgba(236, 236, 236, 0.2)"
                 onPress={this.searchBackAction}
-                style={{ padding: 5 }}
+                style={styles.iconDesign}
               >
                 <FontAwesome name={"arrow-left"} size={20} color={"white"} />
-              </TouchableOpacity>
+              </TouchableHighlight>
               <TextInput
                 autoFocus={true}
                 style={styles.searchTextInput}
@@ -495,7 +505,8 @@ class HomeHeader extends React.PureComponent {
                   {screen === "message" ||
                   screen === "allUser" ||
                   screen == "groupList" ? (
-                    <TouchableOpacity
+                    <TouchableHighlight
+                      underlayColor="#rgba(236, 236, 236, 0.2)"
                       disabled={this.state.isBackPressed}
                       style={styles.backIcon}
                       onPress={() => this.backButton()}
@@ -534,7 +545,7 @@ class HomeHeader extends React.PureComponent {
                           />
                         )}
                       </View>
-                    </TouchableOpacity>
+                    </TouchableHighlight>
                   ) : null}
                   {screen == "allUser" || screen == "groupList" ? null : (
                     <>
@@ -631,23 +642,32 @@ class HomeHeader extends React.PureComponent {
                   )}
                 </View>
                 <View style={styles.iconsFlex}>
-                  <TouchableOpacity
-                    style={[styles.iconDesign, { marginRight: 12 }]}
-                  >
+                  <View>
                     {screen === "message" ? (
-                      <FontAwesome name={"phone"} size={20} color={"white"} />
+                      <TouchableHighlight
+                        underlayColor="#rgba(236, 236, 236, 0.2)"
+                        style={[styles.iconDesign, { marginRight: 12 }]}
+                        onPress={() => console.log("")}
+                      >
+                        <FontAwesome name={"phone"} size={20} color={"white"} />
+                      </TouchableHighlight>
                     ) : (
-                      <TouchableOpacity onPress={this.searchButton}>
+                      <TouchableHighlight
+                        underlayColor="#rgba(236, 236, 236, 0.2)"
+                        style={[styles.iconDesign, { marginRight: 12 }]}
+                        onPress={this.searchButton}
+                      >
                         <FontAwesome
                           name={"search"}
                           size={20}
                           color={"white"}
                         />
-                      </TouchableOpacity>
+                      </TouchableHighlight>
                     )}
-                  </TouchableOpacity>
+                  </View>
                   {screen == "allUser" || screen == "groupList" ? null : (
-                    <TouchableOpacity
+                    <TouchableHighlight
+                      underlayColor="rgba(236, 236, 236, 0.2)"
                       ref={(r) => {
                         this.button = r;
                       }}
@@ -659,7 +679,7 @@ class HomeHeader extends React.PureComponent {
                         size={20}
                         color={"white"}
                       />
-                    </TouchableOpacity>
+                    </TouchableHighlight>
                   )}
                 </View>
               </View>
@@ -736,12 +756,15 @@ const styles = StyleSheet.create({
     marginRight: "2%",
   },
   iconDesign: {
-    marginLeft: 5,
-    padding: 5,
+    width: 33,
+    height: 33,
+    borderRadius: 33 / 2,
+    justifyContent: "center",
+    alignItems: "center",
   },
   backIcon: {
-    marginLeft: 5,
-    padding: 5,
+    padding: 4,
+    borderRadius: 30,
   },
   searchView: {
     flexDirection: "row",
