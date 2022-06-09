@@ -59,7 +59,6 @@ class MediaUploadPreview extends React.Component {
   }
 
   sendHandler = (caption) => {
-    console.log("caption", caption);
     this.props.onSetMediaUploadState(true);
     this.props.onUploadMedia(this.state.selectedMedia, caption);
   };

@@ -10,6 +10,7 @@ import {
   ActivityIndicator,
   findNodeHandle,
   NativeModules,
+  Dimensions,
 } from "react-native";
 import FastImage from "react-native-fast-image";
 import FontAwesome5 from "react-native-vector-icons/dist/FontAwesome5";
@@ -20,6 +21,8 @@ import appConfig from "../../../utils/appConfig";
 import Popover from "react-native-modal-popover";
 import Popup from "../../../components/Popup";
 import StatusPopup from "../../../components/StatusPopup";
+
+const WIDTH = Dimensions.get("window").width;
 
 class storyView extends Component {
   constructor(props) {
@@ -45,11 +48,14 @@ class storyView extends Component {
     return url2.replace(/\\/g, "/");
   };
 
-  optionsHandler = () => {
+  optionsHandler = (y, height) => {
+    let width = 500;
+    let x = 16;
     this.setState({ showPopover: true });
     const handle = findNodeHandle(this.button);
     if (handle) {
-      NativeModules.UIManager.measure(handle, (x0, y0, width, height, x, y) => {
+      NativeModules.UIManager.measure(handle, (x0, y0) => {
+        console.log(x, y, width, height);
         this.setState({
           popoverAnchor: { x, y, width, height },
         });
@@ -146,8 +152,15 @@ class storyView extends Component {
                           <TouchableOpacity
                             ref={(r) => {
                               this.button = r;
+                              console.log("ref", r);
                             }}
-                            onPress={() => this.optionsHandler()}
+                            onPress={(e) => {
+                              console.log("e", e?.nativeEvent);
+                              this.optionsHandler(
+                                e.nativeEvent?.locationY,
+                                e.nativeEvent?.pageY
+                              );
+                            }}
                             style={{
                               width: 30,
                               height: 30,

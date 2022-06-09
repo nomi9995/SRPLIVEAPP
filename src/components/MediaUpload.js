@@ -66,7 +66,6 @@ class MediaUpload extends Component {
       this.recordVideo();
     }
     if (this.props.mediaType === "gallery") {
-      console.log("1");
       this.slectedGalleryMedia();
     }
   };
@@ -255,13 +254,11 @@ class MediaUpload extends Component {
   };
 
   slectedGalleryMedia = () => {
-    console.log("3");
     ImagePicker.openPicker({
       multiple: true,
       cropping: false,
     })
       .then((data) => {
-        console.log("data", data);
         let formdata = new FormData();
         let selectMessageArray = [];
         let check = null;
@@ -313,12 +310,10 @@ class MediaUpload extends Component {
       })
       .catch((e) => {
         if (this.props.statusState) {
-          console.log("if");
           this.props.onSetStatus(false);
           this.props.onSetMediaType(null);
           this.props.onBack();
         } else {
-          console.log("else");
           this.props.onSetImagePreview(false);
           this.props.onSetMediaType(null);
           this.props.onSetMediaOptionsOpen(false);
@@ -392,7 +387,6 @@ class MediaUpload extends Component {
           name: element.name,
           type: element.type,
         };
-        console.log("img obj", obj);
         compressedMedia.push(obj);
       } else if (type == "video") {
         let vidOptions = {
@@ -535,6 +529,12 @@ class MediaUpload extends Component {
         this.props.onSetMediaType(null);
       })
       .catch((err) => {
+        Toast.show("Media upload failed!");
+        this.props.onSetStatus(false);
+        this.props.onBack();
+        this.props.onSetMediaUploadState(false);
+        this.props.onSetImagePreview(false);
+        this.props.onSetMediaType(null);
         console.log("++ ", JSON.stringify(err));
       });
   };
