@@ -374,6 +374,7 @@ class MessageBubble extends React.Component {
   };
 
   longPressAction = () => {
+    console.log("this", this.props?.currentMessage);
     this.props.onSetOnLongPress([this.props?.currentMessage]);
   };
 
@@ -2377,9 +2378,11 @@ const styles = {
 
   playerContentStyle: {
     position: "absolute",
-    width: "97%",
+    width: "98%",
     height: "100%",
     flexDirection: "row",
+    backgroundColor: "white",
+    paddingRight: 5,
   },
 
   audioPlayPauseBtnStyle: {

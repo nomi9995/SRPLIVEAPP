@@ -1,0 +1,30 @@
+diff --git a/node_modules/react-native-gifted-chat/lib/MessageContainer.d.ts b/node_modules/react-native-gifted-chat/lib/MessageContainer.d.ts
+index 15d0dcd..8281551 100644
+--- a/node_modules/react-native-gifted-chat/lib/MessageContainer.d.ts
++++ b/node_modules/react-native-gifted-chat/lib/MessageContainer.d.ts
+@@ -1,6 +1,9 @@
+ import PropTypes from 'prop-types';
+ import React, { RefObject } from 'react';
+-import { FlatList, ListViewProps, ListRenderItemInfo, NativeSyntheticEvent, NativeScrollEvent, StyleProp, ViewStyle } from 'react-native';
++import { 
++    // FlatList,
++     ListViewProps, ListRenderItemInfo, NativeSyntheticEvent, NativeScrollEvent, StyleProp, ViewStyle } from 'react-native';
++     import { FlatList } from "@stream-io/flat-list-mvcp";
+ import LoadEarlier from './LoadEarlier';
+ import Message from './Message';
+ import { User, IMessage, Reply } from './Models';
+diff --git a/node_modules/react-native-gifted-chat/lib/MessageContainer.js b/node_modules/react-native-gifted-chat/lib/MessageContainer.js
+index 193772a..2eed788 100644
+--- a/node_modules/react-native-gifted-chat/lib/MessageContainer.js
++++ b/node_modules/react-native-gifted-chat/lib/MessageContainer.js
+@@ -1,6 +1,9 @@
+ import PropTypes from 'prop-types';
+ import React from 'react';
+-import { FlatList, View, StyleSheet, Keyboard, TouchableOpacity, Text, Platform, } from 'react-native';
++import { 
++    // FlatList,
++     View, StyleSheet, Keyboard, TouchableOpacity, Text, Platform, } from 'react-native';
++import { FlatList } from "@stream-io/flat-list-mvcp";
+ import LoadEarlier from './LoadEarlier';
+ import Message from './Message';
+ import Color from './Color';

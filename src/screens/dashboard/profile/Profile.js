@@ -3,6 +3,7 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  TouchableHighlight,
   View,
   ScrollView,
   Platform,
@@ -56,12 +57,13 @@ class Profile extends Component {
       <View style={styles.container}>
         <SafeAreaView style={{ backgroundColor: "#008069" }}>
           <View style={styles.headerview}>
-            <TouchableOpacity
+            <TouchableHighlight
+              underlayColor="rgba(236, 236, 236, 0.2)"
               style={styles.backButton}
               onPress={() => this.props.navigation.navigate("Home")}
             >
               <FontAwesome name={"arrow-left"} size={20} color={"white"} />
-            </TouchableOpacity>
+            </TouchableHighlight>
           </View>
         </SafeAreaView>
 
@@ -229,7 +231,11 @@ const styles = StyleSheet.create({
   },
   backButton: {
     alignSelf: "flex-start",
-    padding: 10,
+    width: 33,
+    height: 33,
+    borderRadius: 33 / 2,
+    justifyContent: "center",
+    alignItems: "center",
   },
   mediaLinkView: {
     // marginHorizontal: '2%',
