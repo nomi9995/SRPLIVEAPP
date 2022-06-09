@@ -3,6 +3,7 @@ export const THEME = "THEME";
 
 // AuthUSer
 export const LOGIN = "LOGIN";
+export const SESSION = "SESSION";
 
 //Messages
 export const STICKERS = "STICKERS";

@@ -7,11 +7,13 @@ import {
   ActivityIndicator,
 } from "react-native";
 import RNRestart from "react-native-restart";
+import ConnectyCube from "react-native-connectycube";
 import ProgressCircle from "react-native-progress-circle";
+import AsyncStorage from "@react-native-community/async-storage";
 import FontAwesome5 from "react-native-vector-icons/dist/FontAwesome5";
 
 //Redux
-import { setAuthUser, setStickers } from "../../store/actions";
+import { setAuthUser, setStickers, setSession } from "../../store/actions";
 import { connect } from "react-redux";
 
 //Services
@@ -33,13 +35,13 @@ class LoadingMessages extends Component {
       steps: [
         {
           text: "Fetching Stickers",
-          isCompleted: true,
+          isCompleted: false,
           isInProgress: false,
         },
         {
           text: "Fetching Messages",
           isCompleted: false,
-          isInProgress: true,
+          isInProgress: false,
         },
         {
           text: "Saving Messages",
@@ -66,6 +68,11 @@ class LoadingMessages extends Component {
           isCompleted: false,
           isInProgress: false,
         },
+        {
+          text: "Creating Session",
+          isCompleted: false,
+          isInProgress: false,
+        },
       ],
     };
   }
@@ -85,7 +92,7 @@ class LoadingMessages extends Component {
       step[1].isInProgress = true;
 
       await this.setState({
-        progress: Math.ceil(100 / 7),
+        progress: Math.ceil(100 / 8),
         steps: step,
       });
 
@@ -111,7 +118,7 @@ class LoadingMessages extends Component {
       step[2].isInProgress = true;
 
       await this.setState({
-        progress: Math.ceil(100 / 7) + this.state.progress,
+        progress: Math.ceil(100 / 8) + this.state.progress,
         steps: step,
       });
 
@@ -128,7 +135,7 @@ class LoadingMessages extends Component {
           step[3].isInProgress = true;
 
           await this.setState({
-            progress: Math.ceil(100 / 7) + this.state.progress,
+            progress: Math.ceil(100 / 8) + this.state.progress,
             steps: step,
           });
 
@@ -147,7 +154,7 @@ class LoadingMessages extends Component {
       step[4].isInProgress = true;
 
       await this.setState({
-        progress: Math.ceil(100 / 7) + this.state.progress,
+        progress: Math.ceil(100 / 8) + this.state.progress,
         steps: step,
       });
 
@@ -166,7 +173,7 @@ class LoadingMessages extends Component {
             step[5].isInProgress = true;
 
             await this.setState({
-              progress: Math.ceil(100 / 7) + this.state.progress,
+              progress: Math.ceil(100 / 8) + this.state.progress,
               steps: step,
             });
             this.addRecentListToDB();
@@ -188,7 +195,7 @@ class LoadingMessages extends Component {
         step[6].isInProgress = true;
 
         await this.setState({
-          progress: Math.ceil(100 / 7) + this.state.progress,
+          progress: Math.ceil(100 / 8) + this.state.progress,
           steps: step,
         });
         let tableName = "users_list_table";
@@ -202,19 +209,105 @@ class LoadingMessages extends Component {
             let step = this.state.steps;
             step[6].isCompleted = true;
             step[6].isInProgress = false;
+            step[7].isInProgress = true;
 
             await this.setState({
-              progress: 100,
+              progress: Math.ceil(100 / 8) + this.state.progress,
               steps: step,
             });
-            this.props.onSetAuthUser(this.state.authData);
             setTimeout(() => {
-              RNRestart.Restart();
+              this.globalSettingsApi();
             }, 100);
           }
         );
       }
     );
+  };
+
+  globalSettingsApi = () => {
+    let url = "https://www.srplivehelp.com/api/global-settings";
+
+    fetch(url, {
+      method: "post",
+      headers: {
+        Authorization: `Bearer ${this.state.authData.token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then(async (response) => {
+        await AsyncStorage.setItem(
+          "globalSettings",
+          JSON.stringify(response.data)
+        );
+        this.props.onSetSession(response.data);
+        this.createConnectyCubeSession(response.data);
+      });
+  };
+
+  createConnectyCubeSession = (session) => {
+    const CREDENTIALS = {
+      appId: session.connectycube_app_id,
+      authKey: session.connectycube_auth_key,
+      authSecret: session.connectycube_secret_key,
+    };
+
+    const CONFIG = {
+      endpoints: {
+        api: session.connectycube_api_endpoint,
+        chat: session.connectycube_chat_endpoint,
+      },
+      debug: { mode: 0 },
+    };
+    ConnectyCube.init(CREDENTIALS, CONFIG);
+
+    let userCredentials = {
+      login: "Bearer " + this.state.authData.token,
+      password: "12345678",
+    };
+
+    ConnectyCube.createSession(userCredentials).then((res) => {
+      ConnectyCube.chat
+        .connect({
+          userId: res.id,
+          password: res.token,
+        })
+        .then(() => {
+          this.setConnectyCubeUserId(res);
+        })
+        .catch((error) => {
+          console.log("error: ", error);
+        });
+    });
+  };
+
+  setConnectyCubeUserId = (data) => {
+    let url = "https://www.srplivehelp.com/api/set-connectycube-user-id";
+    let formdata = new FormData();
+    formdata.append("connectycube_user_id", data.id);
+
+    fetch(url, {
+      method: "post",
+      headers: {
+        Authorization: `Bearer ${this.state.authData.token}`,
+      },
+      body: formdata,
+    })
+      .then((res) => res.json())
+      .then(async () => {
+        let step = this.state.steps;
+        step[7].isCompleted = true;
+        step[7].isInProgress = false;
+
+        await this.setState({
+          progress: 100,
+          steps: step,
+        });
+
+        this.props.onSetAuthUser(this.state.authData);
+        setTimeout(() => {
+          RNRestart.Restart();
+        }, 100);
+      });
   };
 
   render() {
@@ -297,7 +390,29 @@ class LoadingMessages extends Component {
   }
 }
 
-const styles = StyleSheet.create({});
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+
+  topContainer: {
+    flex: 0.55,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  crad: {
+    backgroundColor: "#fff",
+    borderWidth: 2,
+    borderRadius: 10,
+    borderColor: "#fff",
+    paddingHorizontal: 10,
+    paddingVertical: 15,
+    marginVertical: 5,
+    flexDirection: "row",
+    width: "90%",
+  },
+});
 
 const mapStateToProps = (state) => {
   return {
@@ -312,6 +427,9 @@ const mapDispatchToProps = (dispatch) => {
     },
     onSetStickers: (stickers) => {
       dispatch(setStickers(stickers));
+    },
+    onSetSession: (session) => {
+      dispatch(setSession(session));
     },
   };
 };

@@ -56,28 +56,31 @@ class LoginScreen extends Component {
     let password = this.state.password;
     let device = 2;
 
-    UserService.login({ email, password, device }, true).then((response) => {
-      this.PushNotification(response);
-      if (response.data.errors.length === 0) {
-        showMessage({
-          message: "Login Successful",
-          type: "success",
-          position: { top: 30 },
-        });
-        Toast.show("Login Successfully.", Toast.SHORT);
+    UserService.login({ email, password, device }, true).then(
+      async (response) => {
+        this.PushNotification(response);
+        if (response.data.errors.length === 0) {
+          showMessage({
+            message: "Login Successful",
+            type: "success",
+            position: { top: 30 },
+          });
+          Toast.show("Login Successfully.", Toast.SHORT);
 
-        this.props.navigation.replace("LoadingMessages", {
-          token: response.data.data,
-        });
-      } else {
-        showMessage({ message: "Login Failed", type: "warning" });
-        if (response.data.errors[0]?.password !== undefined) {
-          Alert.alert(response.data.errors[0]?.password[0]);
-        } else if (response.data.errors[0]?.email !== undefined) {
-          Alert.alert(response.data.errors[0]?.email[0]);
+          this.props.navigation.replace("LoadingMessages", {
+            token: response.data.data,
+          });
+          AsyncStorage.setItem("authData", JSON.stringify(response.data.data));
+        } else {
+          showMessage({ message: "Login Failed", type: "warning" });
+          if (response.data.errors[0]?.password !== undefined) {
+            Alert.alert(response.data.errors[0]?.password[0]);
+          } else if (response.data.errors[0]?.email !== undefined) {
+            Alert.alert(response.data.errors[0]?.email[0]);
+          }
         }
       }
-    });
+    );
   };
 
   PushNotification = async (response) => {

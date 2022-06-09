@@ -31,6 +31,7 @@ class LogoutOut extends Component {
       LogoutQueries.insertAndUpdateLogoutList(
         { tableName, userId, logoutTime },
         (res) => {
+          AsyncStorage.clear();
           this.props.onSetAuthUser(null);
           this.props.closeLogoutModel();
         }

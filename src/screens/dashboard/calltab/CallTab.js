@@ -26,7 +26,7 @@ class CallItem extends Component {
   render() {
     return (
       <ScrollView>
-        {this.state?.callLogData.map((res) => {
+        {this.state.callLogData?.map((res) => {
           return (
             <TouchableOpacity style={styles.container}>
               <View style={[styles.profileView]}>

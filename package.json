@@ -33,6 +33,7 @@
     "react-native-background-actions": "^2.6.5",
     "react-native-camera": "^4.2.1",
     "react-native-compressor": "^1.5.2",
+    "react-native-connectycube": "^3.18.0",
     "react-native-country-picker-modal": "^2.0.0",
     "react-native-device-info": "^8.4.9",
     "react-native-document-picker": "^7.1.1",
