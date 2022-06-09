@@ -7,9 +7,9 @@ import {
   Animated,
   ActivityIndicator,
   Dimensions,
-  Pressable
+  Pressable,
 } from "react-native";
-import Video from "react-native-video";
+import Video from "react-native-video-controls";
 import FastImage from "react-native-fast-image";
 import GestureRecognizer from "react-native-swipe-gestures";
 
@@ -29,21 +29,13 @@ class statusViewerScreen extends React.Component {
       onAnimateCount: 1,
       onPressAnimate: false,
       width: new Animated.Value(0),
-      pressInState:0
+      pressInState: 0,
     };
   }
   componentDidMount() {
-    if(this.props.route.params.myStories == 'Mystories'){
-      this.props.route.params?.stories?.map((res, key) => {
-        this.state.stories.push({
-          id: key + 1,
-          url: `https://www.srplivehelp.com/media/drive/${res.content.path}`,
-          type: res.story_type,
-          duration: res.content.duration,
-        });
-      });
-    }else{
-      this.props.route.params?.stories?.stories?.map((res, key) => {
+    console.log("this.props.route.params", this.props.route.params);
+    if (this.props.route.params.stories) {
+      this.props.route.params?.stories?.stories.map((res, key) => {
         this.state.stories.push({
           id: key + 1,
           url: `https://www.srplivehelp.com/media/drive/${res.content.path}`,
@@ -57,7 +49,7 @@ class statusViewerScreen extends React.Component {
     }
   }
 
-  onAnimate = (check = false,duration=2000) => {
+  onAnimate = (check = false, duration = 2000) => {
     if (!this.state.loader || check) {
       this.state.activeBar.push(this.state.activeIndex - 1);
       Animated.timing(this.state.width, {
@@ -77,35 +69,35 @@ class statusViewerScreen extends React.Component {
       });
     }
   };
-  imagePathSet = url => {
+  imagePathSet = (url) => {
     let url2 = String(url);
-    return url2.replace(/\\/g, '/');
+    return url2.replace(/\\/g, "/");
   };
 
   onLoadVideo = (duration) => {
-    this.setState({ loader: false })
-    this.onAnimate(true,duration*1000);
-  }
+    this.setState({ loader: false });
+    this.onAnimate(true, duration * 500);
+  };
   onSwipeDown = () => {
     this.props.navigation.goBack();
-  }
+  };
 
   render() {
+    console.log("stories", this.state.stories);
     const config = {
       velocityThreshold: 0.2,
       directionalOffsetThreshold: 80,
     };
-    let presIn = 0
+    let presIn = 0;
     return (
       <GestureRecognizer config={config} onSwipeDown={this.onSwipeDown}>
-
-        <>
+        <View style={{ backgroundColor: "black", height: "100%" }}>
           <View
             style={{
               flexDirection: "row",
               position: "absolute",
               zIndex: 1,
-              marginHorizontal: "2%",
+              paddingHorizontal: "2%",
             }}
           >
             {this.state.stories.map((data, key) => {
@@ -137,82 +129,94 @@ class statusViewerScreen extends React.Component {
               );
             })}
           </View>
-          {this.state.loader ? (
-            <View style={{ flex: 1 }}>
-              <ActivityIndicator
-                style={{ flex: 1 }}
-                size="large"
-                color="grey"
-              />
-            </View>
-          ) : null}
           {this.state?.stories.map((res, key) => {
+            console.log("res", res);
+            console.log("res url", res.url.replace(/ /g, "%20"));
             return (
-              <View style={{backgroundColor:'black'}}>
+              <View style={{ backgroundColor: "black" }}>
                 {res.type === 1
                   ? this.state.activeIndex === res.id && (
-                    <>
-                      <FastImage
-                        onLoad={(res) => {
-                          this.setState({ loader: false });
-                          this.onAnimate(true);
-                        }}
-                        key={key}
-                        source={{ uri: this.imagePathSet(res.url)}}
-                        resizeMode='contain'
-                      >
-                        <View
-                          style={{ flexDirection: "column", flexWrap: "wrap" }}
+                      <>
+                        <FastImage
+                          onLoad={(res) => {
+                            this.setState({ loader: false });
+                            this.onAnimate(true);
+                          }}
+                          key={key}
+                          source={{ uri: this.imagePathSet(res.url) }}
+                          resizeMode="contain"
                         >
-                          <View style={{ width: "50%", height: "100%" }}>
-                            <TouchableOpacity
-                              style={{ height: "100%" }}
-                              onPressIn={() => {
-                                this.state.width.stopAnimation(
-                                  ({ value }) => {}
-                                );
-                              }}
-                              onPressOut={() => {
-                                this.onAnimate();
-                              }}
-                              onPress={() => {
-                                if (this.state.activeIndex !== 1) {
-                                  this.setState({
-                                    activeIndex: this.state.activeIndex - 1,
-                                    loader: false,
-                                  });
-                                  this.state.width.setValue(0);
-                                  this.onAnimate();
-                                }else if(this.state.activeIndex === this.state.stories.length ){
-                                  null
-                                }
+                          <View
+                            style={{
+                              flexDirection: "column",
+                              flexWrap: "wrap",
+                            }}
+                          >
+                            <View
+                              style={{
+                                width: "50%",
+                                height: "100%",
                               }}
                             >
-                              <Text
+                              <TouchableOpacity
                                 style={{
-                                  color: "red",
-                                  fontSize: 22,
+                                  flex: 1,
                                 }}
-                              ></Text>
-                            </TouchableOpacity>
-                          </View>
-                          <View style={{ width: "50%", height: "100%"}}>
-                            <Pressable
-                              style={{ height: "100%" }}
-                              onLongPress={() => {{
-                                this.state.width.stopAnimation(
-                                  ({ value }) => {}
-                                );
-                                presIn = 1
-                              }}}
-                              onPressOut={() => {{
-                                presIn=2
-                                this.onAnimate();
-                              }}}
-                              onPress={() => {
-                                if (
-                                  this.state.activeIndex <
-                                  this.state.stories.length
+                                onPressIn={() => {
+                                  this.state.width.stopAnimation(
+                                    ({ value }) => {}
+                                  );
+                                }}
+                                onPressOut={() => {
+                                  this.onAnimate();
+                                }}
+                                onPress={() => {
+                                  if (this.state.activeIndex !== 1) {
+                                    this.setState({
+                                      activeIndex: this.state.activeIndex - 1,
+                                      loader: false,
+                                    });
+                                    this.state.width.setValue(0);
+                                    this.onAnimate();
+                                  } else if (
+                                    this.state.activeIndex ===
+                                    this.state.stories.length
+                                  ) {
+                                    null;
+                                  }
+                                }}
+                              >
+                                <Text
+                                  style={{
+                                    color: "red",
+                                    fontSize: 22,
+                                  }}
+                                ></Text>
+                              </TouchableOpacity>
+                            </View>
+                            <View style={{ width: "50%", height: "100%" }}>
+                              <Pressable
+                                style={{
+                                  flex: 1,
+                                }}
+                                onLongPress={() => {
+                                  {
+                                    this.state.width.stopAnimation(
+                                      ({ value }) => {}
+                                    );
+                                    presIn = 1;
+                                  }
+                                }}
+                                onPressOut={() => {
+                                  {
+                                    presIn = 2;
+                                    this.onAnimate();
+                                  }
+                                }}
+                                onPress={() => {
+                                  if (
+                                    this.state.activeIndex <
+                                    this.state.stories.length
                                   ) {
                                     this.setState({
                                       activeIndex: this.state.activeIndex + 1,
@@ -220,58 +224,72 @@ class statusViewerScreen extends React.Component {
                                     });
                                     this.state.width.setValue(0);
                                     this.onAnimate();
-                                  }else if(
+                                  } else if (
                                     this.state.activeIndex ==
-                                    this.state.stories.length ){
-                                      this.props.navigation.goBack()
-                                    }
-                                      presIn = 0
-                                  }}
-                                  >
-                              <Text
-                                style={{
-                                  color: "red",
-                                  fontSize: 22,
+                                    this.state.stories.length
+                                  ) {
+                                    this.props.navigation.goBack();
+                                  }
+                                  presIn = 0;
                                 }}
-                              ></Text>
-                            </Pressable>
+                              >
+                                <Text
+                                  style={{
+                                    color: "red",
+                                    fontSize: 22,
+                                  }}
+                                ></Text>
+                              </Pressable>
+                            </View>
                           </View>
-                        </View>
-                      </FastImage>
+                        </FastImage>
                       </>
                     )
                   : this.state.activeIndex === res.id && (
                       <View
-                        style={
-                          !this.state.loader
-                            ? {
-                                height: "100%",
-                                width: "100%",
-                                backgroundColor: "#1F2831",
-                              }
-                            : { display: "none" }
-                        }
+                        style={{
+                          backgroundColor: "#000",
+                        }}
                       >
                         <Video
-                        
-                        onLoad={(res) => this.onLoadVideo(res.duration)}
-                          source={{ uri: res.url.replace(/ /g, '%20'),cache: true}}
+                          disableFullscreen
+                          disablePlayPause
+                          disableSeekbar
+                          disableVolume
+                          disableTimer
+                          disableBack
+                          onLoad={(res) => this.onLoadVideo(res.duration)}
+                          onBuffer={({ isBuffering }) => {
+                            this.setState({ loader: isBuffering });
+                            if (isBuffering) {
+                              this.state.width.stopAnimation(({ value }) => {});
+                            }
+                          }}
+                          source={{
+                            uri: res.url.replace(/ /g, "%20"),
+                            type: "mp4",
+                          }}
                           resizeMode="contain"
                           paused={false}
                           style={{
                             position: "absolute",
+                            zIndex: 2,
                             top: 0,
                             left: 0,
                             bottom: 0,
                             right: 0,
                           }}
-                          ignoreSilentSwitch = {"ignore"}
-                        
+                          ignoreSilentSwitch={"ignore"}
                         />
                         <View
                           style={{ flexDirection: "column", flexWrap: "wrap" }}
                         >
-                          <View style={{ width: "50%", height: "100%" }}>
+                          <View
+                            style={{
+                              width: "50%",
+                              height: "100%",
+                            }}
+                          >
                             <TouchableOpacity
                               style={{ height: "100%" }}
                               onPressIn={() => {
@@ -283,6 +301,7 @@ class statusViewerScreen extends React.Component {
                                 this.onAnimate();
                               }}
                               onPress={() => {
+                                console.log("ssss");
                                 if (this.state.activeIndex !== 1) {
                                   this.setState({
                                     activeIndex: this.state.activeIndex - 1,
@@ -290,8 +309,11 @@ class statusViewerScreen extends React.Component {
                                   });
                                   this.state.width.setValue(0);
                                   this.onAnimate();
-                                }else if(this.state.activeIndex === this.state.stories.length ){
-                                  null
+                                } else if (
+                                  this.state.activeIndex ===
+                                  this.state.stories.length
+                                ) {
+                                  null;
                                 }
                               }}
                             >
@@ -303,38 +325,51 @@ class statusViewerScreen extends React.Component {
                               ></Text>
                             </TouchableOpacity>
                           </View>
-                          <View style={{ width: "50%", height: "100%" }}>
-                          <Pressable
+                          <View
+                            style={{
+                              width: "50%",
+                              height: "100%",
+                            }}
+                          >
+                            <Pressable
                               style={{ height: "100%" }}
-                              onLongPress={() => {{
-                                this.state.width.stopAnimation(
-                                  ({ value }) => {}
-                                );
-                                presIn = 1
-                              }}}
-                              onPressOut={() => {{
-                                presIn=2
-                                this.onAnimate();
-                              }}}
+                              onLongPress={() => {
+                                console.log("Pressable onLongPress");
+                                {
+                                  this.state.width.stopAnimation(
+                                    ({ value }) => {}
+                                  );
+                                  presIn = 1;
+                                }
+                              }}
+                              onPressOut={() => {
+                                console.log("Pressable onPressOut");
+                                {
+                                  presIn = 2;
+                                  this.onAnimate();
+                                }
+                              }}
                               onPress={() => {
+                                console.log("Pressable onPress");
                                 if (
                                   this.state.activeIndex <
                                   this.state.stories.length
-                                  ) {
-                                    this.setState({
-                                      activeIndex: this.state.activeIndex + 1,
-                                      loader: false,
-                                    });
-                                    this.state.width.setValue(0);
-                                    this.onAnimate();
-                                  }else if(
-                                    this.state.activeIndex ==
-                                    this.state.stories.length ){
-                                      this.props.navigation.goBack()
-                                    }
-                                      presIn = 0
-                                  }}
-                                  >
+                                ) {
+                                  this.setState({
+                                    activeIndex: this.state.activeIndex + 1,
+                                    loader: false,
+                                  });
+                                  this.state.width.setValue(0);
+                                  this.onAnimate();
+                                } else if (
+                                  this.state.activeIndex ==
+                                  this.state.stories.length
+                                ) {
+                                  this.props.navigation.goBack();
+                                }
+                                presIn = 0;
+                              }}
+                            >
                               <Text
                                 style={{
                                   color: "red",
@@ -349,8 +384,8 @@ class statusViewerScreen extends React.Component {
               </View>
             );
           })}
-        </>
-        </GestureRecognizer>
+        </View>
+      </GestureRecognizer>
     );
   }
 }

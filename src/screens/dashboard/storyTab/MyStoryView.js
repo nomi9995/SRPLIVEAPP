@@ -1,4 +1,4 @@
-import React, {Component} from 'react';
+import React, { Component } from "react";
 import {
   StyleSheet,
   Text,
@@ -8,18 +8,25 @@ import {
   TouchableOpacity,
   ScrollView,
   ActivityIndicator,
-} from 'react-native';
-import FastImage from 'react-native-fast-image';
-import FontAwesome5 from 'react-native-vector-icons/dist/FontAwesome5';
-import {connect} from 'react-redux';
-import StoryServices from '../../../services/StoryServices';
-import moment from 'moment';
-import appConfig from '../../../utils/appConfig';
+  findNodeHandle,
+  NativeModules,
+} from "react-native";
+import FastImage from "react-native-fast-image";
+import FontAwesome5 from "react-native-vector-icons/dist/FontAwesome5";
+import { connect } from "react-redux";
+import StoryServices from "../../../services/StoryServices";
+import moment from "moment";
+import appConfig from "../../../utils/appConfig";
+import Popover from "react-native-modal-popover";
+import Popup from "../../../components/Popup";
+import StatusPopup from "../../../components/StatusPopup";
 
 class storyView extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      showPopover: false,
+      popoverAnchor: { x: 0, y: 0, width: 0, height: 0 },
       myStory: [],
       storyUpload: false,
       mediaUploadComponent: true,
@@ -28,66 +35,76 @@ class storyView extends Component {
   componentDidMount = () => {
     let token = this.props.user.token;
 
-    StoryServices.storyList(token).then(res => {
-      this.setState({myStory: res.data.data.my_stories.stories});
+    StoryServices.storyList(token).then((res) => {
+      this.setState({ myStory: res.data.data.my_stories.stories });
     });
   };
 
-  imagePathSet = url => {
+  imagePathSet = (url) => {
     let url2 = String(url);
-    return url2.replace(/\\/g, '/');
+    return url2.replace(/\\/g, "/");
   };
+
+  optionsHandler = () => {
+    this.setState({ showPopover: true });
+    const handle = findNodeHandle(this.button);
+    if (handle) {
+      NativeModules.UIManager.measure(handle, (x0, y0, width, height, x, y) => {
+        this.setState({
+          popoverAnchor: { x, y, width, height },
+        });
+      });
+    }
+  };
+
   render() {
     return (
       <>
-        <SafeAreaView style={{backgroundColor: '#008069'}}></SafeAreaView>
+        <SafeAreaView style={{ backgroundColor: "#008069" }}></SafeAreaView>
         <>
           <View style={styles.headerView}>
             <TouchableOpacity
-              style={{width: 30}}
-              onPress={() => this.props.navigation.goBack()}>
+              style={{ width: 30 }}
+              onPress={() => this.props.navigation.goBack()}
+            >
               <FontAwesome5
                 name="chevron-left"
                 style={{
-                  color: 'white',
+                  color: "white",
                   fontSize: 20,
                   paddingLeft: 10,
                 }}
               />
             </TouchableOpacity>
-            <Text style={styles.headerText}>MyUpdates</Text>
-            <FontAwesome5
-              name="ellipsis-h"
-              style={{
-                color: 'white',
-                fontSize: 20,
-                paddingRight: 10,
-              }}
-            />
+            <Text style={styles.headerText}>My Updates</Text>
+            <View>
+              <Text>{"         "}</Text>
+            </View>
           </View>
           {this.state.storyUpload ? (
-            <View style={{flex: 1, alignItems: 'center'}}>
+            <View style={{ flex: 1, alignItems: "center" }}>
               <ActivityIndicator color="green" size="small" />
             </View>
           ) : (
             <ScrollView>
               {this.state.myStory !== undefined ? (
                 <View>
-                  {this.state.myStory.map(data => {
+                  {this.state.myStory.map((data) => {
                     return (
                       <View style={[styles.container]}>
                         <TouchableWithoutFeedback
                           onPress={() =>
-                            this.props.navigation.navigate('StatusViewer', {
+                            this.props.navigation.navigate("StatusViewer", {
                               stories: [data],
-                              myStories: 'Mystories',
+                              myStories: "Mystories",
                             })
-                          }>
+                          }
+                        >
                           <View style={[styles.profileView]}>
                             {data?.content?.path === null ? (
                               <FastImage
                                 style={styles.profileImage}
-                                source={require('../../../assets/deafultimage.png')}
+                                source={require("../../../assets/deafultimage.png")}
                               />
                             ) : data?.story_type === 1 ? (
                               <FastImage
@@ -102,7 +119,9 @@ class storyView extends Component {
                               <FastImage
                                 style={styles.profileImage}
                                 source={{
-                                  uri: appConfig.avatarPath+this.props.user.user.avatar,
+                                  uri:
+                                    appConfig.avatarPath +
+                                    this.props.user.user.avatar,
                                 }}
                               />
                             )}
@@ -120,10 +139,28 @@ class storyView extends Component {
                             <Text style={styles.timeText}>
                               {moment
                                 .utc(data.created_on)
-                                .local('tr')
+                                .local("tr")
                                 .fromNow()}
                             </Text>
                           </View>
+                          <TouchableOpacity
+                            ref={(r) => {
+                              this.button = r;
+                            }}
+                            onPress={() => this.optionsHandler()}
+                            style={{
+                              width: 30,
+                              height: 30,
+                              justifyContent: "center",
+                              alignItems: "center",
+                            }}
+                          >
+                            <FontAwesome5
+                              name="ellipsis-h"
+                              color="grey"
+                              size={16}
+                            />
+                          </TouchableOpacity>
                         </View>
                       </View>
                     );
@@ -133,12 +170,30 @@ class storyView extends Component {
             </ScrollView>
           )}
 
+          <Popover
+            visible={this.state.showPopover}
+            fromRect={this.state.popoverAnchor}
+            onClose={() => {
+              this.setState({ showPopover: false });
+            }}
+            useNativeDriver={true}
+            placement="bottom"
+            backgroundStyle={{ color: "transparent" }}
+            contentStyle={{ backgroundColor: "white" }}
+            arrowStyle={{ borderTopColor: "transparent" }}
+          >
+            <StatusPopup
+              navProps={this.props}
+              callClose={() => this.setState({ showPopover: false })}
+            />
+          </Popover>
+
           <TouchableWithoutFeedback>
             <View style={styles.bottomButton}>
               <FontAwesome5
                 name="camera"
                 style={{
-                  color: 'white',
+                  color: "white",
                   fontSize: 20,
                 }}
               />
@@ -149,14 +204,14 @@ class storyView extends Component {
     );
   }
 }
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     theme: state.auth.theme,
     user: state.auth.user,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {};
 };
 
@@ -164,8 +219,8 @@ export default connect(mapStateToProps, mapDispatchToProps)(storyView);
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginTop: 5,
     marginHorizontal: 20,
   },
@@ -173,8 +228,8 @@ const styles = StyleSheet.create({
     width: 50,
     height: 50,
     borderRadius: 35,
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center",
   },
   profileImage: {
     width: 48,
@@ -183,12 +238,12 @@ const styles = StyleSheet.create({
   },
   infoView: {
     flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginLeft: 10,
     height: 70,
     borderBottomWidth: 1,
-    borderBottomColor: 'lightgrey',
+    borderBottomColor: "lightgrey",
   },
   nameView: {
     flex: 1,
@@ -201,25 +256,25 @@ const styles = StyleSheet.create({
     fontSize: 12,
   },
   headerView: {
-    backgroundColor: '#008069',
-    flexDirection: 'row',
-    paddingVertical: '5%',
-    alignItems: 'center',
-    justifyContent: 'space-between',
+    backgroundColor: "#008069",
+    flexDirection: "row",
+    paddingVertical: "5%",
+    alignItems: "center",
+    justifyContent: "space-between",
   },
   headerText: {
-    color: 'white',
+    color: "white",
     fontSize: 15,
   },
   bottomButton: {
-    position: 'absolute',
+    position: "absolute",
     bottom: 35,
     right: 20,
     width: 55,
     height: 55,
     borderRadius: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#008069',
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#008069",
   },
 });
