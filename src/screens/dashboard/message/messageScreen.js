@@ -80,9 +80,8 @@ class MessageScreen extends Component {
     this.chatUserOnlineStatus = [{ online_status: 1 }];
     this.typingStatus = false;
     this.navIndex = -1;
-    this.messages = [];
     this.state = {
-      // messages: [],
+      messages: [],
       // highlightIndex: 0,
       // isEdited: false,
       // keyboardOffset: new Animated.Value(0),
@@ -308,11 +307,11 @@ class MessageScreen extends Component {
       (res) => {
         if (res !== null) {
           this.setMessageAsGifted(res);
-          let ind = this.messages.findIndex(
+          let ind = this.state.messages.findIndex(
             (x) => parseInt(x._id) === parseInt(msgId)
           );
           if (ind !== -1) {
-            this.highlightIndex = this.messages[ind].id;
+            this.highlightIndex = this.state.messages[ind].id;
             this.navIndex = ind;
             // this.setState({
             //   navIndex: ind,
@@ -325,7 +324,7 @@ class MessageScreen extends Component {
 
   starCallback = (messageId, star) => {
     let dummyArray = [];
-    dummyArray = [...this.messages];
+    dummyArray = this.state.messages;
     let res = dummyArray.map((x) => {
       if (x.id == messageId) {
         return {
@@ -338,13 +337,12 @@ class MessageScreen extends Component {
         };
       }
     });
-    this.messages = res;
-    // this.setState({ messages: res });
+    this.setState({ messages: res });
   };
 
   respondLaterCallback = (messageId, replyLater) => {
     let dummyArray = [];
-    dummyArray = [...this.messages];
+    dummyArray = this.state.messages;
     let res = dummyArray.map((x) => {
       if (x.id == messageId) {
         return {
@@ -357,8 +355,7 @@ class MessageScreen extends Component {
         };
       }
     });
-    this.messages = res;
-    // this.setState({ messages: res });
+    this.setState({ messages: res });
   };
 
   setMessageAsGifted = async (
@@ -370,8 +367,6 @@ class MessageScreen extends Component {
     const { selectedUser } = this.props?.route?.params;
     let dummyArray = [];
 
-    // this.setState({ messages: [] });
-
     data.forEach((element) => {
       let message = regex.getMessages(
         element,
@@ -382,20 +377,24 @@ class MessageScreen extends Component {
     });
 
     if (isSearchedData) {
-      this.messages = dummyArray;
-      // await this.setState({ messages: dummyArray });
+      await this.setState({ messages: dummyArray });
     } else {
       if (this.isInverted) {
-        let newState = [...dummyArray, ...this.messages];
-        this.isInverted = false;
-        this.initialIndex = this.shouldSetInitialIndex ? 0 : this.initialIndex;
-        this.messages = [...dummyArray, ...this.messages];
-        // this.setState({
-        //   messages: newState,
-        // });
+        this.setState((prevState) => {
+          return {
+            messages: dummyArray.concat(prevState.messages),
+            isInverted: false,
+            initialIndex: prevState.shouldSetInitialIndex
+              ? 0
+              : prevState.initialIndex,
+          };
+        });
       } else {
-        this.messages = [...this.messages, ...dummyArray];
-        // this.setState({ messages: [...this.state.messages, ...dummyArray] });
+        this.setState((prevState) => {
+          return {
+            messages: prevState.messages.concat(dummyArray),
+          };
+        });
       }
     }
 
@@ -436,12 +435,11 @@ class MessageScreen extends Component {
                     this.props?.route?.params.selectedUser,
                     this.props.user?.user
                   );
-                  this.messages = GiftedChat.append(this.messages, [message]);
-                  // this.setState((previousState) => ({
-                  //    messages: GiftedChat.append(previousState.messages, [
-                  //     message,
-                  //   ]),
-                  // }));
+                  this.setState((previousState) => ({
+                    messages: GiftedChat.append(previousState.messages, [
+                      message,
+                    ]),
+                  }));
                   this.markMessagesAsRead([message]);
                   this.UpdateMessageRuntime(msg, message);
                 } else if (
@@ -455,12 +453,11 @@ class MessageScreen extends Component {
                     this.props?.route?.params.selectedUser,
                     this.props.user?.user
                   );
-                  this.messages = GiftedChat.append(this.messages, [message]);
-                  // this.setState((previousState) => ({
-                  //   messages: GiftedChat.append(previousState.messages, [
-                  //     message,
-                  //   ]),
-                  // }));
+                  this.setState((previousState) => ({
+                    messages: GiftedChat.append(previousState.messages, [
+                      message,
+                    ]),
+                  }));
 
                   this.UpdateMessageRuntime(msg, message);
                 }
@@ -475,18 +472,17 @@ class MessageScreen extends Component {
     socket.on("message_saved", (status) => {
       let tableName = "messages_list_table";
       MessagesQuieries.savedMessageUpdate({ tableName, status }, (res3) => {
-        for (var a = 0; a < this.messages.length; ++a) {
-          if (this.messages[a].id === status.random_id) {
-            this.messages[a].id = status.id;
-            this.messages[a]._id = status.id;
-            this.messages[a].time = status.time;
-            this.messages[a].updated_at = status.time;
-            this.messages[a].status = 0;
+        for (var a = 0; a < this.state.messages.length; ++a) {
+          if (this.state.messages[a].id === status.random_id) {
+            this.state.messages[a].id = status.id;
+            this.state.messages[a]._id = status.id;
+            this.state.messages[a].time = status.time;
+            this.state.messages[a].updated_at = status.time;
+            this.state.messages[a].status = 0;
             break;
           }
         }
-        this.messages = this.messages;
-        // this.setState({ messages: this.state.messages });
+        this.setState({ messages: this.state.messages });
 
         var data = {};
         data["user_list_sec"] = "recent";
@@ -533,37 +529,33 @@ class MessageScreen extends Component {
                   ],
                 },
               };
-              for (var a = 0; a < this.messages.length; ++a) {
-                if (this.messages[a].id === Payload?.chat?.id) {
+              for (var a = 0; a < this.state.messages.length; ++a) {
+                if (this.state.messages[a].id === Payload?.chat?.id) {
                   if (Payload.action === "edit") {
-                    this.messages[a].is_edited = Payload?.chat?.is_edited;
-                    this.messages[a].status = Payload?.chat.status;
-                    this.messages[a].message = Payload?.chat?.message;
-                    this.messages[a].type = Payload?.chat?.type;
-                    this.messages[a].updated_at = Payload?.chat?.updated_at;
-                    this.messages[a].time = Payload?.chat?.time;
+                    this.state.messages[a].is_edited = Payload?.chat?.is_edited;
+                    this.state.messages[a].status = Payload?.chat.status;
+                    this.state.messages[a].message = Payload?.chat?.message;
+                    this.state.messages[a].type = Payload?.chat?.type;
+                    this.state.messages[a].updated_at =
+                      Payload?.chat?.updated_at;
+                    this.state.messages[a].time = Payload?.chat?.time;
                     newMessageArray.data.data[0].chats[0].message =
                       Payload?.chat?.message;
                     newMessageArray.data.data[0].chats[0].type =
                       Payload?.chat?.type;
                     newMessageArray.data.data[0].chats[0].is_edited =
                       Payload?.chat?.is_edited;
-                    this.messages = this.messages;
-                    // this.setState({
-                    //   messages: this.state.messages,
-                    // });
-                    // this.isEdited = true;
-                    // this.setMessageAsGifted(this.state.messages);
-                    // this.setState({ isEdited: false });
+                    this.setState({
+                      messages: this.state.messages,
+                    });
                     this.isEdited = false;
                   } else if (Payload?.action == "acknowledge") {
-                    this.messages[a].ack_required = Payload?.chat?.ack_required;
+                    this.state.messages[a].ack_required =
+                      Payload?.chat?.ack_required;
                     newMessageArray.data.data[0].chats[0].ack_required =
                       Payload?.chat?.ack_required;
-                    // this.setState({messages: this.state.messages});
-                    // this.setMessageAsGifted(this.state.messages);
                   } else {
-                    this.messages[a].status =
+                    this.state.messages[a].status =
                       Payload?.action === "delivered"
                         ? 1
                         : Payload?.action === "seen"
@@ -571,15 +563,15 @@ class MessageScreen extends Component {
                         : Payload?.action === "delete"
                         ? 3
                         : 0;
-                    this.messages[a].updated_at = Payload?.chat?.updated_at;
-                    this.messages[a].time = Payload?.chat?.time;
-                    // this.setState({messages: this.state.messages});
-                    // this.setMessageAsGifted(this.state.messages);
+                    this.state.messages[a].updated_at =
+                      Payload?.chat?.updated_at;
+                    this.state.messages[a].time = Payload?.chat?.time;
+                    this.setState({ messages: this.state.messages });
                   }
                   break;
                 }
               }
-              this.setMessageAsGifted(this.messages);
+              this.setMessageAsGifted(this.state.messages);
               let tableName = "messages_list_table";
               let resp = newMessageArray;
               let onlineUserId = this.props.user?.user.id;
@@ -681,7 +673,9 @@ class MessageScreen extends Component {
             )
           : messages;
       let idx =
-        this.messages[0]?.idx == undefined ? 0 : this.messages[0]?.idx + 1;
+        this.state.messages[0]?.idx == undefined
+          ? 0
+          : this.state.messages[0]?.idx + 1;
       let randomId = !isEdit
         ? Math.random() + "random"
         : this.props.longPress[0].id;
@@ -736,10 +730,9 @@ class MessageScreen extends Component {
         let onlineUserId = this.props.user?.user.id;
 
         // Save in state
-        this.messages = GiftedChat.append(this.messages, [message]);
-        // this.setState((previousState) => ({
-        //   messages: GiftedChat.append(previousState.messages, [message]),
-        // }));
+        this.setState((previousState) => ({
+          messages: GiftedChat.append(previousState.messages, [message]),
+        }));
         // Send to db
         MessagesQuieries.insertAndUpdateMessageList(
           { tableName, resp, onlineUserId },
@@ -1022,7 +1015,7 @@ class MessageScreen extends Component {
 
                 <GiftedChat
                   ref={(ref) => (this.chatRef = ref)}
-                  messages={this.messages}
+                  messages={this.state.messages}
                   renderMessage={this.renderMessage.bind(this)}
                   renderInputToolbar={this.renderToolbar.bind(this)}
                   renderMediaOptions={(data) => this.renderMediaOptions(data)}
