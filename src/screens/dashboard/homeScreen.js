@@ -35,7 +35,7 @@ class homeScreen extends Component {
       routes: [
         { key: "first", title: "CHATS" },
         { key: "second", title: "STATUS" },
-        // { key: "third", title: "CALLS" },
+        { key: "third", title: "CALLS" },
       ],
     };
   }
