@@ -730,9 +730,9 @@ class MessageScreen extends Component {
         let onlineUserId = this.props.user?.user.id;
 
         // Save in state
-        this.setState((previousState) => ({
-          messages: GiftedChat.append(previousState.messages, [message]),
-        }));
+        // this.setState((previousState) => ({
+        //   messages: GiftedChat.append(previousState.messages, [message]),
+        // }));
         // Send to db
         MessagesQuieries.insertAndUpdateMessageList(
           { tableName, resp, onlineUserId },
