@@ -356,7 +356,7 @@ class DataandStorage extends Component {
           <MediaautoDownloadAndCompression
             openModal={this.state.audioCompression}
             closeBottomModel={(data) => this.CloseMediaOption()}
-            compressionsetting={this.state.compression}
+            audiocompressionsetting={this.state.compression}
             authToken={this.props.user.token}
             compressionData={(data) => this.setaudioComp(data)}
           />
@@ -365,7 +365,7 @@ class DataandStorage extends Component {
           <MediaautoDownloadAndCompression
             openModal={this.state.videoCompression}
             closeBottomModel={(data) => this.CloseMediaOption()}
-            compressionsetting={this.state.compression}
+            videocompressionsetting={this.state.compression}
             authToken={this.props.user.token}
             compressionData={(data) => this.setvideoComp(data)}
           />

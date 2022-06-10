@@ -76,7 +76,52 @@ class MediaautoDownloadAndCompression extends Component {
                   >
                     <Text style={{ fontSize: 16 }}>Uncompressed</Text>
                   </TouchableOpacity>
+                </>
+              ) : this.props.audiocompressionsetting ? (
+                <>
+                  <TouchableOpacity
+                    style={styles.statusButton}
+                    onPress={() => this.props.compressionData("low")}
+                  >
+                    <Text style={{ fontSize: 16 }}>Low</Text>
+                  </TouchableOpacity>
                   <View style={styles.bottomLine} />
+                  <TouchableOpacity
+                    style={styles.statusButton}
+                    onPress={() => this.props.compressionData("medium")}
+                  >
+                    <Text style={{ fontSize: 16 }}>Medium</Text>
+                  </TouchableOpacity>
+                  <View style={styles.bottomLine} />
+                  <TouchableOpacity
+                    style={styles.statusButton}
+                    onPress={() => this.props.compressionData("high")}
+                  >
+                    <Text style={{ fontSize: 16 }}>High</Text>
+                  </TouchableOpacity>
+                  <View style={styles.bottomLine} />
+                  <TouchableOpacity
+                    style={styles.statusButton}
+                    onPress={() => this.props.compressionData("uncompressed")}
+                  >
+                    <Text style={{ fontSize: 16 }}>Uncompressed</Text>
+                  </TouchableOpacity>
+                </>
+              ) : this.props.videocompressionsetting ? (
+                <>
+                  <TouchableOpacity
+                    style={styles.statusButton}
+                    onPress={() => this.props.compressionData("auto")}
+                  >
+                    <Text style={{ fontSize: 16 }}>Auto</Text>
+                  </TouchableOpacity>
+                  <View style={styles.bottomLine} />
+                  <TouchableOpacity
+                    style={styles.statusButton}
+                    onPress={() => this.props.compressionData("uncompressed")}
+                  >
+                    <Text style={{ fontSize: 16 }}>Uncompressed</Text>
+                  </TouchableOpacity>
                 </>
               ) : (
                 <>
@@ -110,12 +155,12 @@ class MediaautoDownloadAndCompression extends Component {
                   <View style={styles.bottomLine} />
                 </>
               )}
-              <TouchableOpacity
+              {/* <TouchableOpacity
                 style={styles.cancelButton}
                 onPress={() => this.closeModal()}
               >
                 <Text>Cancel</Text>
-              </TouchableOpacity>
+              </TouchableOpacity> */}
             </View>
           </View>
         </Modal>

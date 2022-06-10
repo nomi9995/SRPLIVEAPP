@@ -154,10 +154,7 @@ class AudioMessage extends React.PureComponent {
         } else {
           this.audioRecorderPlayer.removeRecordBackListener();
           result1 = await Audio.compress(result, {
-            quality:
-              this.props.audioCompressionQuality == "auto"
-                ? "medium"
-                : this.props.audioCompressionQuality,
+            quality: this.props.audioCompressionQuality,
           });
           audioFile1 = {
             uri: `file:///${result1.split("//")[1]}`,

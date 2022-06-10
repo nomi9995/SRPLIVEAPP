@@ -167,8 +167,8 @@ class MessageScreen extends Component {
   };
 
   componentDidUpdate = (prevProps, prevState) => {
-    if (prevState.minInputToolbarHeight != this.minInputToolbarHeight) {
-      this.chatRef.resetInputToolbar();
+    if (prevState?.minInputToolbarHeight != this.minInputToolbarHeight) {
+      this.chatRef?.resetInputToolbar();
     }
     if (this.props.navReply !== null) {
       if (prevState?.messages.length !== 0) {

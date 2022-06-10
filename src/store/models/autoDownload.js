@@ -2,7 +2,7 @@ export default {
   photo: "Always",
   video: "Always",
   docs: "Always",
-  compressionQuality: "medium",
+  compressionQuality: "auto",
   audioCompressionQuality: "medium",
-  videoCompressionQuality: "medium",
+  videoCompressionQuality: "auto",
 };

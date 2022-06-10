@@ -71,7 +71,7 @@ class MediaUpload extends Component {
   };
 
   componentDidUpdate = (previousProps, previousState) => {
-    if (this.props.mediaType != previousProps.mediaType) {
+    if (this.props?.mediaType != previousProps?.mediaType) {
       this.slectedGalleryMedia();
     }
   };
@@ -262,7 +262,6 @@ class MediaUpload extends Component {
         let formdata = new FormData();
         let selectMessageArray = [];
         let check = null;
-
         data.forEach((element) => {
           formdata.append("files[]", {
             uri: element.path,
@@ -337,7 +336,6 @@ class MediaUpload extends Component {
     let path = "";
     let imgQual = 0.7;
     let maxWidth = 800;
-    let vidQual = 4;
     let imgOptions = {};
 
     if (this.props.compressionQuality == "low") {
@@ -349,13 +347,6 @@ class MediaUpload extends Component {
     } else if (this.props.compressionQuality == "high") {
       imgQual = 0.5;
       maxWidth = 500;
-    }
-    if (this.props.videoCompressionQuality == "low") {
-      vidQual = 6;
-    } else if (this.props.videoCompressionQuality == "medium") {
-      vidQual = 4;
-    } else if (this.props.videoCompressionQuality == "auto") {
-      vidQual = 1.5;
     }
 
     for (let index = 0; index < media.length; index++) {
@@ -389,16 +380,9 @@ class MediaUpload extends Component {
         };
         compressedMedia.push(obj);
       } else if (type == "video") {
-        let vidOptions = {
-          bitrateMultiplier: vidQual,
-        };
-
         let data;
         let obj = {};
-        if (
-          this.props.videoCompressionQuality == "high" ||
-          this.props.videoCompressionQuality == "uncompressed"
-        ) {
+        if (this.props.videoCompressionQuality == "uncompressed") {
           data = path;
           obj = {
             uri: data,
@@ -406,9 +390,12 @@ class MediaUpload extends Component {
             type: element.type,
           };
         } else {
-          data = await ProcessingManager.compress(path, vidOptions);
+          let vidOptions = {
+            compressionMethod: "auto",
+          };
+          data = await Video.compress(path, vidOptions);
           obj = {
-            uri: Platform.OS == "ios" ? data : data.source,
+            uri: data,
             name: element.name,
             type: element.type,
           };
@@ -441,7 +428,6 @@ class MediaUpload extends Component {
         "Content-Type": "multipart/form-data",
       },
       onUploadProgress: (progressEvent) => {
-        console.log("progress", progressEvent);
         let { progress } = this.state;
         progress = {
           percentage: (progressEvent.loaded / progressEvent.total) * 100,
