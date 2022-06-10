@@ -1,3 +1,4 @@
+// flRef.current?.getScrollableNode()?.scrollTo({ x: 0, y: 1000, animated: true })
 import React, { Component } from "react";
 import { ScrollView, StyleSheet, Text, View } from "react-native";
 import FastImage from "react-native-fast-image";
@@ -26,7 +27,7 @@ class CallItem extends Component {
   render() {
     return (
       <ScrollView>
-        {this.state.callLogData?.map((res) => {
+        {this.state?.callLogData?.map((res) => {
           return (
             <TouchableOpacity style={styles.container}>
               <View style={[styles.profileView]}>
