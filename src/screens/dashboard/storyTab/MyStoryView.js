@@ -55,7 +55,7 @@ class storyView extends Component {
     const handle = findNodeHandle(this.button);
     if (handle) {
       NativeModules.UIManager.measure(handle, (x0, y0) => {
-        console.log(x, y, width, height);
+        // console.log(x, y, width, height);
         this.setState({
           popoverAnchor: { x, y, width, height },
         });
@@ -152,10 +152,8 @@ class storyView extends Component {
                           <TouchableOpacity
                             ref={(r) => {
                               this.button = r;
-                              console.log("ref", r);
                             }}
                             onPress={(e) => {
-                              console.log("e", e?.nativeEvent);
                               this.optionsHandler(
                                 e.nativeEvent?.locationY,
                                 e.nativeEvent?.pageY

@@ -14,6 +14,7 @@ import FastImage from "react-native-fast-image";
 import GestureRecognizer from "react-native-swipe-gestures";
 
 const WIDTH = Dimensions.get("window").width;
+const HEIGHT = Dimensions.get("window").height;
 
 class statusViewerScreen extends React.Component {
   constructor(props) {
@@ -76,7 +77,7 @@ class statusViewerScreen extends React.Component {
 
   onLoadVideo = (duration) => {
     this.setState({ loader: false });
-    this.onAnimate(true, duration * 500);
+    this.onAnimate(true, duration * 1000);
   };
   onSwipeDown = () => {
     this.props.navigation.goBack();
@@ -129,6 +130,22 @@ class statusViewerScreen extends React.Component {
               );
             })}
           </View>
+          {this.state.loader ? (
+            <View
+              style={{
+                position: "absolute",
+                zIndex: 2,
+                top: HEIGHT / 2 - 18,
+                left: WIDTH / 2 - 18,
+              }}
+            >
+              <ActivityIndicator
+                style={{ flex: 1 }}
+                size="large"
+                color="grey"
+              />
+            </View>
+          ) : null}
           {this.state?.stories.map((res, key) => {
             console.log("res", res);
             console.log("res url", res.url.replace(/ /g, "%20"));
@@ -138,8 +155,9 @@ class statusViewerScreen extends React.Component {
                   ? this.state.activeIndex === res.id && (
                       <>
                         <FastImage
+                          onProgress={() => this.setState({ loader: true })}
+                          onLoadEnd={() => this.setState({ loader: false })}
                           onLoad={(res) => {
-                            this.setState({ loader: false });
                             this.onAnimate(true);
                           }}
                           key={key}
@@ -260,9 +278,11 @@ class statusViewerScreen extends React.Component {
                           disableBack
                           onLoad={(res) => this.onLoadVideo(res.duration)}
                           onBuffer={({ isBuffering }) => {
-                            this.setState({ loader: isBuffering });
-                            if (isBuffering) {
+                            if (isBuffering == true) {
+                              this.setState({ loader: isBuffering });
                               this.state.width.stopAnimation(({ value }) => {});
+                            } else {
+                              this.setState({ loader: isBuffering });
                             }
                           }}
                           source={{
@@ -273,7 +293,7 @@ class statusViewerScreen extends React.Component {
                           paused={false}
                           style={{
                             position: "absolute",
-                            zIndex: 2,
+                            zIndex: -1,
                             top: 0,
                             left: 0,
                             bottom: 0,
@@ -301,7 +321,6 @@ class statusViewerScreen extends React.Component {
                                 this.onAnimate();
                               }}
                               onPress={() => {
-                                console.log("ssss");
                                 if (this.state.activeIndex !== 1) {
                                   this.setState({
                                     activeIndex: this.state.activeIndex - 1,
