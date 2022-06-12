@@ -1,7 +1,7 @@
 import { ConnectableObservable } from "rxjs";
 import SQLiteDB from "../connection";
 import { TableFields } from "./TableFields";
-
+import { Platform } from "react-native";
 export const ChatUsersQuieries = {
   create: (tableName) => {
     let fields = TableFields[tableName]();
@@ -395,25 +395,43 @@ export const MessagesQuieries = {
   },
 
   selectDb: (params, callback) => {
-    // console.log('paramss',params)
+    // const query=`SELECT * FROM messages_list_table where onlineUser=${params.onlineUserId} AND chatUser=${params.chatUserId} AND is_room = ${params.isroom} group by id Order by idx desc limit ${params.offset}, ${limit}`
+
+    // const query = `SELECT * FROM messages_list_table where time${
+    //   params.isAppendMessageAtBottom ? "<" : ">"
+    // }'${params.messageTime}' AND onlineUser=${
+    //   params.onlineUserId
+    // } AND chatUser=${params.chatUserId} AND is_room = ${
+    //   params.isroom
+    // } group by id Order by idx desc limit ${
+    //   params.isAppendMessageAtBottom && Platform.OS === "android" ? 5 : 40
+    // }`;
+
+    const query = `SELECT * FROM messages_list_table where idx${
+      params.idx ? "<" : ">"
+    }'${params.messageTime}' AND onlineUser=${
+      params.onlineUserId
+    } AND chatUser=${params.chatUserId} AND is_room = ${
+      params.isroom
+    } group by id Order by idx desc limit ${
+      params.idx && Platform.OS === "android" ? 5 : 40
+    }`;
+    console.log("paramss", params, query);
     let limit = 100;
     SQLiteDB().transaction((tx) => {
-      tx.executeSql(
-        `SELECT * FROM messages_list_table where onlineUser=${params.onlineUserId} AND chatUser=${params.chatUserId} AND is_room = ${params.isroom} group by id Order by idx desc limit ${params.offset}, ${limit}`,
-        [],
-        (tx, results) => {
-          var len = results.rows.length;
-          if (len > 0) {
-            var resultItemIdArr = new Array();
-            for (let i = 0; i < results.rows.length; ++i) {
-              resultItemIdArr.push(results.rows.item(i));
-            }
-          } else {
-            var resultItemIdArr = null;
+      tx.executeSql(query, [], (tx, results) => {
+        console.log(results, "resultsnominomi");
+        var len = results.rows.length;
+        if (len > 0) {
+          var resultItemIdArr = new Array();
+          for (let i = 0; i < results.rows.length; ++i) {
+            resultItemIdArr.push(results.rows.item(i));
           }
-          callback(resultItemIdArr);
+        } else {
+          var resultItemIdArr = null;
         }
-      );
+        callback(resultItemIdArr);
+      });
     });
   },
 

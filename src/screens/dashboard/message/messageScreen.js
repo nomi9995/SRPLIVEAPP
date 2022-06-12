@@ -11,6 +11,7 @@ import {
   Platform,
   TouchableOpacity,
   Alert,
+  ToastAndroid,
 } from "react-native";
 import { GiftedChat } from "react-native-gifted-chat";
 import { socket } from "../../../sockets/connection";
@@ -58,6 +59,12 @@ import ChatServices from "../../../services/ChatServices";
 
 var renderchangedate = "";
 let positionsArray;
+
+const debugLog = (value) => {
+  if (Platform.OS === "android") {
+    ToastAndroid.show(`paginationLog=>  ${value}`, 1000);
+  }
+};
 class MessageScreen extends Component {
   constructor(props) {
     super(props);
@@ -99,6 +106,8 @@ class MessageScreen extends Component {
       // shouldSetScrollIndex: false,
       // initialIndex: 0,
     };
+    this.isFirstBadgeRender = false;
+    this.isCompletedProgressiveLoad = true;
   }
 
   componentDidMount = () => {
@@ -121,9 +130,11 @@ class MessageScreen extends Component {
     //   isInverted: true,
     // });
 
-    if (this.props.route.params.screen == "seacrhTab")
+    if (this.props.route.params.screen == "seacrhTab") {
       this.getSearchOffset(this.props.route.params.selectedUser);
-    else this.calculateOffset();
+    } else {
+      this.calculateOffset();
+    }
 
     BackHandler.addEventListener("hardwareBackPress", this.hardwareBack);
 
@@ -223,7 +234,7 @@ class MessageScreen extends Component {
     // if (Platform.OS == "ios") {
     let ind = -1;
     const { selectedUser } = this.props?.route?.params;
-    positionsArray = this.props.scrollPosition;
+    positionsArray = this.props.scrollPosition || [];
 
     let chatUserId =
       selectedUser?.user_id === undefined
@@ -249,7 +260,17 @@ class MessageScreen extends Component {
     // }
   };
 
-  getAllMsgsFromDb = (isFromDownBtn = false) => {
+  getAllMsgsFromDb = (isAppendMessageAtBottom = false) => {
+    let message = "";
+    if (isAppendMessageAtBottom) {
+      if (this.state.messages.length > 0) {
+        message = this.state.messages[this.state.messages.length - 1];
+      }
+    } else {
+      if (this.state.messages.length > 0) {
+        message = this.state.messages[0];
+      }
+    }
     const { selectedUser } = this.props?.route?.params;
     // const { offsetBottom, isInverted } = this.state;
     const offset = this.offset;
@@ -263,12 +284,20 @@ class MessageScreen extends Component {
         : selectedUser.user_id;
     let isroom = selectedUser.is_room == 0 ? 0 : 1;
     let ofset = isInverted ? offsetBottom : offset;
-
     MessagesQuieries.selectDb(
-      { onlineUserId, chatUserId, isroom, offset: ofset },
+      {
+        onlineUserId,
+        chatUserId,
+        isroom,
+        offset: ofset,
+        messageTime: message.time,
+        isAppendMessageAtBottom,
+        idx: message.idx,
+      },
       (res2) => {
         if (res2 !== null) {
-          this.setMessageAsGifted(res2, true, false, isFromDownBtn);
+          debugLog("5");
+          this.appendMessages(res2, isAppendMessageAtBottom);
         }
       }
     );
@@ -306,6 +335,7 @@ class MessageScreen extends Component {
       { onlineUserId, chatUserId, isroom, msgId, msgSearch, offset },
       (res) => {
         if (res !== null) {
+          debugLog("6");
           this.setMessageAsGifted(res);
           let ind = this.state.messages.findIndex(
             (x) => parseInt(x._id) === parseInt(msgId)
@@ -358,12 +388,40 @@ class MessageScreen extends Component {
     this.setState({ messages: res });
   };
 
+  progressiveRenderMessageAtBottom = (messages) => {
+    const messagesLength = messages.length;
+    console.log(messagesLength, "usman", this.isCompletedProgressiveLoad);
+    if (messagesLength <= 0) {
+      this.isCompletedProgressiveLoad = true;
+      return;
+    }
+    setTimeout(() => {
+      this.setState(
+        (prevState) => {
+          return {
+            messages: messages
+              .slice(messagesLength - 5, messagesLength)
+              .concat(prevState.messages),
+          };
+        },
+        () => {
+          this.progressiveRenderMessageAtBottom(
+            messages.slice(0, Math.abs(messagesLength - 5)),
+            Math.abs(messagesLength - 5)
+          );
+        }
+      );
+    }, 500);
+  };
+
   setMessageAsGifted = async (
     data,
     isMsgReadFirst = false,
     isSearchedData = false,
     isFromDownBtn
   ) => {
+    //todonomi
+
     const { selectedUser } = this.props?.route?.params;
     let dummyArray = [];
 
@@ -380,16 +438,56 @@ class MessageScreen extends Component {
       await this.setState({ messages: dummyArray });
     } else {
       if (this.isInverted) {
-        this.setState((prevState) => {
-          return {
-            messages: dummyArray.concat(prevState.messages),
-            isInverted: false,
-            initialIndex: prevState.shouldSetInitialIndex
-              ? 0
-              : prevState.initialIndex,
-          };
-        });
+        // attaching meesages at bottom
+        const message_id = this.props?.route?.params?.selectedUser?._id;
+        const messages = dummyArray.concat(this.state.messages);
+        if (!this.isFirstBadgeRender) {
+          const foundIndex = messages.findIndex(
+            (_msg) => _msg.id === message_id
+          );
+          this.setState((prevState) => {
+            return {
+              messages: messages.slice(foundIndex),
+              // messages: dummyArray.concat(prevState.messages),
+              isInverted: false,
+              initialIndex: prevState.shouldSetInitialIndex
+                ? 0
+                : prevState.initialIndex,
+            };
+          });
+          this.isFirstBadgeRender = true;
+          this.isCompletedProgressiveLoad = false;
+          this.progressiveRenderMessageAtBottom(
+            messages.slice(foundIndex - 5, foundIndex)
+          );
+          // setTimeout(() => {
+          //   this.setState(
+          //     (prevState) => {
+          //       return {
+          //         messages: messages
+          //           .slice(foundIndex - 5, foundIndex)
+          //           .concat(prevState.messages),
+          //       };
+          //     },
+          //     () => {
+          //       setTimeout(() => {
+          //         this.setState((prevState) => {
+          //           return {
+          //             messages: messages
+          //               .slice(foundIndex - 10, foundIndex - 5)
+          //               .concat(prevState.messages),
+          //           };
+          //         });
+          //       }, 500);
+          //     }
+          //   );
+          // }, 500);
+        } else {
+          this.isCompletedProgressiveLoad = false;
+          this.progressiveRenderMessageAtBottom(messages);
+        }
       } else {
+        // attaching meesages at top
         this.setState((prevState) => {
           return {
             messages: prevState.messages.concat(dummyArray),
@@ -398,17 +496,66 @@ class MessageScreen extends Component {
       }
     }
 
-    if (isFromDownBtn) {
-      this.chatRef?._messageContainerRef?.current?.scrollToIndex({
-        index: 0,
-        animated: true,
-        viewPosition: 0,
-      });
-    }
+    // if (isFromDownBtn) {
+    //   this.chatRef?._messageContainerRef?.current?.scrollToIndex({
+    //     index: 0,
+    //     animated: true,
+    //     viewPosition: 0,
+    //   });
+    // }
 
     this.props.onSetOnLongPress([]);
     if (isMsgReadFirst) {
       this.markMessagesAsRead(dummyArray);
+    }
+  };
+
+  appendMessages = async (data, isAppendMessageAtBottom) => {
+    //todonomi
+    const { selectedUser } = this.props?.route?.params;
+    let dummyArray = [];
+
+    data.forEach((element) => {
+      let message = regex.getMessages(
+        element,
+        selectedUser,
+        this.props.user?.user
+      );
+      dummyArray.push(message);
+    });
+
+    if (isAppendMessageAtBottom) {
+      // attaching meesages at bottom
+      const message_id = this.props?.route?.params?.selectedUser?._id;
+      const messages = dummyArray.concat(this.state.messages);
+      if (!this.isFirstBadgeRender) {
+        const foundIndex = messages.findIndex((_msg) => _msg.id === message_id);
+        this.setState((prevState) => {
+          return {
+            messages: messages.slice(foundIndex),
+            // messages: dummyArray.concat(prevState.messages),
+            isInverted: false,
+            initialIndex: prevState.shouldSetInitialIndex
+              ? 0
+              : prevState.initialIndex,
+          };
+        });
+        this.isFirstBadgeRender = true;
+        this.isCompletedProgressiveLoad = false;
+        this.progressiveRenderMessageAtBottom(
+          messages.slice(foundIndex - 5, foundIndex)
+        );
+      } else {
+        this.isCompletedProgressiveLoad = false;
+        this.progressiveRenderMessageAtBottom(messages);
+      }
+    } else {
+      // attaching meesages at top
+      this.setState((prevState) => {
+        return {
+          messages: prevState.messages.concat(dummyArray),
+        };
+      });
     }
   };
 
@@ -485,8 +632,8 @@ class MessageScreen extends Component {
         this.setState({ messages: this.state.messages });
 
         var data = {};
-        data["user_list_sec"] = "recent";
-        data["current_user"] = this.props.user?.user.id;
+        data.user_list_sec = "recent";
+        data.current_user = this.props.user?.user.id;
         socket.emit("user_list", JSON.stringify(data));
         socket.on("user_list_change", async (res) => {
           ChatUsersQuieries.insertAndUpdateUserList(
@@ -571,6 +718,7 @@ class MessageScreen extends Component {
                   break;
                 }
               }
+              debugLog("7");
               this.setMessageAsGifted(this.state.messages);
               let tableName = "messages_list_table";
               let resp = newMessageArray;
@@ -740,8 +888,8 @@ class MessageScreen extends Component {
             // save to server
             socket.emit("save_message", socketMessage);
             var data = {};
-            data["user_list_sec"] = "recent";
-            data["current_user"] = this.props.user?.user.id;
+            data.user_list_sec = "recent";
+            data.current_user = this.props.user?.user.id;
             socket.emit("user_list", JSON.stringify(data));
 
             socket.on("user_list_change", (res) => {
@@ -793,14 +941,17 @@ class MessageScreen extends Component {
     if (data === "") {
       this.getAllMsgsFromDb();
     } else {
+      debugLog("1");
       this.setMessageAsGifted(data);
     }
   };
 
   filterResponse = (data) => {
     if (data == null || data.length == 0) {
+      debugLog("2");
       this.setMessageAsGifted([]);
     } else {
+      debugLog("3");
       this.setMessageAsGifted(data, false, true);
     }
   };
@@ -814,11 +965,11 @@ class MessageScreen extends Component {
       this.shouldScrollToIndex = false;
       // this.setState({ shouldScrollToIndex: false });
       setTimeout(() => {
-        this.chatRef?._messageContainerRef?.current?.scrollToIndex({
-          index: this.navIndex,
-          animated: true,
-          viewPosition: 0.5,
-        });
+        // this.chatRef?._messageContainerRef?.current?.scrollToIndex({
+        //   index: this.navIndex,
+        //   animated: true,
+        //   viewPosition: 0.5,
+        // });
       }, 500);
 
       setTimeout(() => {
@@ -890,6 +1041,7 @@ class MessageScreen extends Component {
   };
 
   messageUpdateResponse = (data) => {
+    debugLog("4");
     this.setMessageAsGifted(data);
   };
 
@@ -927,7 +1079,7 @@ class MessageScreen extends Component {
     }
 
     if (shouldSetScrollIndex) {
-      positionsArray = this.props.scrollPosition;
+      positionsArray = this.props.scrollPosition || [];
       if (positionsArray.length > 0) {
         let ind = positionsArray.findIndex(
           (x) => parseInt(x.selectedUser) === parseInt(selectedUser.user_id)
@@ -971,7 +1123,7 @@ class MessageScreen extends Component {
     const { selectedUser } = this.props?.route?.params;
     return (
       <View style={styles.container}>
-        <SafeAreaView style={{ backgroundColor: "#008069" }}></SafeAreaView>
+        <SafeAreaView style={{ backgroundColor: "#008069" }} />
         {this.props.mediaType !== null ? (
           <MediaUpload
             socketCallBack={(message, type) =>
@@ -1035,6 +1187,8 @@ class MessageScreen extends Component {
                     _id: 2,
                   }}
                   listViewProps={{
+                    showDefaultLoadingIndicators: true,
+                    activityIndicatorColor: "black",
                     disableVirtualization: true,
                     initialNumToRender: 20,
                     removeClippedSubviews: true,
@@ -1045,26 +1199,33 @@ class MessageScreen extends Component {
                         ? 0
                         : this.initialIndex,
                     },
-
+                    // reach at start
                     onEndReached: async () => {
+                      debugLog("reach at start = onEndReached ");
                       if (this.props.route.params.screen !== undefined) {
                         this.searchOffsetTop = this.searchOffsetTop + 40;
-                        // await this.setState({
-                        //   searchOffsetTop: this.state.searchOffsetTop + 40,
-                        // });
                         this.getSearchedMessages(
                           this.props.route.params.selectedUser
                         );
                       } else {
                         this.offset = this.offset + 100;
                         this.getAllMsgsFromDb();
-                        // await this.setState({
-                        //   offset: this.offset + 100,
-                        // });
+                      }
+                    },
+                    // reach at bottom
+                    onStartReached: async () => {
+                      debugLog("reach at bottom = onStartReached");
+                      if (this.isCompletedProgressiveLoad) {
+                        this.offsetBottom = this.offsetBottom - 100;
+                        this.isInverted = true;
+                        this.shouldSetInitialIndex = true;
+                        debugLog("reach at bottom = calling DB");
+                        this.getAllMsgsFromDb(true);
                       }
                     },
 
                     onScroll: async ({ nativeEvent }) => {
+                      return;
                       if (this.isCloseToBottom(nativeEvent)) {
                         if (this.props.route.params.screen !== undefined) {
                           this.searchOffsetBottom =
@@ -1075,10 +1236,11 @@ class MessageScreen extends Component {
                           //     this.state.searchOffsetBottom - 40,
                           //   isInverted: true,
                           // });
-                          if (this.searchOffsetBottom > -40)
-                            this.getSearchedMessages(
-                              this.props.route.params.selectedUser
-                            );
+                          if (this.searchOffsetBottom > -40) {
+                            // this.getSearchedMessages(
+                            //   this.props.route.params.selectedUser
+                            // );
+                          }
                         } else {
                           // await this.setState({
                           //   offsetBottom: this.state.offsetBottom - 100,
@@ -1088,7 +1250,9 @@ class MessageScreen extends Component {
                           this.offsetBottom = this.offsetBottom - 100;
                           this.isInverted = true;
                           this.shouldSetInitialIndex = true;
-                          if (this.offsetBottom > -100) this.getAllMsgsFromDb();
+                          if (this.offsetBottom > -100) {
+                            this.getAllMsgsFromDb();
+                          }
                         }
                       }
                     },

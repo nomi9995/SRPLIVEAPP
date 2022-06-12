@@ -13,8 +13,10 @@ type Item = {
   value: number,
 };
 
-const SIZE = 15;
+const SIZE = 5;
 
+const alpha = "ABCDEFGHIGKLMNOPQRSTUVWXYZ";
+console.log();
 const AddMoreButton = ({ onPress }: { onPress: () => void }) => (
   <TouchableOpacity onPress={onPress} style={styles.addMoreButton}>
     <Text style={styles.addMoreButtonText}>Add 5 items from this side</Text>
@@ -32,55 +34,23 @@ export const generateUniqueKey = () =>
   `_${Math.random().toString(36).substr(2, 9)}`;
 
 const FlatListExample = () => {
-  const [numbers, setNumbers] = useState(
-    Array.from(Array(25).keys()).map((n) => ({
-      id: generateUniqueKey(),
-      value: n,
-    }))
-  );
+  const [numbers, setNumbers] = useState([]);
 
   useEffect(() => {
     setTimeout(() => {
-      setNumbers(
-        Array.from(Array(SIZE).keys()).map((n) => ({
-          id: generateUniqueKey(),
-          value: n,
-        }))
-      );
-
+      const allNumber = Array.from(Array(15).keys()).map((n) => ({
+        id: generateUniqueKey(),
+        value: n + alpha.charAt(Math.floor(Math.random() * alpha.length)),
+      }));
+      setNumbers((prevNumber) => allNumber.slice(0, 8).concat(prevNumber));
       setTimeout(() => {
-        setNumbers((prev) => {
-          const additionalNumbers: Item[] = Array.from(Array(4).keys()).map(
-            (n) => ({
-              id: generateUniqueKey(),
-              value: n + prev[prev.length - 1].value + 1,
-            })
+        setNumbers((prevNumber) => allNumber.slice(8, 15).concat(prevNumber));
+        setTimeout(() => {
+          setNumbers((prevNumber) =>
+            allNumber.slice(15, 20).concat(prevNumber)
           );
-
-          return additionalNumbers.concat(prev);
-        });
-      }, 0);
-      setTimeout(() => {
-        setNumbers((prev) => {
-          const additionalNumbers: Item[] = Array.from(Array(4).keys()).map(
-            (n) => ({
-              id: generateUniqueKey(),
-              value: n + prev[prev.length - 1].value + 1,
-            })
-          );
-
-          return additionalNumbers.concat(prev);
-        });
-      }, 0);
-
-      setTimeout(() => {
-        setNumbers(
-          Array.from(Array(SIZE).keys()).map((n) => ({
-            id: generateUniqueKey(),
-            value: n,
-          }))
-        );
-      }, 1000);
+        }, 50);
+      }, 50);
     }, 500);
   }, []);
 
@@ -164,7 +134,7 @@ const styles = StyleSheet.create({
   },
   listItem: {
     flex: 1,
-    padding: 32,
+    padding: 24,
     justifyContent: "center",
     alignItems: "center",
     borderWidth: 8,
